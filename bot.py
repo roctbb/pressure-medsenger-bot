@@ -8,6 +8,7 @@ import hashlib, uuid
 # TODO: добавить название кнопки
 
 APP_KEY = "$2y$10$f8Tl45TiqXeE7gixr9Fske4siYRoInKkesX05btQVwRv.7hfICOMi"
+HOST = "http://localhost:8000"
 
 app = Flask(__name__)
 
@@ -136,13 +137,13 @@ def send(contract_id):
         "api_key": APP_KEY,
         "message": {
             "text": "Не забудьте померять давление сегодня.",
-            "action_link": "http://127.0.0.1:9091/frame?key={}&contract={}".format(check_key,
+            "action_link": HOST + "/frame?key={}&contract={}".format(check_key,
                                                                                    contract_id),
             "action_text": "Записать результат"
         }
     }
 
-    result = requests.post('http://localhost:8000/api/agents/message', json=data)
+    result = requests.post(HOST + '/api/agents/message', json=data)
     contracts[contract_id]['last_push'] = time.time()
     print('sent to ' + contract_id)
 
@@ -183,11 +184,11 @@ def save_message():
                 "api_key": data['key'],
                 "message": {
                     "text": "Срочно обратитесь к врачу",
-                    "action_link": "http://127.0.0.1:9091/frame?key={}&contract={}".format(contracts[contract_id]['key'], contract_id)
+                    "action_link": HOST + "/frame?key={}&contract={}".format(contracts[contract_id]['key'], contract_id)
                 }
             }
 
-            result = requests.post('http://localhost:8000/api/agents/message', json=data)
+            result = requests.post(HOST + '/api/agents/message', json=data)
     """
 
     return "ok"
