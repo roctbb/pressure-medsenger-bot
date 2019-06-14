@@ -4,11 +4,7 @@ from flask import Flask, request, render_template
 import json
 import requests
 import hashlib, uuid
-
-# TODO: добавить название кнопки
-
-APP_KEY = "$2y$10$f8Tl45TiqXeE7gixr9Fske4siYRoInKkesX05btQVwRv.7hfICOMi"
-HOST = "http://localhost:8000"
+from config import *
 
 app = Flask(__name__)
 
@@ -238,4 +234,4 @@ def action_save():
 
 t = Thread(target=sender)
 t.start()
-app.run(port='9091', host='0.0.0.0')
+app.run(port='9091', host='0.0.0.0', ssl_context=SSL)
