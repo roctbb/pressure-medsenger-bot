@@ -1,7 +1,5 @@
 import time
 from threading import Thread
-
-from pymongo import MongoClient
 from flask import Flask, request, render_template
 import json
 import requests
