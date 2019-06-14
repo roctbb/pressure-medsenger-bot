@@ -98,6 +98,9 @@ def settings():
 
     return render_template('settings.html', current_mode=current_mode)
 
+@app.route('/', methods=['GET'])
+def setting_save():
+    return 'waiting for the thunder!'
 
 @app.route('/settings', methods=['POST'])
 def setting_save():
