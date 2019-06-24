@@ -1,3 +1,4 @@
+import datetime
 import time
 from threading import Thread
 from flask import Flask, request, render_template
@@ -135,13 +136,15 @@ def send(contract_id):
             "text": "Не забудьте померять давление сегодня.",
             "action_link": HOST + "/frame?key={}&contract={}".format(check_key,
                                                                                    contract_id),
-            "action_text": "Записать результат"
+            "action_name": "Записать давление"
         }
     }
-
-    result = requests.post(HOST + '/api/agents/message', json=data)
-    contracts[contract_id]['last_push'] = time.time()
-    print('sent to ' + contract_id)
+    try:
+        result = requests.post(HOST + '/api/agents/message', json=data)
+        contracts[contract_id]['last_push'] = time.time()
+        print('sent to ' + contract_id)
+    except:
+        print('connection error')
 
     save()
 
@@ -156,6 +159,13 @@ def sender():
                 if time.time() - contract['last_push'] > 60 * 60 * 24 * 7:
                     send(contract_id)
         time.sleep(60)
+
+@app.route('/debug_getlink', methods=['GET'])
+def debug_getlink():
+    contract_id = list(contracts.keys())[0]
+    check_key = get_key()
+    contracts[contract_id]['requests'][check_key] = time.time()
+    return HOST + "/frame?key={}&contract={}".format(check_key, contract_id)
 
 
 @app.route('/message', methods=['POST'])
@@ -218,6 +228,7 @@ def action_save():
     del contracts[contract_id]['requests'][key]
 
     answer = {}
+    print(request.form)
     for param in ['AD1', 'AD2', 'PU']:
         result = request.form.get(param, '')
         if result != '' and check_digit(result):
@@ -231,7 +242,36 @@ def action_save():
     <strong>Спасибо, окно можно закрыть</strong></strong>
     """
 
+@app.route('/graph', methods=['GET'])
+def graph():
+    contract_id = request.args.get('contract', '')
+    if contract_id not in contracts:
+        print('invalid contract', contract_id, contracts.keys())
+        return "<strong>Ошибка</strong>"
+
+    AD1 = []
+    AD2 = []
+    PU = []
+    times = []
+
+    for measurment in contracts[contract_id]['measurements']:
+        AD1.append(measurment['AD1'])
+        AD2.append(measurment['AD2'])
+        PU.append(measurment['PU'])
+        t = measurment['time']
+        times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
+
+    return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU), times=json.dumps(times))
+
 
 t = Thread(target=sender)
 t.start()
-app.run(port='9091', host='0.0.0.0', ssl_context=SSL)
+if not DEBUG:
+    app.run(port='9091', host='0.0.0.0', ssl_context=SSL)
+else:
+    actions = [{
+        "name": "График давления",
+        "link": HOST + "/graph"
+    }]
+    print(json.dumps(actions))
+    app.run(port='9091', host='0.0.0.0')

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<body>
+
+<div id="ADDiv" style="width: 100%;"></div>
+
+
+<script>
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    var adtrace1 = {
+      x: {{ times|safe }},
+      y: {{ AD1| safe }},
+      name: 'Нижнее давление',
+      type: 'scatter'
+    };
+    var adtrace2 = {
+      x: {{ times| safe }},
+      y: {{ AD2 | safe }},
+      name: 'Верхнее давление',
+      type: 'scatter'
+    };
+    var data = [adtrace1, adtrace2];
+
+    setTimeout(function () {
+        Plotly.newPlot('ADDiv', data);
+    }, 1500)
+</script>
+</body>
+</html>
