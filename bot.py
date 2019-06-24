@@ -140,11 +140,11 @@ def send(contract_id):
         }
     }
     try:
-        result = requests.post(HOST + '/api/agents/message', json=data)
+        result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
         contracts[contract_id]['last_push'] = time.time()
         print('sent to ' + contract_id)
-    except:
-        print('connection error')
+    except Exception as e:
+        print('connection error', e)
 
     save()
 
