@@ -49,9 +49,9 @@ load()
 def init():
     data = request.json
 
-    if data['key'] != APP_KEY:
+    if data['api_key'] != APP_KEY:
         return 'invalid key'
-    contract_id = str(data['contract'])
+    contract_id = str(data['contract_id'])
 
     contracts[contract_id] = {
         "measurements": [],
@@ -67,9 +67,9 @@ def init():
 @app.route('/remove', methods=['POST'])
 def remove():
     data = request.json
-    contract_id = str(data['contract'])
+    contract_id = str(data['contract_id'])
 
-    if data['key'] != APP_KEY:
+    if data['api_key'] != APP_KEY:
         return 'invalid key'
     if contract_id not in contracts:
         return "<strong>Ошибка</strong>"
@@ -82,8 +82,9 @@ def remove():
 
 @app.route('/settings', methods=['GET'])
 def settings():
-    key = request.args.get('key', '')
-    contract_id = request.args.get('contract', '')
+    key = request.args.get('api_key', '')
+    print(key)
+    contract_id = request.args.get('contract_id', '')
 
     if key != APP_KEY:
         return "<strong>Ошибка</strong>"
@@ -102,8 +103,8 @@ def index():
 
 @app.route('/settings', methods=['POST'])
 def setting_save():
-    key = request.args.get('key', '')
-    contract_id = request.args.get('contract', '')
+    key = request.args.get('api_key', '')
+    contract_id = request.args.get('contract_id', '')
 
     if key != APP_KEY:
         return "<strong>Ошибка</strong>"
@@ -111,6 +112,7 @@ def setting_save():
         return "<strong>Ошибка</strong>"
 
     answer = request.form.get('mode', '')
+    print(request.form)
 
     if answer == '':
         return "<strong>Заполните форму</strong><br><a onclick='history.go(-1);'>Назад</a>"
@@ -134,15 +136,37 @@ def send(contract_id):
         "api_key": APP_KEY,
         "message": {
             "text": "Не забудьте померять давление сегодня.",
-            "action_link": HOST + "/frame?key={}&contract={}".format(check_key,
-                                                                                   contract_id),
-            "action_name": "Записать давление"
+            "action_link": "frame",
+            "action_name": "Записать давление",
+            "only_doctor": False,
         }
     }
     try:
         result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
         contracts[contract_id]['last_push'] = time.time()
         print('sent to ' + contract_id)
+    except Exception as e:
+        print('connection error', e)
+
+    save()
+
+def send_ban(contract_id):
+    check_key = get_key()
+    contracts[contract_id]['requests'][check_key] = time.time()
+
+    data = {
+        "contract": contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": "Это бан.",
+            "forward_to_doctor": False,
+            "only_doctor": False,
+        }
+    }
+    try:
+        result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
+        contracts[contract_id]['last_push'] = time.time()
+        print('ban to ' + contract_id)
     except Exception as e:
         print('connection error', e)
 
@@ -171,8 +195,8 @@ def debug_getlink():
 @app.route('/message', methods=['POST'])
 def save_message():
     data = request.json
-    key = data['key']
-    contract_id = str(data['contract'])
+    key = data['api_key']
+    contract_id = str(data['contract_id'])
 
     if key != APP_KEY:
         print('invalid key')
@@ -180,17 +204,20 @@ def save_message():
     if contract_id not in contracts:
         print('invalid contract')
         return "<strong>Ошибка</strong>"
+    if "аниме" in data['message']['text'].lower():
+        send_ban(contract_id)
+
     """
     text = data['message']['text']
 
     for word in contracts[contract_id]['keywords']:
         if word in text.lower():
             data = {
-                "contract": data['contract'],
-                "api_key": data['key'],
+                "contract": data['contract_id'],
+                "api_key": data['api_key'],
                 "message": {
                     "text": "Срочно обратитесь к врачу",
-                    "action_link": HOST + "/frame?key={}&contract={}".format(contracts[contract_id]['key'], contract_id)
+                    "action_link": HOST + "/frame?key={}&contract={}".format(contracts[contract_id]['api_key'], contract_id)
                 }
             }
 
@@ -202,30 +229,33 @@ def save_message():
 
 @app.route('/frame', methods=['GET'])
 def action():
-    key = request.args.get('key', '')
-    contract_id = str(request.args.get('contract', ''))
+    key = request.args.get('api_key', '')
+    contract_id = str(request.args.get('contract_id', ''))
 
     if contract_id not in contracts:
         print('invalid contract', contract_id, contracts.keys())
         return "<strong>Ошибка</strong>"
-    if key not in contracts[contract_id]['requests']:
-        return "<strong>Эта ссылка уже использована.</strong>"
+
+    if key != APP_KEY:
+        print('invalid key')
+        return "<strong>Ошибка</strong>"
+
 
     return render_template('measurement.html')
 
 
 @app.route('/frame', methods=['POST'])
 def action_save():
-    key = request.args.get('key', '')
-    contract_id = request.args.get('contract', '')
+    key = request.args.get('api_key', '')
+    contract_id = request.args.get('contract_id', '')
 
     if contract_id not in contracts:
         print('invalid contract', contract_id, contracts.keys())
         return "<strong>Ошибка</strong>"
-    if key not in contracts[contract_id]['requests']:
-        return "<strong>Эта ссылка уже использована.</strong>"
+    if key != APP_KEY:
+        print('invalid key')
+        return "<strong>Ошибка</strong>"
 
-    del contracts[contract_id]['requests'][key]
 
     answer = {}
     print(request.form)
@@ -244,7 +274,11 @@ def action_save():
 
 @app.route('/graph', methods=['GET'])
 def graph():
-    contract_id = request.args.get('contract', '')
+    contract_id = request.args.get('contract_id', '')
+    key = request.args.get('api_key', '')
+    if key != APP_KEY:
+        print('invalid key')
+        return "<strong>Ошибка</strong>"
     if contract_id not in contracts:
         print('invalid contract', contract_id, contracts.keys())
         return "<strong>Ошибка</strong>"
