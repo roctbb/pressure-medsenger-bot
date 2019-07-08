@@ -6,12 +6,16 @@ import json
 import requests
 import hashlib, uuid
 from config import *
+import threading
 
 app = Flask(__name__)
 
 contracts = {}
 available_modes = ['daily', 'weekly']
 
+def delayed(delay, f, args):
+    timer = threading.Timer(delay, f, args=args)
+    timer.start()
 
 def load():
     global contracts
@@ -28,15 +32,9 @@ def save():
         json.dump(contracts, f)
 
 
-def get_key():
-    salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512((APP_KEY + salt).encode('utf8')).hexdigest()
-    return str(hashed_password)
-
-
 def check_digit(number):
     try:
-        float(number)
+        int(number)
         return True
     except:
         return False
@@ -56,7 +54,10 @@ def init():
     contracts[contract_id] = {
         "measurements": [],
         "mode": "daily",
-        "requests": {},
+        "min_AD1": 111,
+        "max_AD1": 135,
+        "min_AD2": 78,
+        "max_AD2": 86,
         "last_push": -1
     }
     save()
@@ -87,19 +88,17 @@ def settings():
     contract_id = request.args.get('contract_id', '')
 
     if key != APP_KEY:
-        return "<strong>Ошибка</strong>"
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
-        print(contracts)
-        print(contract_id)
-        return "<strong>Ошибка not in contracts</strong>"
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
-    current_mode = contracts[contract_id]['mode']
+    return render_template('settings.html', contract=contracts[contract_id])
 
-    return render_template('settings.html', current_mode=current_mode)
 
 @app.route('/', methods=['GET'])
 def index():
     return 'waiting for the thunder!'
+
 
 @app.route('/settings', methods=['POST'])
 def setting_save():
@@ -107,32 +106,38 @@ def setting_save():
     contract_id = request.args.get('contract_id', '')
 
     if key != APP_KEY:
-        return "<strong>Ошибка</strong>"
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
-        return "<strong>Ошибка</strong>"
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
     answer = request.form.get('mode', '')
-    print(request.form)
+    min_AD1 = request.form.get('min_AD1', '')
+    min_AD2 = request.form.get('min_AD2', '')
+    max_AD1 = request.form.get('max_AD1', '')
+    max_AD2 = request.form.get('max_AD2', '')
 
-    if answer == '':
-        return "<strong>Заполните форму</strong><br><a onclick='history.go(-1);'>Назад</a>"
-
-    if answer not in available_modes:
-        return "<strong>Ошибка</strong>"
+    if answer not in available_modes or False in map(check_digit, [min_AD1, min_AD2, max_AD1, max_AD2]):
+        return "<strong>Ошибки при заполнении формы.</strong> Пожалуйста, что все поля заполнены.<br><a onclick='history.go(-1);'>Назад</a>"
 
     contracts[contract_id]['mode'] = answer
+    contracts[contract_id]['min_AD1'] = int(min_AD1)
+    contracts[contract_id]['min_AD2'] = int(min_AD2)
+    contracts[contract_id]['max_AD1'] = int(max_AD1)
+    contracts[contract_id]['max_AD2'] = int(max_AD2)
+
+    print(request.form)
+    print(contracts[contract_id])
 
     save()
 
-    return 'ok'
+    return """
+        <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal','*');</script>
+        """
 
 
 def send(contract_id):
-    check_key = get_key()
-    contracts[contract_id]['requests'][check_key] = time.time()
-
     data = {
-        "contract": contract_id,
+        "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
             "text": "Не забудьте померять давление сегодня.",
@@ -150,12 +155,10 @@ def send(contract_id):
 
     save()
 
-def send_ban(contract_id):
-    check_key = get_key()
-    contracts[contract_id]['requests'][check_key] = time.time()
 
+def send_ban(contract_id):
     data = {
-        "contract": contract_id,
+        "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
             "text": "Это бан.",
@@ -164,13 +167,40 @@ def send_ban(contract_id):
         }
     }
     try:
-        result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
-        contracts[contract_id]['last_push'] = time.time()
+        requests.post(MAIN_HOST + '/api/agents/message', json=data)
         print('ban to ' + contract_id)
     except Exception as e:
         print('connection error', e)
 
     save()
+
+
+def send_warning(contract_id, a, b):
+    data1 = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": "Ваше давление ({} / {}) выходит за допустимый диапазон. Мы уже направили уведомление вашему врачу.".format(
+                a, b),
+            "is_urgent": True,
+        }
+    }
+
+    data2 = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": "Давление пауиента ({} / {}) выходит за допустимый диапазон.".format(a, b),
+            "is_urgent": True,
+            "only_doctor": True
+        }
+    }
+    try:
+        print('sending')
+        result1 = requests.post(MAIN_HOST + '/api/agents/message', json=data1)
+        result1 = requests.post(MAIN_HOST + '/api/agents/message', json=data2)
+    except Exception as e:
+        print('connection error', e)
 
 
 def sender():
@@ -184,13 +214,6 @@ def sender():
                     send(contract_id)
         time.sleep(60)
 
-@app.route('/debug_getlink', methods=['GET'])
-def debug_getlink():
-    contract_id = list(contracts.keys())[0]
-    check_key = get_key()
-    contracts[contract_id]['requests'][check_key] = time.time()
-    return HOST + "/frame?key={}&contract={}".format(check_key, contract_id)
-
 
 @app.route('/message', methods=['POST'])
 def save_message():
@@ -199,30 +222,12 @@ def save_message():
     contract_id = str(data['contract_id'])
 
     if key != APP_KEY:
-        print('invalid key')
-        return "<strong>Ошибка</strong>"
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
-        print('invalid contract')
-        return "<strong>Ошибка</strong>"
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+
     if "аниме" in data['message']['text'].lower():
-        send_ban(contract_id)
-
-    """
-    text = data['message']['text']
-
-    for word in contracts[contract_id]['keywords']:
-        if word in text.lower():
-            data = {
-                "contract": data['contract_id'],
-                "api_key": data['api_key'],
-                "message": {
-                    "text": "Срочно обратитесь к врачу",
-                    "action_link": HOST + "/frame?key={}&contract={}".format(contracts[contract_id]['api_key'], contract_id)
-                }
-            }
-
-            result = requests.post(HOST + '/api/agents/message', json=data)
-    """
+        delayed(1, send_ban, [contract_id])
 
     return "ok"
 
@@ -232,14 +237,10 @@ def action():
     key = request.args.get('api_key', '')
     contract_id = str(request.args.get('contract_id', ''))
 
-    if contract_id not in contracts:
-        print('invalid contract', contract_id, contracts.keys())
-        return "<strong>Ошибка</strong>"
-
     if key != APP_KEY:
-        print('invalid key')
-        return "<strong>Ошибка</strong>"
-
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
+    if contract_id not in contracts:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
     return render_template('measurement.html')
 
@@ -249,39 +250,44 @@ def action_save():
     key = request.args.get('api_key', '')
     contract_id = request.args.get('contract_id', '')
 
-    if contract_id not in contracts:
-        print('invalid contract', contract_id, contracts.keys())
-        return "<strong>Ошибка</strong>"
     if key != APP_KEY:
-        print('invalid key')
-        return "<strong>Ошибка</strong>"
-
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
+    if contract_id not in contracts:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
     answer = {}
-    print(request.form)
+    AD1 = request.form.get('AD1', '')
+    AD2 = request.form.get('AD2', '')
+    PU = request.form.get('PU', '')
+
+    if False in map(check_digit, [AD1, AD2, PU]):
+        return "<strong>Ошибки при заполнении формы.</strong> Пожалуйста, что все поля заполнены.<br><a onclick='history.go(-1);'>Назад</a>"
     for param in ['AD1', 'AD2', 'PU']:
         result = request.form.get(param, '')
-        if result != '' and check_digit(result):
-            answer[param] = float(result)
+        answer[param] = int(result)
     answer['time'] = time.time()
+
+    if not (contracts[contract_id]['min_AD1'] <= answer['AD1'] <= contracts[contract_id]['max_AD1'] and
+            contracts[contract_id]['min_AD2'] <= answer['AD2'] <= contracts[contract_id]['max_AD2']):
+        delayed(1, send_warning, [contract_id, AD1, AD2])
 
     contracts[contract_id]['measurements'].append(answer)
     save()
 
     return """
-    <strong>Спасибо, окно можно закрыть</strong></strong>
+    <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal','*');</script>
     """
+
 
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = request.args.get('contract_id', '')
     key = request.args.get('api_key', '')
+
     if key != APP_KEY:
-        print('invalid key')
-        return "<strong>Ошибка</strong>"
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
-        print('invalid contract', contract_id, contracts.keys())
-        return "<strong>Ошибка</strong>"
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
     AD1 = []
     AD2 = []
@@ -295,7 +301,8 @@ def graph():
         t = measurment['time']
         times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
 
-    return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU), times=json.dumps(times))
+    return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU),
+                           times=json.dumps(times))
 
 
 t = Thread(target=sender)
