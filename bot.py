@@ -190,7 +190,7 @@ def send_warning(contract_id, a, b):
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": "Давление пауиента ({} / {}) выходит за допустимый диапазон.".format(a, b),
+            "text": "Давление пациента ({} / {}) выходит за допустимый диапазон.".format(a, b),
             "is_urgent": True,
             "only_doctor": True
         }
