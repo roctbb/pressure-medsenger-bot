@@ -131,7 +131,7 @@ def setting_save():
     save()
 
     return """
-        <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal','*');</script>
+        <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
         """
 
 
@@ -183,6 +183,7 @@ def send_warning(contract_id, a, b):
             "text": "Ваше давление ({} / {}) выходит за допустимый диапазон. Мы уже направили уведомление вашему врачу.".format(
                 a, b),
             "is_urgent": True,
+            "only_patient": True,
         }
     }
 
@@ -192,7 +193,8 @@ def send_warning(contract_id, a, b):
         "message": {
             "text": "Давление пациента ({} / {}) выходит за допустимый диапазон.".format(a, b),
             "is_urgent": True,
-            "only_doctor": True
+            "only_doctor": True,
+            "need_answer": True
         }
     }
     try:
@@ -275,7 +277,7 @@ def action_save():
     save()
 
     return """
-    <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal','*');</script>
+    <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
     """
 
 
