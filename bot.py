@@ -11,7 +11,7 @@ import threading
 app = Flask(__name__)
 
 contracts = {}
-available_modes = ['daily', 'weekly']
+available_modes = ['daily', 'weekly', 'none']
 
 def delayed(delay, f, args):
     timer = threading.Timer(delay, f, args=args)
