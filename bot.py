@@ -140,7 +140,7 @@ def send(contract_id):
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": "Не забудьте померять давление сегодня.",
+            "text": "Не забудьте померить давление сегодня.",
             "action_link": "frame",
             "action_name": "Записать давление",
             "only_doctor": False,
