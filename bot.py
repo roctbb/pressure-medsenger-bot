@@ -143,6 +143,7 @@ def send(contract_id):
             "text": "Не забудьте померить давление сегодня.",
             "action_link": "frame",
             "action_name": "Записать давление",
+            "action_onetime": True,
             "only_doctor": False,
         }
     }
