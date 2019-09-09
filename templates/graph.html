@@ -29,9 +29,9 @@
       type: 'scatter'
     };
     var data = [adtrace1, adtrace2];
-
+    var layout = {showlegend: false};
     setTimeout(function () {
-        Plotly.newPlot('ADDiv', data);
+        Plotly.newPlot('ADDiv', data, layout);
     }, 1500)
 </script>
 </body>
