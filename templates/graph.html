@@ -29,10 +29,10 @@
       type: 'scatter'
     };
     var data = [adtrace1, adtrace2];
-    var mmargin = {l: 0,r: 0,b: 0,t: 3,pad: 0};
+    var mmargin = {l: 15,r: 3};
     var mlegend = {
     orientation: 'h', traceorder: 'reversed', x: -.1, y: 1.2 };
-    var layout = {showlegend: true, legend: mlegend};
+    var layout = {showlegend: true, legend: mlegend, margin: mmargin};
     setTimeout(function () {
         Plotly.newPlot('ADDiv', data, layout);
     }, 1500)
