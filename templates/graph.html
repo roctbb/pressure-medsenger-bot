@@ -29,7 +29,8 @@
       type: 'scatter'
     };
     var data = [adtrace1, adtrace2];
-    var layout = {showlegend: false};
+    var mmargin = {l: 0,r: 0,b: 0,t: 3,pad: 0};
+    var layout = {showlegend: false, margin: mmargin};
     setTimeout(function () {
         Plotly.newPlot('ADDiv', data, layout);
     }, 1500)
