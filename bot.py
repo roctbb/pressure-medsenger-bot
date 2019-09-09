@@ -13,9 +13,11 @@ app = Flask(__name__)
 contracts = {}
 available_modes = ['daily', 'weekly', 'none']
 
+
 def delayed(delay, f, args):
     timer = threading.Timer(delay, f, args=args)
     timer.start()
+
 
 def load():
     global contracts
@@ -145,31 +147,13 @@ def send(contract_id):
             "action_name": "Записать давление",
             "action_onetime": True,
             "only_doctor": False,
+            "only_patient": True,
         }
     }
     try:
         result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
         contracts[contract_id]['last_push'] = time.time()
         print('sent to ' + contract_id)
-    except Exception as e:
-        print('connection error', e)
-
-    save()
-
-
-def send_ban(contract_id):
-    data = {
-        "contract_id": contract_id,
-        "api_key": APP_KEY,
-        "message": {
-            "text": "Это бан.",
-            "forward_to_doctor": False,
-            "only_doctor": False,
-        }
-    }
-    try:
-        requests.post(MAIN_HOST + '/api/agents/message', json=data)
-        print('ban to ' + contract_id)
     except Exception as e:
         print('connection error', e)
 
@@ -228,9 +212,6 @@ def save_message():
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
-
-    if "аниме" in data['message']['text'].lower():
-        delayed(1, send_ban, [contract_id])
 
     return "ok"
 
@@ -310,12 +291,9 @@ def graph():
 
 t = Thread(target=sender)
 t.start()
-if not DEBUG:
-    app.run(port='9091', host='0.0.0.0', ssl_context=SSL)
-else:
-    actions = [{
-        "name": "График давления",
-        "link": HOST + "/graph"
-    }]
-    print(json.dumps(actions))
-    app.run(port='9091', host='0.0.0.0')
+actions = [{
+    "name": "График давления",
+    "link": HOST + "/graph"
+}]
+print(json.dumps(actions))
+app.run(port='9091', host='0.0.0.0')
