@@ -32,6 +32,16 @@
         fill:'tonexty',
         mode: 'lines',
         type: 'scatter',
+        line: {color:'#00AA00'},
+        opacity: 0,
+        name: 'Опасный уровень',
+    };
+    var trace2 = {
+        x: {{end_dates|safe}},
+        y: [300,300],
+        fill:'tonexty',
+        mode: 'lines',
+        type: 'scatter',
         line: {color:'#F2734C'},
         opacity: 0,
         name: 'Опасный уровень',
@@ -51,7 +61,7 @@
       name: 'Нижнее давление',
       type: 'scatter'
     };
-    var data = [trace1, trace2, adtrace1, adtrace2];
+    var data = [trace1, trace2, trace3, adtrace1, adtrace2];
     var mmargin = {l: 0,r: 4, pad: 0};
     var mlegend = {
     orientation: 'h', traceorder: 'reversed', x: -.1, y: 1.2 };
