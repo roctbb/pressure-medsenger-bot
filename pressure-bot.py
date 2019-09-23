@@ -286,7 +286,7 @@ def graph():
         times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
 
     return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU),
-                           times=json.dumps(times))
+                           times=json.dumps(times), end_dates=json.dumps([times[0], times[-1]]), l_level=contracts[contract_id]['min_AD2'], u_level=contracts[contract_id]['max_AD1'])
 
 
 t = Thread(target=sender)
