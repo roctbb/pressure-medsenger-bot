@@ -65,7 +65,7 @@
     var mmargin = {l: 0,r: 4, pad: 0};
     var mlegend = {
     orientation: 'h', traceorder: 'reversed', x: -.1, y: 1.2 };
-    var layout = {showlegend: true, legend: mlegend, margin: mmargin};
+    var layout = {showlegend: true, legend: mlegend, margin: mmargin, yaxis: {range: [40,220]}};
     setTimeout(function () {
         Plotly.newPlot('ADDiv', data, layout);
     }, 1500)
