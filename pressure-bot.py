@@ -111,12 +111,14 @@ def setting_save():
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if contract_id not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    print(request.form)
+    data = json.loads(request.form.get('json'))
 
-    answer = request.form.get('mode', '')
-    min_AD1 = request.form.get('min_AD1', '')
-    min_AD2 = request.form.get('min_AD2', '')
-    max_AD1 = request.form.get('max_AD1', '')
-    max_AD2 = request.form.get('max_AD2', '')
+    answer = data.get('mode', '')
+    min_AD1 = data.get('min_AD1', '')
+    min_AD2 = data.get('min_AD2', '')
+    max_AD1 = data.get('max_AD1', '')
+    max_AD2 = data.get('max_AD2', '')
 
     if answer not in available_modes or False in map(check_digit, [min_AD1, min_AD2, max_AD1, max_AD2]):
         return "<strong>Ошибки при заполнении формы.</strong> Пожалуйста, что все поля заполнены.<br><a onclick='history.go(-1);'>Назад</a>"
@@ -127,14 +129,12 @@ def setting_save():
     contracts[contract_id]['max_AD1'] = int(max_AD1)
     contracts[contract_id]['max_AD2'] = int(max_AD2)
 
-    print(request.form)
+
     print(contracts[contract_id])
 
     save()
 
-    return """
-        <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
-        """
+    return "ok"
 
 
 def send(contract_id):
@@ -296,4 +296,4 @@ actions = [{
     "link": HOST + "/graph"
 }]
 print(json.dumps(actions))
-app.run(port='9091', host='0.0.0.0')
+app.run(port='9091', host='0.0.0.0', debug=True)

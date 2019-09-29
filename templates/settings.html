@@ -11,9 +11,9 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-<div class="container" style="margin-top: 15px;">
+<div class="container" style="margin-top: 15px;" id="app">
     <h4>Настройка канала консультирования</h4>
-    <form method="POST">
+    <form v-on:submit.prevent="save">
         <div class="form-group">
             <label for="bot-settings-mode">Частота рассылки опросника:</label>
             <select class="form-control" id="bot-settings-mode" name="mode">
@@ -25,28 +25,129 @@
         <div class="form-group">
             <label for="bot-min-AD1">Минимальное значение давления:</label><br>
             <input type="number" class="form-control" name="min_AD1" id="bot-min-AD1"
-                   style="width: 45%; display: inline;" value="{{ contract['min_AD1'] }}"> /
+                   style="width: 45%; display: inline;" v-model="min_AD1"> /
             <input type="number" class="form-control" name="min_AD2" id="bot-min-AD2"
-                    style="width: 45%; display: inline;" value="{{ contract['min_AD2'] }}">
+                   style="width: 45%; display: inline;" v-model="min_AD2">
         </div>
 
         <div class="form-group">
             <label for="bot-max-AD1">Максимальное значение давления:</label><br>
             <input type="number" class="form-control" name="max_AD1" id="bot-max-AD1"
-                   style="width: 45%; display: inline;" value="{{ contract['max_AD1'] }}"> /
+                   style="width: 45%; display: inline;" v-model="max_AD1"> /
             <input type="number" class="form-control" name="max_AD2" id="bot-max-AD2"
-                    style="width: 45%; display: inline;" value="{{ contract['max_AD2'] }}">
+                   style="width: 45%; display: inline;" v-model="max_AD2">
         </div>
+
+
+        <table class="table">
+            <tr>
+                <th style="width: 30%;">Препарат</th>
+                <th>Время приема <a class="btn btn-sm btn-success float-right" style="color: white;"
+                                    v-on:click="add_medicine">Добавить лекарство</a></th>
+            </tr>
+            <tr v-for="(medicine, index) in medicines">
+                <td>
+                    <input type="text" class="form-control" v-model="medicine.name">
+                    <a href="#" v-on:click="$delete(medicines, index)">
+                        <small>Удалить</small>
+                    </a>
+                </td>
+                <td>
+                    <ul>
+                        <li v-for="(record, index) in medicine.timetable">
+                            <select class="form-control form-control-sm" style="width: 30%; display: inline;"
+                                    v-model="record.day">
+                                <option value="1">ПН</option>
+                                <option value="2">ВТ</option>
+                                <option value="3">СР</option>
+                                <option value="4">ЧТ</option>
+                                <option value="5">ПТ</option>
+                                <option value="6">СБ</option>
+                                <option value="7">ВС</option>
+                            </select>
+
+                            <input type="text" style="width: 40%; display: inline;" class="form-control form-control-sm"
+                                   v-model="record.time"/>
+
+                            <a href="#" v-on:click="$delete(medicine.timetable, index)">
+                                <small>Удалить</small>
+                            </a>
+                        </li>
+                        <a href="#" v-on:click="add_day(medicine.timetable)">
+                            <small>Добавить</small>
+                        </a>
+                    </ul>
+                </td>
+            </tr>
+
+        </table>
 
         <div class="form-group">
             <input type="submit" class="btn-success btn" value="Сохранить"/>
         </div>
-
-        <script>
-            var val = '{{contract["mode"]}}';
-            $("select option[value=" + val + "]").attr('selected', 'true')
-        </script>
+        <!--
+                <script>
+                    var val = '{{contract["mode"]}}';
+                    $("select option[value=" + val + "]").attr('selected', 'true')
+                </script>-->
     </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            min_AD1: "{{ contract['min_AD1'] }}",
+            min_AD2: "{{ contract['min_AD2'] }}",
+            max_AD1: "{{ contract['max_AD1'] }}",
+            max_AD2: "{{ contract['max_AD2'] }}",
+            mode: "{{contract['mode']}}",
+            medicines: [],
+        },
+        methods: {
+            add_medicine: function () {
+                this.medicines.push({
+                    "name": "",
+                    "timetable": [{"day": "1", "time": "12:00"}]
+                });
+            },
+            add_day: function (record) {
+                record.push({"day": "1", "time": "12:00"});
+            },
+            save: function () {
+                this.medicines = this.medicines.filter(function (item) {
+                    return item["name"] != "";
+                });
+
+                axios.post(location.href, {
+                    "json": JSON.stringify({
+                        min_AD1: this.min_AD1,
+                        min_AD2: this.min_AD2,
+                        max_AD1: this.max_AD1,
+                        max_AD2: this.max_AD2,
+                        mode: this.mode,
+                        medicines: this.medicines,
+                    })
+                }).then(function (response) {
+                    if (response.data == 'ok')
+                    {
+                        window.parent.postMessage('close-modal-success','*');
+                    }
+                    else {
+                        alert("Заполните все поля!");
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+                return false;
+            }
+
+        },
+        delimiters: ['${', '}']
+    })
+</script>
 </body>
 </html>
