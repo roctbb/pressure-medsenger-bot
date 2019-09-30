@@ -157,8 +157,8 @@ def send_medicine(contract_id, medicine):
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": f"Не забудьте принять лекарство, назначенное врачом: {medicine['name']}.",
-            "action_link": f"medicine/{medicine['uid']}",
+            "text": "Не забудьте принять лекарство, назначенное врачом: {}.".format(medicine['name']),
+            "action_link": "medicine/{}".format(medicine['uid']),
             "action_name": "Лекарство принято",
             "action_onetime": True,
             "action_deadline": int(time.time()) + 3 * 60 * 60,
