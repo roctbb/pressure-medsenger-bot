@@ -244,11 +244,11 @@ def sender():
             for medicine in contract['medicines']:
                 for record in medicine['timetable']:
                     if hour == record['hour'] and weekday == record['day'] and time.time() - contract[
-                        'last_medicine_sends'].get(medicine['uid'], 0) > 60 * 60:
+                        'last_medicine_sends'].get(medicine['uid'], 0) >= 60 * 60:
                         send_medicine(contract_id, medicine)
                         contract['last_medicine_sends'][medicine['uid']] = int(time.time())
                         save()
-        time.sleep(60 * 60)
+        time.sleep(60)
 
 
 @app.route('/message', methods=['POST'])
