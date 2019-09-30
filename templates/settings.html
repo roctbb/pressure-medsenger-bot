@@ -16,7 +16,7 @@
     <form v-on:submit.prevent="save">
         <div class="form-group">
             <label for="bot-settings-mode">Частота рассылки опросника:</label>
-            <select class="form-control" id="bot-settings-mode" name="mode">
+            <select class="form-control" id="bot-settings-mode" v-model="mode">
                 <option value="daily">Ежедневно</option>
                 <option value="weekly">Еженедельно</option>
             </select>
@@ -66,11 +66,11 @@
                                 <option value="7">ВС</option>
                             </select>
 
-                            <input type="text" style="width: 40%; display: inline;" class="form-control form-control-sm"
-                                   v-model="record.time"/>
+                            <input type="text" style="width: 30%; display: inline;" class="form-control form-control-sm"
+                                   v-model="record.hour"/> :00
 
                             <a href="#" v-on:click="$delete(medicine.timetable, index)">
-                                <small>Удалить</small>
+                                <small>&nbsp;&nbsp;Удалить</small>
                             </a>
                         </li>
                         <a href="#" v-on:click="add_day(medicine.timetable)">
@@ -105,17 +105,17 @@
             max_AD1: "{{ contract['max_AD1'] }}",
             max_AD2: "{{ contract['max_AD2'] }}",
             mode: "{{contract['mode']}}",
-            medicines: [],
+            medicines: JSON.parse('{{medicines_json | safe }}'),
         },
         methods: {
             add_medicine: function () {
                 this.medicines.push({
                     "name": "",
-                    "timetable": [{"day": "1", "time": "12:00"}]
+                    "timetable": [{"day": 1, "hour": 12}]
                 });
             },
             add_day: function (record) {
-                record.push({"day": "1", "time": "12:00"});
+                record.push({"day": 1, "hour": 12});
             },
             save: function () {
                 this.medicines = this.medicines.filter(function (item) {

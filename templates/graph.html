@@ -47,6 +47,18 @@
         name: 'Опасный уровень',
     };
 
+    var tmedicines = {
+        x: {{medicines_times|safe}},
+        y: {{medicines_x|safe}},
+        text: {{medicines_names|safe}},
+        type: 'scatter',
+        mode: 'markers',
+        marker: {
+            size: 16
+          },
+        name: 'Лекарства',
+    };
+
 
 
     var adtrace1 = {
@@ -69,7 +81,7 @@
         size: 8
       }
     };
-    var data = [trace1, trace2, trace3, adtrace1, adtrace2];
+    var data = [trace1, trace2, trace3, adtrace1, adtrace2, tmedicines];
     var mmargin = {l: 0,r: 4, pad: 0};
     var mlegend = {
     orientation: 'h', traceorder: 'reversed', x: -.1, y: 1.2 };

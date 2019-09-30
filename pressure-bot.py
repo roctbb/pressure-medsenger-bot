@@ -24,6 +24,15 @@ def load():
     try:
         with open('data.json', 'r') as f:
             contracts = json.load(f)
+
+        # updater
+        for contract in contracts:
+            if "medicines" not in contract:
+                contract["medicines"] = []
+            if "done_medicines" not in contract:
+                contract["done_medicines"] = []
+            if "last_medicine_sends" not in contract:
+                contract["done_medicines"] = {}
     except:
         save()
 
@@ -60,6 +69,9 @@ def init():
         "max_AD1": 135,
         "min_AD2": 78,
         "max_AD2": 86,
+        "medicines": [],
+        "done_medicines": [],
+        "last_medicine_sends": {},
         "last_push": -1
     }
     save()
@@ -94,7 +106,8 @@ def settings():
     if contract_id not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
-    return render_template('settings.html', contract=contracts[contract_id])
+    return render_template('settings.html', contract=contracts[contract_id],
+                           medicines_json=json.dumps(contracts[contract_id]['medicines']))
 
 
 @app.route('/', methods=['GET'])
@@ -124,17 +137,42 @@ def setting_save():
         return "<strong>Ошибки при заполнении формы.</strong> Пожалуйста, что все поля заполнены.<br><a onclick='history.go(-1);'>Назад</a>"
 
     contracts[contract_id]['mode'] = answer
+    contracts[contract_id]['medicines'] = data.get('medicines', [])
     contracts[contract_id]['min_AD1'] = int(min_AD1)
     contracts[contract_id]['min_AD2'] = int(min_AD2)
     contracts[contract_id]['max_AD1'] = int(max_AD1)
     contracts[contract_id]['max_AD2'] = int(max_AD2)
 
-
-    print(contracts[contract_id])
+    for record in contracts[contract_id]['medicines']:
+        if "uid" not in record:
+            record["uid"] = str(uuid.uuid4())
 
     save()
 
     return "ok"
+
+
+def send_medicine(contract_id, medicine):
+    data = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": f"Не забудьте принять лекарство, назначенное врачом: {medicine['name']}.",
+            "action_link": f"medicine/{medicine['uid']}",
+            "action_name": "Лекарство принято",
+            "action_onetime": True,
+            "action_deadline": int(time.time()) + 3 * 60 * 60,
+            "only_doctor": False,
+            "only_patient": True,
+        }
+    }
+    try:
+        result = requests.post(MAIN_HOST + '/api/agents/message', json=data)
+        print('medicine sent to ' + contract_id)
+    except Exception as e:
+        print('connection error', e)
+
+    save()
 
 
 def send(contract_id):
@@ -192,6 +230,8 @@ def send_warning(contract_id, a, b):
 
 def sender():
     while True:
+        weekday = datetime.datetime.today().weekday() + 1
+        hour = datetime.datetime.today().hour
         for contract_id, contract in contracts.items():
             if contract['mode'] == 'daily':
                 if time.time() - contract['last_push'] > 60 * 60 * 24:
@@ -199,7 +239,15 @@ def sender():
             if contract['mode'] == 'weekly':
                 if time.time() - contract['last_push'] > 60 * 60 * 24 * 7:
                     send(contract_id)
-        time.sleep(60)
+
+            for medicine in contract['medicines']:
+                for record in medicine['timetable']:
+                    if hour == record['hour'] and weekday == record['day'] and time.time() - contract[
+                        'last_medicine_sends'].get(medicine['uid'], 0) > 60 * 60:
+                        send_medicine(contract_id, medicine)
+                        contract['last_medicine_sends'][medicine['uid']] = int(time.time())
+                        save()
+        time.sleep(60 * 60)
 
 
 @app.route('/message', methods=['POST'])
@@ -214,6 +262,29 @@ def save_message():
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
     return "ok"
+
+
+@app.route('/medicine/<uid>', methods=['GET'])
+def medicine_done(uid):
+    key = request.args.get('api_key', '')
+    contract_id = str(request.args.get('contract_id', ''))
+
+    if key != APP_KEY:
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
+    if contract_id not in contracts:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+
+    medicines = list(filter(lambda m: m['uid'] == uid, contracts[contract_id]['medicines']))
+    if medicines:
+        contracts[contract_id]['done_medicines'].append({
+            "name": medicines[0]['name'],
+            "time": int(time.time())
+        })
+        save()
+
+    return """
+        <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
+        """
 
 
 @app.route('/frame', methods=['GET'])
@@ -278,6 +349,10 @@ def graph():
     PU = []
     times = []
 
+    mx = []
+    medicines_names = []
+    medicines_times = []
+
     for measurment in contracts[contract_id]['measurements']:
         AD1.append(measurment['AD1'])
         AD2.append(measurment['AD2'])
@@ -285,8 +360,20 @@ def graph():
         t = measurment['time']
         times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
 
-    return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU),
-                           times=json.dumps(times), end_dates=json.dumps([times[0], times[-1]]), l_level=contracts[contract_id]['min_AD2'], u_level=contracts[contract_id]['max_AD1'])
+    for medicine in contracts[contract_id]['done_medicines']:
+        mx.append(50)
+        medicines_names.append(medicine['name'])
+        medicines_times.append(datetime.datetime.fromtimestamp(medicine["time"]).strftime("%Y-%m-%d %H:%M:%S"))
+
+    if len(times) > 0:
+        end_left = datetime.datetime.fromtimestamp(contracts[contract_id]['measurements'][0]['time'] - 60 * 60 * 12).strftime("%Y-%m-%d %H:%M:%S")
+        end_right = datetime.datetime.fromtimestamp(contracts[contract_id]['measurements'][-1]['time'] + 60 * 60 * 12).strftime("%Y-%m-%d %H:%M:%S")
+        return render_template('graph.html', AD1=json.dumps(AD1), AD2=json.dumps(AD2), PU=json.dumps(PU),
+                               times=json.dumps(times), end_dates=json.dumps([end_left, end_right]),
+                               l_level=contracts[contract_id]['min_AD2'], u_level=contracts[contract_id]['max_AD1'],
+                               medicines_x=json.dumps(mx), medicines_names=str(medicines_names), medicines_times=json.dumps(medicines_times))
+    else:
+        return "<strong>Измерений еще не проводилось.</strong>"
 
 
 t = Thread(target=sender)
