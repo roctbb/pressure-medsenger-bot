@@ -32,7 +32,7 @@ def load():
             if "done_medicines" not in contracts[contract_id]:
                 contracts[contract_id]["done_medicines"] = []
             if "last_medicine_sends" not in contracts[contract_id]:
-                contracts[contract_id]["done_medicines"] = {}
+                contracts[contract_id]["last_medicine_sends"] = {}
         save()
     except:
         save()
@@ -243,8 +243,7 @@ def sender():
 
             for medicine in contract['medicines']:
                 for record in medicine['timetable']:
-                    if str(hour) == str(record['hour']) and str(weekday) == str(record['day']) and time.time() - contract[
-                        'last_medicine_sends'].get(medicine['uid'], 0) >= 60 * 60:
+                    if str(hour) == str(record['hour']) and str(weekday) == str(record['day']) and time.time() - contract['last_medicine_sends'].get(medicine['uid'], 0) >= 60 * 60:
                         send_medicine(contract_id, medicine)
                         contract['last_medicine_sends'][medicine['uid']] = int(time.time())
                         save()
