@@ -383,4 +383,4 @@ actions = [{
     "link": HOST + "/graph"
 }]
 print(json.dumps(actions))
-app.run(port='9091', host='0.0.0.0', debug=True)
+app.run(port='9091', host='0.0.0.0')
