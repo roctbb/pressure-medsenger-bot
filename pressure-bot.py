@@ -26,13 +26,14 @@ def load():
             contracts = json.load(f)
 
         # updater
-        for contract in contracts:
-            if "medicines" not in contract:
-                contract["medicines"] = []
-            if "done_medicines" not in contract:
-                contract["done_medicines"] = []
-            if "last_medicine_sends" not in contract:
-                contract["done_medicines"] = {}
+        for contract_id in contracts:
+            if "medicines" not in contracts[contract_id]:
+                contracts[contract_id]["medicines"] = []
+            if "done_medicines" not in contracts[contract_id]:
+                contracts[contract_id]["done_medicines"] = []
+            if "last_medicine_sends" not in contracts[contract_id]:
+                contracts[contract_id]["done_medicines"] = {}
+        save()
     except:
         save()
 
