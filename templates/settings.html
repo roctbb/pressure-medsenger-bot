@@ -99,9 +99,9 @@
                 <tr v-for="(medicines, index) in medicines_data" v-if="!medicines.deleted_at">
                     <td>
                         <div class="form-group" v-if="medicines.show">
-                            <input v-bind:id="medicines.uid" type="text" v-model="medicines.name">
+                            <input v-bind:id="medicines.uid" type="text" v-model="medicines.name" class="form-control">
                             <button id="remove_medicines" class="btn btn-link" href="#" v-on:click.prevent="remove_medicines(medicines)">
-                                <small>&nbsp&nbspУдалить</small>
+                                <small>Удалить</small>
                             </button>
 
                             <span class="red hide">Для удаления лекарства, нажмите кнопку Сохранить.</span>
@@ -242,7 +242,7 @@
                 <tr v-for="(measurements, index) in measurements_data">
                     <td>
                         <div class="form-group" v-bind:id="measurements.name">
-                            <input v-bind:id="measurements.name+'_checkbox'" type="checkbox" v-model="measurements.show">
+                            <input v-bind:id="measurements.name+'_checkbox'" type="checkbox" v-model="measurements.show" class="form-control">
                             <label for="checkbox">${measurements.alias}</label>
                         </div>
                     </td>
