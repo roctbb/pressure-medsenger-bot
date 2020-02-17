@@ -31,7 +31,7 @@
         }
 
         .dark {
-            background-color: #30303d; color: #fff;
+            {#background-color: #30303d; color: #fff;#}
         }
 
         .transparant {
@@ -99,13 +99,12 @@
         <button id="weight_graph" class="btn">График измерения веса</button>
         <button id="glukose_graph" class="btn">График уровеня глюкозы</button>
         <button id="temperature_graph" class="btn">График измерения температуры</button>
-        <select id="theme">
+
+        <select id="theme" class="hidden">
             <option>Тема</option>
             <option value="light">Светлая</option>
             <option value="dark">Темная</option>
         </select>
-
-{#        <button id="medicine_graph_btn" class="btn">График приема лекарств</button>#}
 
     </div>
     <div id="chartdiv__" class="chartdiv height-530 dark"></div>
@@ -166,8 +165,6 @@
                 console.log('chartdiv__', chartdiv__)
             }
         })
-
-        {#console.log('theme', theme.options.selectedIndex)#}
 
         am4core__ = am4core
         am4charts__ = am4charts
@@ -262,12 +259,10 @@
 
             let model = new Interpolations(...args)
 
-            model._id = args[0] // Math.random().toString(36).slice(2)
+            model._id = args[0]
             allModels[model._id] = model
 
             return  allModels.get(args[0])
-
-            {#return model#}
         }
 
         class Interpolations {
@@ -288,8 +283,6 @@
                 let dates_format = ''
 
                 for (item in x) {
-                    console.log('x[item]', x[item])
-
                     dates_format = formatDate(x[item])
                     dataObject.push({"date": new Date(x[item]), "dates": new Date(x[item]), "dates_format": dates_format, "y": y[item]})
                 }
@@ -299,9 +292,6 @@
         }
 
         function formatDate__(date) {
-            console.log('11 date', date)
-            console.log('22 date.substr(0, 4)', date.substr(0, 4))
-
             return {
                 year: date.substr(0, 4),
                 month: date.substr(5, 2),
@@ -313,9 +303,6 @@
         }
 
         function formatDate(date) {
-            console.log('1 date', date)
-            console.log('2 date.substr(0, 4)', date.substr(0, 4))
-
             return {
                 year: date.substr(0, 4),
                 month: date.substr(5, 2),
@@ -347,11 +334,6 @@
 
         console.log('medicine', medicine)
 
-        {#namesConstants.set('systolic_pressure_name', 'Верхнее давление')#}
-        {#namesConstants.set('diastolic_pressure_name', 'Нижнее давление')#}
-        {#namesConstants.set('glukose_name', 'Глюкоза')#}
-        {#namesConstants.set('pulse_name', 'Пульс')#}
-
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
         namesConstants.set('color_pulse', 'blue')
@@ -382,8 +364,6 @@
             var disabled_pulse = true
             var disabled_glukose = true
             var systolic_dates = systolic['x']
-
-            console.log('medicine[\'x\']', medicine['x'])
 
             var systolic_values = systolic['y']
             var diastolic_dates = diastolic['x']
@@ -418,8 +398,8 @@
             let color_index = 0
             let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"]
 
-            am4core__.useTheme(am4themes_dark)
-            {#am4core__.useTheme(am4themes_animated)#}
+            {#am4core__.useTheme(am4themes_dark)#}
+            am4core__.useTheme(am4themes_animated)
 
             var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
             chart.language.locale = am4lang_ru_RU
@@ -454,7 +434,7 @@
                 // 2
 
                 try {
-                    console.log('medicine_x', i, medicine_x)
+                    {#console.log('medicine_x', i, medicine_x)#}
                     medicine_dates = formatDate(medicine_x[i])
                 } catch(e) {
                     console.error('error custom', e)
@@ -466,7 +446,6 @@
                     medicine_y_common['year'] = medicine_dates['year']
                 } else if (i > 0) {
                     if (medicine_y_common['day'] == medicine_dates['day'] && medicine_y_common['month'] == medicine_dates['month'] && medicine_y_common['month'] == medicine_dates['month']) {
-                        {#console.log('medicine_y_common[day]', medicine_y_common['day'])#}
                         medicine_y_delta++
                     } else {
                         medicine_y_common['day'] = medicine_dates['day']
@@ -503,8 +482,6 @@
                 }
 
                 data[i] = {
-                    {#date: new Date(date['year'], date['month'] - 1, date['day'], date['hour'], date['min'], date['sec']),#}
-
                     medicine_dates: new Date(medicine_dates['year'], medicine_dates['month'], medicine_dates['day'], medicine_dates['hour'], medicine_dates['min'], medicine_dates['sec']),
                     medicine_dates_tooltip: medicine_dates['day'] + '-' + medicine_dates['month'] + '-' + medicine_dates['year'],
                     medicine_y: medicine_y,
@@ -730,20 +707,6 @@
     </script>
 
     <script>
-        /**
-        * ---------------------------------------
-        * This demo was created using amCharts 4.
-        *
-        * For more information visit:
-        * https://www.amcharts.com/
-        *
-        * Documentation is available at:
-        * https://www.amcharts.com/docs/v4/
-        * ---------------------------------------
-        */
-
-        console.log('constants', constants)
-
         let am4Objects = {
             "get": function (name) {
                 try {
@@ -761,6 +724,7 @@
                 }
             }
         }
+
         let am4Core = {
             "get": function (name) {
                 try {
@@ -863,7 +827,7 @@
         }
 
         // Set theme
-        am4Core.darkTheme(am4core)
+        {#am4Core.darkTheme(am4core)#}
 
         {#am4Core.defaultTheme(am4core)#}
 

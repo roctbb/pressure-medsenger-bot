@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Измерение пульса</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        .pulse {
+            width: 30%;
+            display: inline;
+        }
+
+        .w30 {
+            width: 30%;
+        }
+
+        .mt15 {
+            margin-top: 15px;
+        }
+
+        .mt25 {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt15">
+    <h4>Какой у вас пульс?</h4>
+
+    <form method="POST" class="mt25">
+        <div class="form-group">
+            <label class="w30" for="pulse">Пульс:</label>
+            <input type="number" class="form-control pulse" name="pulse" id="pulse"> /
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btn-success btn" value="Сохранить"/>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -513,13 +513,6 @@ def graph_test():
                     max_AD2 = measurement['max_diastolic']
                     min_AD2 = measurement['min_diastolic']
 
-                    # constants = {
-                    #     'max_systolic': max_AD1,
-                    #     'min_systolic': min_AD1,
-                    #     'max_diastolic': max_AD2,
-                    #     'min_diastolic': min_AD2
-                    # }
-
                     max_PU = measurement['max_pulse']
                     min_PU = measurement['min_pulse']
 
@@ -595,10 +588,10 @@ def graph_test():
             # print('medicines', medicines)
 
             for medicine in medicines:
-                print('medicine', medicine)
+                # print('medicine', medicine)
 
                 for time__ in medicine['times']:
-                    print('time__', time__)
+                    # print('time__', time__)
 
                     max_array.append(time__)
                     min_array.append(time__)
@@ -619,9 +612,9 @@ def graph_test():
 
                 medicines_times_ = []
 
-    print('medicines_trace_times', medicines_trace_times)
+    # print('medicines_trace_times', medicines_trace_times)
 
-    if len(times) > 0:
+    if len(times) > 0 or len(medicines_trace_times) > 0:
         color_pulse = "#000099"
         color_systolic = "#ff5050"
         color_diastolic = "#0099ff"
@@ -726,7 +719,269 @@ def graph_test():
 
 @app.route('/graph', methods=['GET'])
 def graph():
-    print('graph')
+    contract_id = request.args.get('contract_id', '')
+    key = request.args.get('api_key', '')
+
+    if key != APP_KEY:
+        return ERROR_KEY
+    if contract_id not in contracts:
+        return ERROR_CONTRACT
+
+    constants = {}
+    AD1 = []
+    AD2 = []
+    PU = []
+    pulse = []
+    glukose = []
+    weight = []
+    temperature = []
+    times = []
+    pressure_timestamp = []
+    pulse_trace_times = []
+    glukose_times = []
+    weight_times = []
+    glukose_trace_times = []
+    weight_trace_times = []
+    temperature_trace_times = []
+    mx = []
+    medicines_x = []
+    medicines_x_pulse = []
+    medicines_names = []
+    medicines_times = []
+    medicines_trace_times = []
+    medicines_trace_data = {}
+    medicines_times_ = []
+    max_array = []
+    min_array = []
+    interval = 60 * 60 * 2
+    time_placeholder = "%Y-%m-%d %H:%M:%S"
+    max_pulse = ''
+    min_pulse = ''
+    max_PU = ''
+    min_PU = ''
+    dosage = []
+    amount = []
+
+    for todo in todos['contracts']:
+        if contract_id in todo:
+            measurements = todo[contract_id]['measurements']
+            medicines = todo[contract_id]['medicines']
+
+            # print('measurements', measurements)
+
+            for measurement in measurements:
+                if (measurement['name'] == 'pressure'):
+                    results = measurement['results']
+
+                    max_AD1 = measurement['max_systolic']
+                    min_AD1 = measurement['min_systolic']
+                    max_AD2 = measurement['max_diastolic']
+                    min_AD2 = measurement['min_diastolic']
+
+                    max_PU = measurement['max_pulse']
+                    min_PU = measurement['min_pulse']
+
+                    constants['max_systolic'] = max_AD1
+                    constants['min_systolic'] = min_AD1
+                    constants['max_diastolic'] = max_AD2
+                    constants['min_diastolic'] = min_AD2
+                    constants['max_PU'] = max_PU
+                    constants['min_PU'] = min_PU
+
+                    if (results):
+                        max_array.append(results[-1]['time'])
+                        min_array.append(results[0]['time'])
+
+                        for result in results:
+                            AD1.append(result['values']['systolic'])
+                            AD2.append(result['values']['diastolic'])
+                            PU.append(result['values']['pulse_'])
+
+                            t = result['time']
+                            times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
+                            pressure_timestamp.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
+
+                if (measurement['name'] == 'glukose'):
+                    results = measurement['results']
+                    max_glukose = measurement['max']
+                    min_glukose = measurement['min']
+                    constants['max_glukose'] = max_glukose
+                    constants['min_glukose'] = min_glukose
+
+                    alias = measurement['alias']
+
+                    if (results):
+                        max_array.append(results[-1]['time'])
+                        min_array.append(results[0]['time'])
+
+                        for result in results:
+                            glukose.append(result['value'])
+                            t = result['time']
+                            glukose_times.append(t)
+                            glukose_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
+
+                if (measurement['name'] == 'weight'):
+                    results = measurement['results']
+                    max_weight = measurement['max']
+                    min_weight = measurement['min']
+                    constants['max_weight'] = max_weight
+                    constants['min_weight'] = min_weight
+
+                    if (results):
+                        max_array.append(results[-1]['time'])
+                        min_array.append(results[0]['time'])
+
+                        for result in results:
+                            weight.append(result['value'])
+                            t = result['time']
+                            weight_times.append(t)
+                            weight_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
+
+                if (measurement['name'] == 'temperature'):
+                    results = measurement['results']
+                    constants['max_temperature'] = measurement['max']
+                    constants['min_temperature'] = measurement['min']
+
+                    if (results):
+                        max_array.append(results[-1]['time'])
+                        min_array.append(results[0]['time'])
+
+                        for result in results:
+                            temperature.append(result['value'])
+                            temperature_trace_times.append(datetime.datetime.fromtimestamp(result['time']).strftime("%Y-%m-%d %H:%M:%S"))
+
+            # print('medicines', medicines)
+
+            for medicine in medicines:
+                print('medicine', medicine)
+
+                for time__ in medicine['times']:
+                    print('time__', time__)
+
+                    max_array.append(time__)
+                    min_array.append(time__)
+
+                    medicines_x.append(40)
+                    medicines_x_pulse.append(20)
+                    mx.append(medicine['dosage'])
+                    medicines_times.append(time__)
+                    date_format = datetime.datetime.fromtimestamp(time__).strftime("%Y-%m-%d %H:%M:%S")
+                    medicines_trace_times.append(date_format)
+                    medicines_times_.append(date_format)
+
+                if (medicine['show'] == True):
+                    medicines_names.append(medicine['name'])
+                    medicines_trace_data[medicine['name']] = {'medicines_times_': medicines_times_, 'dosage': medicine['dosage'], 'amount': medicine['amount']}
+
+                # print('medicines_times 1', medicines_times)
+
+                medicines_times_ = []
+
+    print('medicines_trace_times', medicines_trace_times)
+    print('len(medicines_trace_times)', len(medicines_trace_times))
+
+    if len(medicines_trace_times) > 0:
+        color_pulse = "#000099"
+        color_systolic = "#ff5050"
+        color_diastolic = "#0099ff"
+        color_medicine = "brown"
+        color_glukose = "#336600"
+        color_danger = "#F2734C"
+
+        systolic = {
+            "x": times,
+            "y": AD1,
+            "name": "Верхнее давление",
+            "type": "scatter",
+            "mode": 'lines+markers',
+            "line": {
+                "color": color_systolic
+            },
+            'marker': {
+                'size': 8
+            }
+        }
+
+        diastolic = {
+            "x": times,
+            "y": AD2,
+            "name": "Нижнее давление",
+            "type": "scatter",
+            "mode": 'lines+markers',
+            "line": {"color": color_diastolic},
+            'marker': {
+                'size': 8
+            }
+        }
+
+        pulse_ = {
+            "x": times,
+            "y": PU,
+            "name": "Пульс",
+            "type": "scatter",
+            "mode": 'lines+markers',
+            "line": {
+                "dash": "dot",
+                "color": color_pulse
+            },
+            'marker': {
+                'size': 8
+            }
+        }
+
+        trace_medicines = {
+            "x": medicines_trace_times,
+            "y": mx,
+            "text": medicines_names,
+            "dosage": dosage,
+            "amount": amount,
+            "type": 'skatter',
+            "mode": 'markers',
+            "lot_bgcolor": "rgba(200,255,0,0.1)",
+            "line": {"color": color_medicine},
+            "marker": {"size": 26},
+            "name": 'Лекарства'
+        }
+
+        # Формирование данных по измерению веса
+
+        weight_series = {
+            "x": weight_trace_times,
+            "y": weight,
+            "name": 'Вес'
+        }
+
+        # Формирование данных по измерению температуры
+
+        temperature_series = {
+            "x": temperature_trace_times,
+            "y": temperature,
+            "name": 'Температура'
+        }
+
+        # Формирование данных по уровню глюкозы
+
+        glukose_series = {
+            "x": glukose_trace_times,
+            "y": glukose,
+            "name": "Глюкоза"
+        }
+
+        return render_template('graph-test.html',
+                               constants=constants,
+                               systolic=systolic,
+                               diastolic=diastolic,
+                               pulse_=pulse_,
+                               glukose=glukose_series,
+                               weight=weight_series,
+                               temperature=temperature_series,
+                               medicine=trace_medicines,
+                               medicine_trace_data=medicines_trace_data
+                               )
+    else:
+        return "<strong>Измерений еще не проводилось.</strong>"
+
+    return "ok"
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
