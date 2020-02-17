@@ -15,7 +15,7 @@ medicines_data = []
 measurements_data = []
 medicines = {}
 todos = {}
-contracts = {}
+# contracts = {}
 
 def dump(data, label = ''):
     print('dump: ' + label + ' ', data)
@@ -28,14 +28,14 @@ def delayed(delay, f, args):
 def load():
     global medicines_data
     global measurements_data
-    global contracts
+    # global contracts
     global todos
 
     try:
-        with open('data.json', 'r') as f:
-            contracts = json.load(f)
+        # with open('data.json', 'r') as f:
+        #     contracts = json.load(f)
 
-        with open('data.test.json', 'r') as f_test:
+        with open('data.json', 'r') as f_test:
             todos = json.load(f_test)
 
         # save_data()
@@ -47,7 +47,7 @@ def save_data():
     global todos
 
     try:
-        with open('data.test.json', 'w', encoding = 'UTF-8') as f:
+        with open('data.json', 'w', encoding = 'UTF-8') as f:
             json.dump(todos, f, ensure_ascii = False)
     except Exception as e:
         print('error save_data()', e)
@@ -402,9 +402,12 @@ def settings():
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
-    
+
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     return ERROR_CONTRACT
+
     for todo in todos['contracts']:
         for tod in todo:
             if (contract_id in todo):
@@ -426,9 +429,12 @@ def medicine_done(uid):
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
-    
+
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     return ERROR_CONTRACT
+
     for todo in todos['contracts']:
         if contract_id in todo:
             for medicine in todo[contract_id]['medicines']:
@@ -459,8 +465,12 @@ def graph_test():
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
+
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     print('graph-test')
+    #     return ERROR_CONTRACT
 
     constants = {}
     AD1 = []
@@ -614,7 +624,7 @@ def graph_test():
 
     # print('medicines_trace_times', medicines_trace_times)
 
-    if len(times) > 0 or len(medicines_trace_times) > 0:
+    if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (temperature_trace_times):
         color_pulse = "#000099"
         color_systolic = "#ff5050"
         color_diastolic = "#0099ff"
@@ -724,8 +734,11 @@ def graph():
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
+
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     return ERROR_CONTRACT
 
     constants = {}
     AD1 = []
@@ -991,27 +1004,10 @@ def action_pull(pull):
         return ERROR_KEY
 
     if (auth == 'ERROR_CONTRACT'):
+        print('2')
         return ERROR_CONTRACT
 
     return render_template('measurement.html', tmpl=pull)
-
-@app.route('/test', methods=['GET'])
-def test():
-    try:
-        with open('data.test.json', 'r') as f_test:
-            contracts = json.load(f_test)
-
-    except:
-        print('except')
-
-    contract_id = request.args.get('contract_id', '')
-
-    for contract in contracts['contracts']:
-        if contract_id in contract:
-            for medicine in contract[contract_id]['medicines']:
-                medicine['times'].append(666555779)
-
-    return "ok"
 
 # POST ROUTES
 
@@ -1024,8 +1020,11 @@ def setting_save():
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
+
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     return ERROR_CONTRACT
     
     data = json.loads(request.form.get('json'))
 
@@ -1220,8 +1219,10 @@ def remove():
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
-    if contract_id not in contracts:
-        return "<strong>Ошибка</strong>"
+    quard()
+
+    # if contract_id not in todos['contracts']:
+    #     return "<strong>Ошибка</strong>"
 
     for todo in todos['contracts']:
         if contract_id in todo:
@@ -1245,6 +1246,7 @@ def action_pull_save(pull):
         return ERROR_KEY
 
     if (contract_id == 'ERROR_CONTRACT'):
+        print('4')
         return ERROR_CONTRACT
 
     if (pull in AVAILABLE_MEASUREMENTS):
@@ -1321,8 +1323,12 @@ def save_message():
 
     if key != APP_KEY:
         return ERROR_KEY
-    if contract_id not in contracts:
-        return ERROR_CONTRACT
+
+    quard()
+
+    #
+    # if contract_id not in todos['contracts']:
+    #     return ERROR_CONTRACT
     
     return "ok"
 
