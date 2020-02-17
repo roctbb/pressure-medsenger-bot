@@ -459,7 +459,7 @@ def medicine_done(uid):
     return  MESS_THANKS
 
 @app.route('/graph-test', methods=['GET'])
-def graph_test():
+def graph():
     contract_id = request.args.get('contract_id', '')
     key = request.args.get('api_key', '')
 
@@ -728,7 +728,7 @@ def graph_test():
     return "ok"
 
 @app.route('/graph', methods=['GET'])
-def graph():
+def graph_test():
     contract_id = request.args.get('contract_id', '')
     key = request.args.get('api_key', '')
 
@@ -738,6 +738,7 @@ def graph():
     quard()
 
     # if contract_id not in todos['contracts']:
+    #     print('graph-test')
     #     return ERROR_CONTRACT
 
     constants = {}
@@ -866,10 +867,10 @@ def graph():
             # print('medicines', medicines)
 
             for medicine in medicines:
-                print('medicine', medicine)
+                # print('medicine', medicine)
 
                 for time__ in medicine['times']:
-                    print('time__', time__)
+                    # print('time__', time__)
 
                     max_array.append(time__)
                     min_array.append(time__)
@@ -890,10 +891,9 @@ def graph():
 
                 medicines_times_ = []
 
-    print('medicines_trace_times', medicines_trace_times)
-    print('len(medicines_trace_times)', len(medicines_trace_times))
+    # print('medicines_trace_times', medicines_trace_times)
 
-    if len(medicines_trace_times) > 0:
+    if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (temperature_trace_times):
         color_pulse = "#000099"
         color_systolic = "#ff5050"
         color_diastolic = "#0099ff"
