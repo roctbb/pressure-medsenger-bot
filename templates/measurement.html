@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Измерение</title>
+    <title>Измерение пульса</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script
@@ -10,27 +10,109 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        .w30 {
+            width: 30%;
+        }
+
+        .mt15 {
+            margin-top: 15px;
+        }
+
+        .mt25 {
+            margin-top: 25px;
+        }
+
+        .inline {
+            width: 30%;
+            display: inline;
+        }
+    </style>
 </head>
 <body>
-<div class="container" style="margin-top: 15px;">
-    <h4>Какое у вас давление?</h4>
+    <div id="app">
+        <div v-if="tmpl === 'pressure'" class="container mt15">
+            <h4>Какое у вас давление?</h4>
 
-    <form method="POST" style="margin-top: 25px;">
-        <div class="form-group">
-            <label style="width: 30%;" for="AD1">Давление:</label>
-            <input type="number" class="form-control" name="AD1" id="AD1" style="width: 30%; display: inline;"> / <input type="number"
-                                                                                             class="form-control"
-                                                                                             name="AD2" id="AD2"
-                                                                                             style="width: 30%; display: inline;">
+            <form method="POST" class="mt25">
+                <div class="form-group">
+                    <label class="w30" for="pressure">Давление:</label>
+                    <input type="number" class="form-control inline" name="systolic" id="systolic"> /
+                    <input type="number" class="form-control inline" name="diastolic" id="diastolic">
+                </div>
+                <div class="form-group">
+                    <label class="w30" for="pulse">Пульс:</label>
+                    <input type="number" class="form-control inline" name="pulse_" id="pulse_">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn-success btn" value="Сохранить"/>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <label style="width: 30%;" for="PU">Пульс:</label>
-            <input type="number" class="form-control" name="PU" id="PU" style="width: 30%; display: inline;">
+
+        <div v-if="tmpl === 'weight'" class="container mt15">
+            <h4>Какой у вас вес?</h4>
+
+            <form method="POST" class="mt25">
+                <div class="form-group">
+                    <label class="w30" for="pulse">Вес:</label>
+                    <input type="number" class="form-control inline" name="weight" id="weight">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn-success btn" value="Сохранить"/>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <input type="submit" class="btn-success btn" value="Сохранить"/>
+
+        <div v-if="tmpl === 'glukose'" class="container mt15">
+            <h4>Какой у вас уровень глюкозы?</h4>
+
+            <form method="POST" class="mt25">
+                <div class="form-group">
+                    <label class="w30" for="glukose">Уровень глюкозы:</label>
+                    <input type="number" step="any" class="form-control inline" name="glukose" id="glukose">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn-success btn" value="Сохранить"/>
+                </div>
+            </form>
         </div>
-    </form>
-</div>
+
+        <div v-if="tmpl === 'temperature'" class="container mt15">
+            <h4>Какой у вас температура?</h4>
+
+            <form method="POST" class="mt25">
+                <div class="form-group">
+                    <label class="w30" for="temperature">Температура:</label>
+                    <input type="number" step="any" class="form-control inline" name="temperature" id="temperature">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn-success btn" value="Сохранить"/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                tmpl: "{{ tmpl }}"
+            },
+            methods: {
+                hide: function () {
+                    // stub
+                },
+                show: function () {
+                    // stub
+                }
+            },
+            delimiters: ['${', '}']
+        })
+    </script>
 </body>
 </html>

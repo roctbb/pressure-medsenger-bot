@@ -1,94 +1,932 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>графики</title>
 </head>
+    <!-- Resources -->
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/lang/ru_RU.js"></script>
+    <script src="https://www.amcharts.com/lib/4/lang/en_US.js"></script>
+    <script src="https://www.amcharts.com/lib/4/lang/de_DE.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/dark.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/dataviz.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/material.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
 <body>
+    <!-- style -->
 
-<div id="ADDiv" style="width: 100%;"></div>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Archivo+Narrow");
 
+        body {
+            font-family: "Tahoma", "Archivo Narrow";
+        }
 
-<script>
-    function getRandom(min, max) {
-        return Math.random() * (max - min) + min;
-    }
+        .height-530 {
+            height: 530px;
+        }
 
-    var trace1 = {
-        x: {{end_dates|safe}},
-        y: [{{l_level}},{{l_level}}],
-        fill:'tonexty',
-        type: 'scatter',
-        mode: 'lines',
-        line: {color:'#F2734C'},
-        opacity: 0,
-        name: 'Опасный уровень',
-    };
-    var trace2 = {
-        x: {{end_dates|safe}},
-        y: [{{u_level}},{{u_level}}],
-        fill:'tonexty',
-        mode: 'lines',
-        type: 'scatter',
-        line: {color:'#00AA00'},
-        opacity: 0,
-        name: 'Допустимый уровень',
-    };
-    var trace3 = {
-        x: {{end_dates|safe}},
-        y: [220,220],
-        fill:'tonexty',
-        mode: 'lines',
-        type: 'scatter',
-        line: {color:'#F2734C'},
-        opacity: 0,
-        name: 'Опасный уровень',
-    };
+        .dark {
+            background-color: #30303d; color: #fff;
+        }
 
-    var tmedicines = {
-        x: {{medicines_times|safe}},
-        y: {{medicines_x|safe}},
-        text: {{medicines_names|safe}},
-        type: 'scatter',
-        mode: 'markers',
-        marker: {
-            size: 16
-          },
-        name: 'Лекарства',
-    };
+        .transparant {
+            background-color: transparent;
+        }
 
+        .chartdiv {
+            margin-top: 1rem;
+            width: 100%;
+        }
 
+        .chartdiv-light {
+            margin-top: 1rem;
+            width: 100%;
+            height: 530px;
+        }
 
-    var adtrace1 = {
-      x: {{ times|safe }},
-      y: {{ AD1| safe }},
-      name: 'Верхнее давление',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: {
-        size: 8
-      }
-    };
-    var adtrace2 = {
-      x: {{ times| safe }},
-      y: {{ AD2 | safe }},
-      name: 'Нижнее давление',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: {
-        size: 8
-      }
-    };
-    var data = [trace1, trace2, trace3, adtrace1, adtrace2, tmedicines];
-    var mmargin = {l: 0,r: 4, pad: 0};
-    var mlegend = {
-    orientation: 'h', traceorder: 'reversed', x: -.1, y: 1.2 };
-    var layout = {showlegend: true, legend: mlegend, margin: mmargin, yaxis: {range: [40,220]}};
-    setTimeout(function () {
-        Plotly.newPlot('ADDiv', data, layout);
-    }, 1500)
-</script>
+        .shown {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .w100 {
+            width: 99%;
+            margin: 2px;
+        }
+
+        #medicine:hover, #measurement:hover {
+            cursor: pointer;
+        }
+
+        .active-btn {
+            background-color: #cccccc;
+            color: antiquewhite;
+        }
+
+        .btn {
+            {#padding: 7px;#}
+            {#margin-bottom: 3px;#}
+            {#border: 1px solid lightseagreen;#}
+        }
+
+        .btn:hover {
+            cursor: pointer;
+        }
+
+        .shown {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+
+    <!-- HTML -->
+
+    <div>
+        <button id="all_graph" class="btn btn-success">Все графики</button>
+        <button id="pressure_graph" class="btn">График измерения давления</button>
+        <button id="weight_graph" class="btn">График измерения веса</button>
+        <button id="glukose_graph" class="btn">График уровеня глюкозы</button>
+        <button id="temperature_graph" class="btn">График измерения температуры</button>
+        <select id="theme">
+            <option>Тема</option>
+            <option value="light">Светлая</option>
+            <option value="dark">Темная</option>
+        </select>
+
+{#        <button id="medicine_graph_btn" class="btn">График приема лекарств</button>#}
+
+    </div>
+    <div id="chartdiv__" class="chartdiv height-530 dark"></div>
+    <div id="chartdiv_glukose" class="chartdiv height-530 dark"></div>
+    <div id="chartdiv_weight" class="chartdiv height-530 dark"></div>
+    <div id="chartdiv_temperature" class="chartdiv height-530 dark"></div>
+
+    <script>
+        const all_graph = document.getElementById('all_graph')
+        const pressure_graph = document.getElementById('pressure_graph')
+        const weight_graph = document.getElementById('weight_graph')
+        const glukose_graph = document.getElementById('glukose_graph')
+        const temperature_graph = document.getElementById('temperature_graph')
+
+        const chartdiv__ = document.getElementById('chartdiv__')
+        const chartdiv_glukose = document.getElementById('chartdiv_glukose')
+        const chartdiv_weight = document.getElementById('chartdiv_weight')
+        const chartdiv_temperature = document.getElementById('chartdiv_temperature')
+        const theme = document.getElementById('theme')
+
+        const allDiv = [chartdiv__, chartdiv_glukose, chartdiv_weight, chartdiv_temperature]
+
+        all_graph.addEventListener('click', (event) => {
+            Aux.showAll(allDiv)
+            console.log('event.target', event.target)
+        })
+
+        pressure_graph.addEventListener('click', (event) => {
+            Aux.hide(chartdiv__)
+            console.log('event.target', event.target)
+        })
+
+        weight_graph.addEventListener('click', (event) => {
+            Aux.hide(chartdiv_weight)
+            console.log('event.target', event.target)
+        })
+
+        glukose_graph.addEventListener('click', (event) => {
+            Aux.hide(chartdiv_glukose)
+            console.log('event.target', event.target)
+        })
+
+        temperature_graph.addEventListener('click', (event) => {
+            Aux.hide(chartdiv_temperature)
+            console.log('event.target', event.target)
+        })
+
+        theme.addEventListener('change', function (event) {
+            const index = theme.options.selectedIndex
+
+            if (index == 1) {
+                am4core__.useTheme(am4themes_animated)
+
+                chartdiv__.classList.remove('dark')
+                chartdiv__.style.display = "none"
+                {#chartdiv__.classList.remove('height-530')#}
+
+                console.log('chartdiv__', chartdiv__)
+            }
+        })
+
+        {#console.log('theme', theme.options.selectedIndex)#}
+
+        am4core__ = am4core
+        am4charts__ = am4charts
+
+        /**
+         * ---------------------------------------
+         * This demo was created using amCharts 4.
+         *
+         * For more information visit:
+         * https://www.amcharts.com/
+         *
+         * Documentation is available at:
+         * https://www.amcharts.com/docs/v4/
+         * ---------------------------------------
+         */
+
+        Aux = {
+            "error": (e) => {
+                console.error('error', e)
+            },
+            "show": (el) => {
+                el.classList.remove('hidden')
+                el.classList.add('shown')
+            },
+            "hide": (el) => {
+                el.classList.remove('shown')
+                el.classList.add('hidden')
+            },
+            "showAll": (params) => {
+                params.forEach((item) => {
+                    Aux.show(item)
+                    dump(item)
+                })
+            }
+        }
+
+        let namesConstants = {
+            "get": function (name) {
+                try {
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "set": function (name, value) {
+                try {
+                    namesConstants[name] = value
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            }
+        }
+
+        let dataStorage = {
+            "get": function (name) {
+                try {
+                    console.log('get', dataStorage[name])
+
+                    return dataStorage[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "set": function (index, value) {
+               try {
+                    console.log('set', index, value)
+
+                    dataStorage[index] = value
+
+                    return dataStorage[index]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            }
+        }
+
+        let allModels = {
+            "get": function (name) {
+                try {
+                    dataStorage[name] = allModels[name]['obj']
+
+                    return dataStorage[name]
+                } catch(e) {
+                    console.error('error', e)
+                }
+            }
+        }
+
+        function createModel(...args) {
+            {#console.log('args', args)#}
+
+            let model = new Interpolations(...args)
+
+            model._id = args[0] // Math.random().toString(36).slice(2)
+            allModels[model._id] = model
+
+            return  allModels.get(args[0])
+
+            {#return model#}
+        }
+
+        class Interpolations {
+            constructor(name, obj) {
+                this.obj = obj;
+            }
+
+            get() {
+                return this.obj;
+            }
+        }
+
+        dataObject = {
+             "dataTransform": function (data) {
+                let dataObject = []
+                let x = data['x']
+                let y = data['y']
+                let dates_format = ''
+
+                for (item in x) {
+                    console.log('x[item]', x[item])
+
+                    dates_format = formatDate(x[item])
+                    dataObject.push({"date": new Date(x[item]), "dates": new Date(x[item]), "dates_format": dates_format, "y": y[item]})
+                }
+
+                return dataObject
+            }
+        }
+
+        function formatDate__(date) {
+            console.log('11 date', date)
+            console.log('22 date.substr(0, 4)', date.substr(0, 4))
+
+            return {
+                year: date.substr(0, 4),
+                month: date.substr(5, 2),
+                day: date.substr(8, 2),
+                hour: date.substr(11, 2),
+                min: date.substr(14, 2),
+                sec: date.substr(17, 2)
+            }
+        }
+
+        function formatDate(date) {
+            console.log('1 date', date)
+            console.log('2 date.substr(0, 4)', date.substr(0, 4))
+
+            return {
+                year: date.substr(0, 4),
+                month: date.substr(5, 2),
+                day: date.substr(8, 2),
+                hour: date.substr(11, 2),
+                min: date.substr(14, 2),
+                sec: date.substr(17, 2)
+            }
+        }
+
+        function dump(data) {
+            console.log('dump', data)
+         }
+
+        // Create models
+        constants = createModel('constants', {{ constants | safe }})
+        systolic = createModel('systolic', {{ systolic | safe }})
+        diastolic = createModel('diastolic', {{ diastolic | safe }})
+        pulse_ = createModel('pulse_', {{ pulse_ | safe }})
+
+        weight_model = createModel('weight', {{ weight | safe }})
+
+        console.log('systolic', systolic)
+        console.log('diastolic', diastolic)
+        console.log('pulse_', pulse_)
+
+        medicine = createModel('medicine', {{ medicine | safe }})
+        medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
+
+        console.log('medicine', medicine)
+
+        {#namesConstants.set('systolic_pressure_name', 'Верхнее давление')#}
+        {#namesConstants.set('diastolic_pressure_name', 'Нижнее давление')#}
+        {#namesConstants.set('glukose_name', 'Глюкоза')#}
+        {#namesConstants.set('pulse_name', 'Пульс')#}
+
+        namesConstants.set('color_pressure_up', 'orange')
+        namesConstants.set('color_pressure_down', 'green')
+        namesConstants.set('color_pulse', 'blue')
+        namesConstants.set('color_danger', 'red')
+        namesConstants.set('color_medicine', 'brown')
+        namesConstants.set('color_glukose', '#a545c7')
+        namesConstants.set('color_weight', 'lightgreen')
+        namesConstants.set('color_temperature', '#23759F')
+
+        // Create chart instance
+        am4core__.ready(function() {
+            // Vars
+            var i = 0
+            var data = []
+            var diastolic_value = 0
+            var pulse_value = 0
+            var date = {}
+            var tooltipText = ''
+            var bullet_color = ''
+            var systolic_up_color = ''
+            var systolic_down_color = ''
+            var diastolic_up_color = ''
+            var diastolic_down_color = ''
+            var pulse_up_color = ''
+            var pulse_down_color = ''
+            var disabled_systolic = true
+            var disabled_diastolic = true
+            var disabled_pulse = true
+            var disabled_glukose = true
+            var systolic_dates = systolic['x']
+
+            console.log('medicine[\'x\']', medicine['x'])
+
+            var systolic_values = systolic['y']
+            var diastolic_dates = diastolic['x']
+            var diastolic_values = diastolic['y']
+            var pulse_dates = pulse_['x']
+            var pulse_values = pulse_['y']
+            var medicine_x = medicine['x']
+            var medicine_dates = ''
+            var systolic_value = ''
+            var medicine_y = 20
+            var medicine_text = medicine['text']
+            var medicine_amount = medicine['amount']
+            var medicine_y_delta  = 0
+            var medicine_y_common = []
+            var config = {}
+
+            if (medicine_x.length > 0 && systolic_dates.length == 0) {
+                systolic_dates = medicine_x
+            }
+
+            let data_medicines = []
+            let dates_medicines = []
+            let data_ = {}
+
+            let date_in = ''
+            let date_out = ''
+            let _y = -10
+            let series_name = ''
+            let dosage = ''
+            let amount = ''
+            let data_medicines_out = []
+            let color_index = 0
+            let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"]
+
+            am4core__.useTheme(am4themes_dark)
+            {#am4core__.useTheme(am4themes_animated)#}
+
+            var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
+            chart.language.locale = am4lang_ru_RU
+
+            // Create axes
+            var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
+            categoryAxis.renderer.grid.template.location = 0
+            {#categoryAxis.renderer.labels.template.rotation = 90;#}
+            //categoryAxis.renderer.minGridDistance = 30;
+
+            var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
+            valueAxis.renderer.minGridDistance = 100;
+
+            // Add data
+            systolic_dates.forEach(function() {
+
+                {#console.log('systolic_dates[i]', systolic_dates[i], medicine_x, medicine_x[i])#}
+
+                // 1
+
+                try {
+                    date = formatDate__(systolic_dates[i])
+                } catch(e) {
+                    console.error('error custom', e)
+
+                }
+
+                systolic_value = systolic_values[i]
+                diastolic_value = diastolic_values[i]
+                pulse_value = pulse_values[i]
+
+                // 2
+
+                try {
+                    console.log('medicine_x', i, medicine_x)
+                    medicine_dates = formatDate(medicine_x[i])
+                } catch(e) {
+                    console.error('error custom', e)
+                }
+
+                if (i == 0) {
+                    medicine_y_common['day'] = medicine_dates['day']
+                    medicine_y_common['month'] = medicine_dates['month']
+                    medicine_y_common['year'] = medicine_dates['year']
+                } else if (i > 0) {
+                    if (medicine_y_common['day'] == medicine_dates['day'] && medicine_y_common['month'] == medicine_dates['month'] && medicine_y_common['month'] == medicine_dates['month']) {
+                        {#console.log('medicine_y_common[day]', medicine_y_common['day'])#}
+                        medicine_y_delta++
+                    } else {
+                        medicine_y_common['day'] = medicine_dates['day']
+                        medicine_y_common['month'] = medicine_dates['month']
+                        medicine_y_common['year'] = medicine_dates['year']
+                        medicine_y_delta = 0
+                    }
+                }
+
+                medicine_y = medicine_y + medicine_y_delta
+
+                if (systolic_value >= constants.max_systolic) {
+                    systolic_up_color = namesConstants.get('color_danger')
+                    disabled_systolic = false
+                } else {
+                    systolic_up_color = namesConstants.get('color_pressure_up')
+                    disabled_systolic = true
+                }
+
+                if (diastolic_value <= constants.min_diastolic) {
+                    diastolic_down_color = namesConstants.get('color_danger')
+                    disabled_diastolic = false
+                } else {
+                    diastolic_down_color = namesConstants.get('color_pressure_down')
+                    disabled_diastolic = true
+                }
+
+                if (pulse_value >= constants.max_PU) {
+                    pulse_up_color = namesConstants.get('color_danger')
+                    disabled_pulse = false
+                } else {
+                    pulse_up_color = namesConstants.get('color_pulse')
+                    disabled_pulse = true
+                }
+
+                data[i] = {
+                    {#date: new Date(date['year'], date['month'] - 1, date['day'], date['hour'], date['min'], date['sec']),#}
+
+                    medicine_dates: new Date(medicine_dates['year'], medicine_dates['month'], medicine_dates['day'], medicine_dates['hour'], medicine_dates['min'], medicine_dates['sec']),
+                    medicine_dates_tooltip: medicine_dates['day'] + '-' + medicine_dates['month'] + '-' + medicine_dates['year'],
+                    medicine_y: medicine_y,
+                    medicine_dosage: medicine_y[i],
+                    medicine_amount: medicine_amount[i],
+                    medicine_text: medicine_text[i],
+
+                    systolic_pressure: systolic_value,
+                    diastolic_pressure: diastolic_value,
+                    pulse_value: pulse_value,
+                    date: new Date(date['year'], date['month'] - 1, date['day'], date['hour'], date['min'], date['sec']),
+                    year: date['year'],
+                    month: date['month'],
+                    day: date['day'],
+                    hour: date['hour'],
+                    min: date['min'],
+                    max_systolic: constants.max_systolic,
+                    min_diastolic: constants.min_diastolic,
+                    max_pulse: constants.max_pulse,
+                    systolic_up_color: systolic_up_color,
+                    diastolic_down_color: diastolic_down_color,
+                    pulse_up_color: pulse_up_color,
+                    disabled_systolic: disabled_systolic,
+                    disabled_diastolic: disabled_diastolic,
+                    disabled_pulse: disabled_pulse
+                }
+                i++
+            })
+
+            chart.data = data
+
+            // Create series Medicine
+            function createSeriesMedicine() {
+                var series = chart.series.push(new am4charts__.LineSeries());
+                series.dataFields.valueY = "medicine_y";
+                series.dataFields.dateX = "medicine_dates";
+                series.dataFields.value = "medicine_text";
+                series.name = "Лекарства";
+                {#series.tooltipText = "medicine_text";#}
+                {#series.strokeWidth = 2;#}
+                series.propertyFields.stroke = "color_medicine"
+                {#series.stroke = am4core__.color("yellow")#}
+                series.strokeOpacity = 0;
+                {#series.sequencedInterpolation = true#}
+
+                var bullet = series.bullets.push(new am4core__.Circle())
+                {#bullet.fill = am4core__.color("#391313")#}
+                {#bullet.fill = am4core__.color("#99cc00")#}
+                bullet.fill = am4core__.color(namesConstants.get('color_medicine'))
+
+                {#bullet.propertyFields.fill = "color"#}
+                bullet.strokeOpacity = 0
+                bullet.radius = 5
+                bullet.strokeWidth = 2
+                bullet.fillOpacity = 0.7
+                bullet.stroke = am4core__.color("#ffffff")
+
+                {#bullet.tooltipText = "[bold]{medicine_text} | {medicine_dosage} | {medicine_amount} | Дата приема: {medicine_dates_tooltip}"#}
+                bullet.tooltipText = model.name + ": {medicine_text} {medicine_dosage} {medicine_amount} {dates_format.day}-{dates_format.month}-{dates_format.year} {dates_format.hour}:{dates_format.min}"
+
+                var hoverState = bullet.states.create("hover")
+                hoverState.properties.fillOpacity = 1
+                hoverState.properties.strokeOpacity = 1
+
+                series.heatRules.push({ target: bullet, min: 2, max: 20, property: "radius" })
+
+                bullet.adapter.add("tooltipY", function (tooltipY, target) {
+                    return -target.radius
+                })
+
+                chart.scrollbarX = new am4core__.Scrollbar()
+            }
+
+            function createSeriesMedicine__(field, data, series_name, color, type) {
+                if (type == 'medicine') {
+                    var series = chart.series.push(new am4charts__.LineSeries());
+                    series.dataFields.valueY = field
+                    series.dataFields.dateX = "date_out"
+                    series.dataFields.value = "name"
+                    series.name = series_name
+                    {#series.tooltipText = "medicine_text";#}
+                    {#series.strokeWidth = 2;#}
+                    {#series.propertyFields.stroke = "color"#}
+                    {#series.stroke = am4core__.color("yellow")#}
+                    series.strokeOpacity = 0
+                    {#series.sequencedInterpolation = true#}
+                    series.data = data
+
+                    {#var bullet = series.bullets.push(new am4core__.Circle())#}
+
+                    var bullet = series.bullets.push(new am4charts__.Bullet())
+                    var square = bullet.createChild(am4core.Rectangle)
+                    square.width = 12
+                    square.height = 12
+                    square.horizontalCenter = "middle"
+                    square.verticalCenter = "middle"
+
+                    bullet.fill = am4core__.color(color)
+                    bullet.strokeOpacity = 0
+                    bullet.radius = 5
+                    bullet.fillOpacity = 0.7
+                    {#bullet.strokeWidth = 2#}
+                    {#bullet.stroke = am4core__.color("#ffffff")#}
+
+                    bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_out} {date_in.hour}:{date_in.min}"
+
+                    var hoverState = bullet.states.create("hover")
+                    hoverState.properties.fillOpacity = 1
+                    hoverState.properties.strokeOpacity = 1
+
+                    series.heatRules.push({ target: bullet, min: 2, max: 17, property: "radius" })
+                }
+
+                chart.scrollbarX = new am4core__.Scrollbar()
+            }
+
+            for (key in medicine_trace_data) {
+                data_ = medicine_trace_data[key]
+                dosage = data_.dosage
+                amount = data_.amount
+                dates_medicines = data_.medicines_times_
+                series_name = key
+                data_medicines_out = []
+                {#data = dataObject.dataTransform(model)#}
+
+                for (item in dates_medicines) {
+                    console.log('dates_medicines[item]', item, dates_medicines[item])
+
+                    date_in = formatDate(dates_medicines[item])
+                    {#console.log('date_in', date_in)#}
+                    date_out = new Date(date_in['year'], date_in['month'] - 1, date_in['day'], date_in['hour'], date_in['min'], date_in['sec'])
+                    {#console.log(date_in, date_out)#}
+                    data_medicines_out.push({"date_in": date_in, "date_out": date_out, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
+                }
+
+                {#data_medicines_out.push({"name": series_name, "dosage": dosage, "amount": amount})#}
+
+                {#console.log('data_medicines_out', data_medicines_out)#}
+
+                {#createSeriesMedicine__(data_medicines_out, 'test', 'Это текст', 'red', dosage, amount)#}
+
+                createSeriesMedicine__('Y', data_medicines_out, series_name, medicine_colors[color_index], 'medicine')
+
+                {#createSeriesMedicine__('systolic_pressure', data_medicines_out, series_name, 'red', 'medicine')#}
+
+                {#createSeries__("Y", "Лекарства", data_medicines_out)#}
+
+                _y -= 15
+                color_index++
+            }
+
+            // Create series
+            function createSeries(field, name, config, data) {
+                var series = chart.series.push(new am4charts__.LineSeries());
+                series.dataFields.valueY = field;
+                series.dataFields.dateX = "date";
+                series.name = name;
+                series.tooltipText = config.tooltipText;
+                series.strokeWidth = 2;
+                series.propertyFields.stroke = "color"
+                series.stroke = am4core__.color(config.color)
+                series.data = data
+
+                bullet = series.bullets.push(new am4charts__.CircleBullet())
+                bullet.circle.strokeWidth = 1
+
+                chart.scrollbarX = new am4core__.Scrollbar()
+
+                if (name == systolic.name) {
+                    bullet.propertyFields.fill = "systolic_up_color"
+                    bullet.disabled = true
+                    bullet.propertyFields.disabled = "disabled_systolic"
+                }
+
+                if (name == diastolic.name) {
+                    bullet.propertyFields.fill = "diastolic_down_color"
+                    bullet.disabled = true
+                    bullet.propertyFields.disabled = "disabled_diastolic"
+                }
+
+                if (name == pulse_.name) {
+                    bullet.propertyFields.fill = "pulse_up_color"
+                    bullet.disabled = true
+                    bullet.propertyFields.disabled = "disabled_pulse"
+                }
+            }
+
+            tooltipText = "Верхнее давление: [bold]{systolic_pressure}[normal] " + " | до " + constants.max_systolic + " | {day}-{month}-{year} {hour}:{min}"
+
+            config = {
+                "color": namesConstants.get('color_pressure_up'),
+                "tooltipText": tooltipText
+            }
+
+            createSeries("systolic_pressure", systolic.name, config)
+
+            tooltipText = "Нижнее давление: [bold]{diastolic_pressure}[normal]" + " | до " + constants.max_diastolic + " | {day}-{month}-{year} {hour}:{min}"
+
+            config = {
+                "color": namesConstants.get('color_pressure_down'),
+                "tooltipText": tooltipText
+            }
+
+            createSeries("diastolic_pressure", diastolic.name, config)
+
+            tooltipText = "Пульс: [bold]{pulse_value}[normal] | от " + constants.min_PU + " до " + constants.max_PU + " | " + " {day}-{month}-{year} {hour}:{min}"
+
+            config = {
+                "color": namesConstants.get('color_pulse'),
+                "tooltipText": tooltipText
+            }
+
+            createSeries("pulse_value", pulse_.name, config);
+
+            chart.legend = new am4charts__.Legend();
+            chart.cursor = new am4charts__.XYCursor();
+
+            // Enable export
+            chart.exporting.menu = new am4core__.ExportMenu()
+
+        }) // end am4core.ready()
+
+    </script>
+
+    <script>
+        /**
+        * ---------------------------------------
+        * This demo was created using amCharts 4.
+        *
+        * For more information visit:
+        * https://www.amcharts.com/
+        *
+        * Documentation is available at:
+        * https://www.amcharts.com/docs/v4/
+        * ---------------------------------------
+        */
+
+        console.log('constants', constants)
+
+        let am4Objects = {
+            "get": function (name) {
+                try {
+                    return am4Objects[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "set": function (name, value) {
+                try {
+                    am4Objects[name] = value
+                    return am4Objects[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            }
+        }
+        let am4Core = {
+            "get": function (name) {
+                try {
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "set": function (name, value) {
+                try {
+                    namesConstants[name] = value
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "darkTheme": function (obj) {
+                try {
+                    obj.useTheme(am4themes_dark)
+                    obj.useTheme(am4themes_animated)
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "defaultTheme": function (obj) {
+                try {
+                    obj.useTheme(am4themes_animated)
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "makeGraph": function(params) {
+                chart = am4core.create(params.div, am4charts.XYChart)
+                chart.language.locale = params.lang
+                dateAxis = chart.xAxes.push(new am4charts.DateAxis())
+                dateAxis.renderer.grid.template.location = params.location
+                dateAxis.renderer.minGridDistance = params.distance
+                yAxis = chart.yAxes.push(new am4charts.ValueAxis())
+                yAxis.min = params.y_min
+                yAxis.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {dates_format.day}-{dates_format.month}-{dates_format.year} {dates_format.hour}:{dates_format.min}"
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart
+                }
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart.exporting.menu = new am4core.ExportMenu()
+            },
+            "createSeries": function(data, config) {
+                let series = config.chart.series.push(new am4charts.LineSeries())
+                config.chart.scrollbarX = new am4core.Scrollbar()
+                series.dataFields.valueY = config.field
+                series.dataFields.dateX = config.dateX
+                series.name = config.name
+                series.tooltipText = config.tooltipText
+                series.strokeWidth = config.strokeWidth
+                series.stroke = config.color
+                series.data = data
+
+                let bullet = series.bullets.push(new am4charts.CircleBullet())
+                {#bullet.circle.stroke = am4core_glukose.color(config.color)#}
+                bullet.circle.strokeWidth = config.strokeWidth
+                bullet.propertyFields.fill = config.color_danger
+                bullet.disabled = "disabled"
+                bullet.propertyFields.disabled = config.disabled
+
+                return series;
+            }
+        }
+
+        // Set theme
+        am4Core.darkTheme(am4core)
+
+        {#am4Core.defaultTheme(am4core)#}
+
+        // ************************************
+        // ******* Create chart instance weight
+        // ************************************
+
+        params = {
+            "div": "chartdiv_weight",
+            "lang": am4lang_ru_RU,
+            "location": 0,
+            "distance": 100,
+            "y_min": 0,
+            "y_max": 140,
+            "min": constants.min_weight,
+            "max": constants.max_weight,
+            "color": "lightgreen",
+            "strokeWidth": 2,
+            "model": {{ weight | safe }}
+        }
+
+        am4Core.makeGraph(params)
+
+        // *****************************************
+        // ******* Create chart instance temperature
+        // *****************************************
+
+        params = {
+            "div": "chartdiv_temperature",
+            "lang": am4lang_ru_RU,
+            "location": 0,
+            "distance": 100,
+            "y_min": 33,
+            "y_max": 43,
+            "min": constants.min_temperature,
+            "max": constants.max_temperature,
+            "color": "#23759F",
+            "strokeWidth": 2,
+            "model": {{ temperature | safe }}
+        }
+
+        am4Core.makeGraph(params)
+
+        // *************************************
+        // ******* Create chart instance glukose
+        // *************************************
+
+        params = {
+            "div": "chartdiv_glukose",
+            "lang": am4lang_ru_RU,
+            "location": 0,
+            "distance": 100,
+            "y_min": 0,
+            "y_max": 20,
+            "min": constants.min_glukose,
+            "max": constants.max_glukose,
+            "color": "#a545c7",
+            "strokeWidth": 2,
+            "model": {{ glukose | safe }}
+        }
+
+        am4Core.makeGraph(params)
+    </script>
+
 </body>
 </html>
