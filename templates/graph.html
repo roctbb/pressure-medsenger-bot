@@ -157,11 +157,8 @@
 
             if (index == 1) {
                 am4core__.useTheme(am4themes_animated)
-
                 chartdiv__.classList.remove('dark')
                 chartdiv__.style.display = "none"
-                {#chartdiv__.classList.remove('height-530')#}
-
                 console.log('chartdiv__', chartdiv__)
             }
         })
@@ -323,6 +320,8 @@
         diastolic = createModel('diastolic', {{ diastolic | safe }})
         pulse_ = createModel('pulse_', {{ pulse_ | safe }})
 
+        console.log('constants', constants)
+
         weight_model = createModel('weight', {{ weight | safe }})
 
         console.log('systolic', systolic)
@@ -434,7 +433,6 @@
                 // 2
 
                 try {
-                    {#console.log('medicine_x', i, medicine_x)#}
                     medicine_dates = formatDate(medicine_x[i])
                 } catch(e) {
                     console.error('error custom', e)
@@ -514,48 +512,8 @@
             chart.data = data
 
             // Create series Medicine
-            function createSeriesMedicine() {
-                var series = chart.series.push(new am4charts__.LineSeries());
-                series.dataFields.valueY = "medicine_y";
-                series.dataFields.dateX = "medicine_dates";
-                series.dataFields.value = "medicine_text";
-                series.name = "Лекарства";
-                {#series.tooltipText = "medicine_text";#}
-                {#series.strokeWidth = 2;#}
-                series.propertyFields.stroke = "color_medicine"
-                {#series.stroke = am4core__.color("yellow")#}
-                series.strokeOpacity = 0;
-                {#series.sequencedInterpolation = true#}
 
-                var bullet = series.bullets.push(new am4core__.Circle())
-                {#bullet.fill = am4core__.color("#391313")#}
-                {#bullet.fill = am4core__.color("#99cc00")#}
-                bullet.fill = am4core__.color(namesConstants.get('color_medicine'))
-
-                {#bullet.propertyFields.fill = "color"#}
-                bullet.strokeOpacity = 0
-                bullet.radius = 5
-                bullet.strokeWidth = 2
-                bullet.fillOpacity = 0.7
-                bullet.stroke = am4core__.color("#ffffff")
-
-                {#bullet.tooltipText = "[bold]{medicine_text} | {medicine_dosage} | {medicine_amount} | Дата приема: {medicine_dates_tooltip}"#}
-                bullet.tooltipText = model.name + ": {medicine_text} {medicine_dosage} {medicine_amount} {dates_format.day}-{dates_format.month}-{dates_format.year} {dates_format.hour}:{dates_format.min}"
-
-                var hoverState = bullet.states.create("hover")
-                hoverState.properties.fillOpacity = 1
-                hoverState.properties.strokeOpacity = 1
-
-                series.heatRules.push({ target: bullet, min: 2, max: 20, property: "radius" })
-
-                bullet.adapter.add("tooltipY", function (tooltipY, target) {
-                    return -target.radius
-                })
-
-                chart.scrollbarX = new am4core__.Scrollbar()
-            }
-
-            function createSeriesMedicine__(field, data, series_name, color, type) {
+            function createSeriesMedicine(field, data, series_name, color, type) {
                 if (type == 'medicine') {
                     var series = chart.series.push(new am4charts__.LineSeries());
                     series.dataFields.valueY = field
@@ -617,17 +575,7 @@
                     data_medicines_out.push({"date_in": date_in, "date_out": date_out, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
                 }
 
-                {#data_medicines_out.push({"name": series_name, "dosage": dosage, "amount": amount})#}
-
-                {#console.log('data_medicines_out', data_medicines_out)#}
-
-                {#createSeriesMedicine__(data_medicines_out, 'test', 'Это текст', 'red', dosage, amount)#}
-
-                createSeriesMedicine__('Y', data_medicines_out, series_name, medicine_colors[color_index], 'medicine')
-
-                {#createSeriesMedicine__('systolic_pressure', data_medicines_out, series_name, 'red', 'medicine')#}
-
-                {#createSeries__("Y", "Лекарства", data_medicines_out)#}
+                createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index], 'medicine')
 
                 _y -= 15
                 color_index++
@@ -687,7 +635,7 @@
 
             createSeries("diastolic_pressure", diastolic.name, config)
 
-            tooltipText = "Пульс: [bold]{pulse_value}[normal] | от " + constants.min_PU + " до " + constants.max_PU + " | " + " {day}-{month}-{year} {hour}:{min}"
+            tooltipText = "Пульс: [bold]{pulse_value}[normal] | от " + constants.min_pulse + " до " + constants.max_pulse + " | " + " {day}-{month}-{year} {hour}:{min}"
 
             config = {
                 "color": namesConstants.get('color_pulse'),
@@ -829,7 +777,7 @@
         // Set theme
         {#am4Core.darkTheme(am4core)#}
 
-        {#am4Core.defaultTheme(am4core)#}
+        am4Core.defaultTheme(am4core)
 
         // ************************************
         // ******* Create chart instance weight

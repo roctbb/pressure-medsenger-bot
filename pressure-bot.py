@@ -11,13 +11,13 @@ import threading
 
 app = Flask(__name__)
 
-medicines_data = []
-measurements_data = []
-medicines = {}
-todos = {}
-# contracts = {}
+file_name = 'data.json'
+data = {}
+contracts = []
+medicines = []
+measurements = []
 
-def dump(data, label = ''):
+def dump(data, label):
     print('dump: ' + label + ' ', data)
 
 def delayed(delay, f, args):
@@ -26,17 +26,21 @@ def delayed(delay, f, args):
     timer.start()
 
 def load():
+    global data
     global medicines_data
     global measurements_data
-    # global contracts
-    global todos
+    global medicines
+    global measurements
+    global contracts
+    # global contract_id
 
     try:
-        # with open('data.json', 'r') as f:
-        #     contracts = json.load(f)
+        with open(file_name, 'r') as f:
+            data = json.load(f)
 
-        with open('data.json', 'r') as f_test:
-            todos = json.load(f_test)
+        contracts = data['contracts']
+
+        # print('contracts', contracts)
 
         # save_data()
     except Exception as e:
@@ -44,11 +48,13 @@ def load():
         # save_data()
 
 def save_data():
-    global todos
+    global contracts
 
     try:
-        with open('data.json', 'w', encoding = 'UTF-8') as f:
-            json.dump(todos, f, ensure_ascii = False)
+        with open(file_name, 'w', encoding='UTF-8') as f_w:
+            data['contracts'] = contracts
+            json.dump(data, f_w, ensure_ascii=False)
+            # print('save_data()')
     except Exception as e:
         print('error save_data()', e)
 
@@ -79,19 +85,17 @@ def digit(val):
     except:
         return False
 
-load()
-
-def  post_request(data, query='/api/agents/message'):
+def post_request(data, query='/api/agents/message'):
     try:
         print('post request')
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request', e)
 
-def warning(contract_id, param, param_value, param_value_2 = ''):
+def warning(contract_id, param, param_value, param_value_2=''):
     text_patient = ''
     text_doctor = ''
-
+    print('warning 1')
     if (param in AVAILABLE_MEASUREMENTS):
         if (param == 'pressure'):
             text_patient = MESS_PRESSURE_PATIENT.format(
@@ -134,99 +138,107 @@ def warning(contract_id, param, param_value, param_value_2 = ''):
 
         post_request(data_patient)
         post_request(data_doctor)
-        print('warning')
+        print('warning 2')
 
-def sender__():
+def sender():
+    global contracts
+    global measurements
+
     # day = 60 * 60 * 24
     # week = 60 * 60 * 24 * 7
     # month = 60 * 60 * 24 * 30
     deadline = 3 * 60 * 60
 
     while True:
-        for todo in todos['contracts']:
-            for contract_id in todo:
-                measurements_data = todo[contract_id]['measurements']
+        for contract in contracts:
+            # print(contract)
+            medicines = contract['medicines']
+            measurements = contract['measurements']
+            contract_id = contract['id']
 
-                for measurement in measurements_data:
-                    show = measurement['show']
+            for measurement in measurements:
+                show = measurement['show']
 
-                    if (show == False):
-                        continue
+                if (show == False):
+                    continue
 
-                    timetable = measurement['timetable']
-                    mode = measurement.get('mode')
-                    measurement_name = measurement['name']
-                    last_push = measurement['last_push']
+                timetable = measurement['timetable']
+                mode = measurement['mode']
+                name = measurement['name']
+                last_push = measurement['last_push']
 
-                    if mode == 'weekly':
-                        for item in timetable:
-                            days_week = item['days_week']
+                # print('name', name)
+                # print('mode', mode)
+                # print('last_push', last_push)
+                # print('timetable', timetable)
 
-                            for day_hour in days_week:
-                                date = datetime.date.fromtimestamp(time.time())
-                                day_week = date.today().isoweekday()
-                                day_week__ = int(day_hour['day'])
+                if mode == 'daily':
+                    for item in timetable:
+                        hours = item['hours']
 
-                                if day_week__ == day_week:
-                                    a = day_hour['hour']
-                                    b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
+                        for hour in hours:
+                            date = datetime.date.fromtimestamp(time.time())
+                            a = hour['value']
+                            b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
+                            control_time = b.timestamp()
+                            current_time = time.time()
+                            push_time = last_push
 
-                                    control_time = b.timestamp()
-                                    current_time = time.time()
-                                    push_time = last_push
-                                    diff_current_control = current_time - control_time
+                            # print('1) a, b, control_time, measurement_name', a, b, control_time, measurement_name)
 
-                                    if diff_current_control > 0:
-                                        # print('Время измерения', b, measurement_name, push_time - control_time)
+                            diff_current_control = current_time - control_time
 
-                                        if control_time > push_time:
-                                            data = {
-                                                "contract_id": contract_id,
-                                                "api_key": APP_KEY,
-                                                "message": {
-                                                    "text": MESS_MEASUREMENT[measurement_name]['text'],
-                                                    "action_link": "frame/" + measurement_name,
-                                                    "action_name": MESS_MEASUREMENT[measurement_name]['action_name'],
-                                                    "action_onetime": True,
-                                                    "only_doctor": False,
-                                                    "only_patient": True,
-                                                }
-                                            }
+                            if diff_current_control > 0:
+                                # print(control_time, 'control_time')
+                                # print(push_time, 'push_time')
 
-                                            measurement['last_push'] = current_time
-                                            post_request(data)
-                                            print('data mesurement weekly', data)
+                                if control_time > push_time:
+                                    data = {
+                                        "contract_id": contract_id,
+                                        "api_key": APP_KEY,
+                                        "message": {
+                                            "text": MESS_MEASUREMENT[name]['text'],
+                                            "action_link": "frame/" + name,
+                                            "action_name": MESS_MEASUREMENT[name]['action_name'],
+                                            "action_onetime": True,
+                                            "only_doctor": False,
+                                            "only_patient": True,
+                                        }
+                                    }
 
-                    if mode == 'daily':
-                        for item in timetable:
-                            hours = item['hours']
-                            # timestamp = datetime.date.today()
-                            # print('timestamp', timestamp)
+                                    measurement['last_push'] = current_time
+                                    post_request(data)
+                                    print('data', data)
 
-                            for hour in hours:
-                                date = datetime.date.fromtimestamp(time.time())
-                                a = hour['value']
+                if mode == 'weekly':
+                    for item in timetable:
+                        days_week = item['days_week']
+
+                        for day_hour in days_week:
+                            date = datetime.date.fromtimestamp(time.time())
+                            day_week = date.today().isoweekday()
+                            day_week__ = int(day_hour['day'])
+
+                            if day_week__ == day_week:
+                                a = day_hour['hour']
                                 b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
+
                                 control_time = b.timestamp()
                                 current_time = time.time()
                                 push_time = last_push
-
-                                # print('1) a, b, control_time, measurement_name', a, b, control_time, measurement_name)
-
                                 diff_current_control = current_time - control_time
 
                                 if diff_current_control > 0:
-                                    # print(control_time, 'control_time')
-                                    # print(push_time, 'push_time')
+                                    # print('Время измерения', b, name, push_time - control_time, name)
 
                                     if control_time > push_time:
                                         data = {
                                             "contract_id": contract_id,
                                             "api_key": APP_KEY,
                                             "message": {
-                                                "text": MESS_MEASUREMENT[measurement_name]['text'],
-                                                "action_link": "frame/" + measurement_name,
-                                                "action_name": MESS_MEASUREMENT[measurement_name]['action_name'],
+                                                "text": MESS_MEASUREMENT[name]['text'],
+                                                "action_link": "frame/" + name,
+                                                "action_name": MESS_MEASUREMENT[name]['action_name'],
                                                 "action_onetime": True,
                                                 "only_doctor": False,
                                                 "only_patient": True,
@@ -235,76 +247,75 @@ def sender__():
 
                                         measurement['last_push'] = current_time
                                         post_request(data)
-                                        print('data', data)
+                                        print('data mesurement weekly', data)
 
-                    save_data()
+                save_data()
 
-                medicines_data = todo[contract_id]['medicines']
+            for medicine in medicines:
+                show = medicine['show']
 
-                for medicine in medicines_data:
-                    show = medicine['show']
+                if (show == False):
+                    continue
 
-                    if (show == False):
-                        continue
+                name = medicine['name']
+                mode = medicine.get('mode')
+                last_sent = medicine['last_sent']
+                medicine_dosage = medicine['dosage']
+                timetable = medicine['timetable']
 
-                    medicine_dosage = medicine['dosage']
+                # print('name', name)
+                # print('mode', mode)
+                # print('last_sent', last_sent)
+                # print('timetable', timetable)
 
-                    timetable = medicine['timetable']
-                    mode = medicine.get('mode')
-                    medicine_name = medicine['name']
-                    last_sent = medicine['last_sent']
+                if mode == 'daily':
+                    for item in timetable:
+                        hours = item['hours']
 
-                    if mode == 'weekly':
-                        for item in timetable:
-                            days_week = item['days_week']
+                        for hour in hours:
+                            date = datetime.date.fromtimestamp(time.time())
+                            a = hour['value']
+                            b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
 
-                            for day_hour in days_week:
-                                date = datetime.date.fromtimestamp(time.time())
-                                day_week = date.today().isoweekday()
-                                day_week__ = int(day_hour['day'])
+                            control_time = b.timestamp()
+                            current_time = time.time()
+                            push_time = last_sent
+                            diff_current_control = current_time - control_time
 
-                                # print('day_hour', type(day_week__), type(day_week))
+                            if diff_current_control > 0:
+                                if control_time > push_time:
+                                    data = {
+                                        "contract_id": contract_id,
+                                        "api_key": APP_KEY,
+                                        "message": {
+                                            "text": MESS_MEDICINE['text'].format(name),
+                                            "action_link": MESS_MEDICINE['action_link'].format(medicine['uid']),
+                                            "action_name": MESS_MEDICINE['action_name'].format(name, medicine_dosage),
+                                            "action_onetime": True,
+                                            "action_deadline": int(time.time()) + deadline,
+                                            "only_doctor": False,
+                                            "only_patient": True,
+                                        }
+                                    }
 
-                                if day_week__ == day_week:
-                                    a = day_hour['hour']
-                                    b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
-                                    control_time = b.timestamp()
-                                    current_time = time.time()
-                                    push_time = last_sent
-                                    diff_current_control = current_time - control_time
+                                    medicine['last_sent'] = current_time
+                                    post_request(data)
+                                    print('data medicine', data)
 
-                                    if diff_current_control > 0:
-                                        if control_time > push_time:
-                                            data = {
-                                                "contract_id": contract_id,
-                                                "api_key": APP_KEY,
-                                                "message": {
-                                                    "text": MESS_MEDICINE['text'].format(medicine_name),
-                                                    "action_link": MESS_MEDICINE['action_link'].format(medicine['uid']),
-                                                    "action_name": MESS_MEDICINE['action_name'].format(medicine_name,
-                                                                                                       medicine_dosage),
-                                                    "action_onetime": True,
-                                                    "action_deadline": int(time.time()) + deadline,
-                                                    "only_doctor": False,
-                                                    "only_patient": True,
-                                                }
-                                            }
+                if mode == 'weekly':
+                    for item in timetable:
+                        days_week = item['days_week']
 
-                                            medicine['last_sent'] = current_time
-                                            post_request(data)
-                                            print('data medicine weekly', data)
+                        for day_hour in days_week:
+                            date = datetime.date.fromtimestamp(time.time())
+                            day_week = date.today().isoweekday()
+                            day_week__ = int(day_hour['day'])
 
-                    if mode == 'daily':
-                        for item in timetable:
-                            hours = item['hours']
+                            # print('day_hour', type(day_week__), type(day_week))
 
-                            for hour in hours:
-                                date = datetime.date.fromtimestamp(time.time())
-                                a = hour['value']
+                            if day_week__ == day_week:
+                                a = day_hour['hour']
                                 b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
-
-                                # print('Прием лекарств', b, medicine_name)
-
                                 control_time = b.timestamp()
                                 current_time = time.time()
                                 push_time = last_sent
@@ -316,10 +327,11 @@ def sender__():
                                             "contract_id": contract_id,
                                             "api_key": APP_KEY,
                                             "message": {
-                                                "text": MESS_MEDICINE['text'].format(medicine_name),
-                                                "action_link": MESS_MEDICINE['action_link'].format(medicine['uid']),
-                                                "action_name": MESS_MEDICINE['action_name'].format(medicine_name,
-                                                                                                   medicine_dosage),
+                                                "text": MESS_MEDICINE['text'].format(name),
+                                                "action_link": MESS_MEDICINE['action_link'].format(
+                                                    medicine['uid']),
+                                                "action_name": MESS_MEDICINE['action_name'].format(
+                                                    name, medicine_dosage),
                                                 "action_onetime": True,
                                                 "action_deadline": int(time.time()) + deadline,
                                                 "only_doctor": False,
@@ -329,117 +341,277 @@ def sender__():
 
                                         medicine['last_sent'] = current_time
                                         post_request(data)
-                                        print('data medicine', data)
+                                        print('data medicine weekly', data)
 
-                    save_data()
+                save_data()
 
-                    # print('medicines =====================================')
+            #     print('')
+            #
+            # print('================================================')
 
-        time.sleep(20)
+        time.sleep(10)
 
 def quard():
-    global todos
+    global contracts
 
     key = request.args.get('api_key', '')
-    contract_id = request.args.get('contract_id', '')
+    contract_id = int(request.args.get('contract_id', ''))
 
     if key != APP_KEY:
         return 'ERROR_KEY'
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
+    for contract in contracts:
+        if (contract_id == int(contract['id'])):
             return contract_id
 
     return 'ERROR_CONTRACT'
 
-def create_trace(**data):
-    trace = {}
+load()
 
-    for key, value in data.items():
-        if (key == 'x'):
-            trace.update(x=value)
-
-        if (key == 'y'):
-            trace.update(y=value)
-
-        if (key == 'fill'):
-            trace.update(fill=value)
-
-        if (key == 'text'):
-            trace.update(text=value)
-
-        if (key == 'type'):
-            trace.update(type=value)
-
-        if (key == 'mode'):
-            trace.update(mode=value)
-
-        if (key == 'name'):
-            trace.update(name=value)
-
-        if (key == 'line'):
-            trace.update(line=value)
-
-        if (key == 'marker'):
-            trace.update(marker=value)
-
-        if (key == 'opacity'):
-            trace.update(opacity=value)
-
-        if (key == 'lot_bgcolor'):
-            trace.update(lot_bgcolor=value)
-
-    return trace
-
-@app.route('/settings', methods=['GET'])
-def settings():
-    global todos
-    global medicines_data
-    global measurements_data
-
-    key = request.args.get('api_key', '')
-    contract_id = request.args.get('contract_id', '')
-
-    if key != APP_KEY:
-        return ERROR_KEY
-
-    quard()
-
-    # if contract_id not in todos['contracts']:
-    #     return ERROR_CONTRACT
-
-    for todo in todos['contracts']:
-        for tod in todo:
-            if (contract_id in todo):
-                medicines_data = todo[tod]['medicines']
-                measurements_data = todo[tod]['measurements']
-
-    return render_template('settings.html',
-        medicines_data=json.dumps(medicines_data),
-        measurements_data=json.dumps(measurements_data))
+# GET ROUTES
 
 @app.route('/', methods=['GET'])
 def index():
     return 'waiting for the thunder!'
 
-@app.route('/medicine/<uid>', methods=['GET'])
-def medicine_done(uid):
-    key = request.args.get('api_key', '')
-    contract_id = str(request.args.get('contract_id', ''))
+@app.route('/graph', methods=['GET'])
+def graph():
+    global contracts
 
-    if key != APP_KEY:
+    contract_id = quard()
+
+    # print('graph contract_id', contract_id)
+
+    constants = {}
+
+    systolic = []
+    diastolic = []
+    pulse = []
+    glukose = []
+    weight = []
+    temperature = []
+    times = []
+    pressure_timestamp = []
+    glukose_trace_times = []
+    weight_trace_times = []
+    temperature_trace_times = []
+    medicines_names = []
+    medicines_trace_times = []
+    medicines_trace_data = {}
+    medicines_times_ = []
+    time_placeholder = "%Y-%m-%d %H:%M:%S"
+    dosage = []
+    amount = []
+
+    for contract in contracts:
+        medicines = contract['medicines']
+        measurements = contract['measurements']
+
+        if (contract_id == int(contract['id'])):
+            # print('contract_id', contract_id)
+
+            for measurement in measurements:
+                name = measurement['name']
+
+                if (name == 'pressure'):
+                    results = measurement['results']
+
+                    constants['max_systolic'] = measurement['max_systolic']
+                    constants['min_systolic'] = measurement['min_systolic']
+                    constants['max_diastolic'] = measurement['max_diastolic']
+                    constants['min_diastolic'] = measurement['min_diastolic']
+                    constants['max_pulse'] = measurement['max_pulse']
+                    constants['min_pulse'] = measurement['min_pulse']
+
+                    if (results):
+                        for result in results:
+                            systolic.append(result['values']['systolic'])
+                            diastolic.append(result['values']['diastolic'])
+                            pulse.append(result['values']['pulse_'])
+
+                            t = result['time']
+                            times.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
+                            pressure_timestamp.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
+
+                if (name != 'pressure'):
+
+                    results = measurement['results']
+
+                    if (name == 'glukose'):
+                        constants['max_glukose'] = measurement['max']
+                        constants['min_glukose'] = measurement['min']
+
+                        if (results):
+                            for result in results:
+                                glukose.append(result['value'])
+                                t = result['time']
+
+                                glukose_trace_times.append(
+                                    datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
+
+                    if (name == 'weight'):
+                        constants['max_weight'] = measurement['max']
+                        constants['min_weight'] = measurement['min']
+
+                        if (results):
+                            for result in results:
+                                weight.append(result['value'])
+                                t = result['time']
+
+                                weight_trace_times.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
+
+                                # print('weight_trace_times', weight_trace_times)
+
+                    if (name == 'temperature'):
+                        constants['max_' + name] = measurement['max']
+                        constants['min_' + name] = measurement['min']
+
+                        if (results):
+                            for result in results:
+                                temperature.append(result['value'])
+                                t = result['time']
+
+                                temperature_trace_times.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
+
+            # print('graph constants', constants)
+            # print('--------------------------------------------------')
+
+            for medicine in medicines:
+                for time__ in medicine['times']:
+                    date_format = datetime.datetime.fromtimestamp(time__).strftime(time_placeholder)
+                    medicines_trace_times.append(date_format)
+                    medicines_times_.append(date_format)
+
+                if (medicine['show'] == True):
+                    medicines_names.append(medicine['name'])
+                    medicines_trace_data[medicine['name']] = {'medicines_times_': medicines_times_,
+                                                              'dosage': medicine['dosage'],
+                                                              'amount': medicine['amount']}
+
+                print('medicines_trace_data', medicines_trace_data)
+                print('medicines_trace_times', medicines_trace_times)
+
+                medicines_times_ = []
+
+    # print('times', times)
+    # print('medicines_trace_times', medicines_trace_times)
+    # print('glukose_trace_times', glukose_trace_times)
+    # print('weight_trace_times', weight_trace_times)
+    # print('temperature_trace_times', temperature_trace_times)
+
+    if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (
+    temperature_trace_times):
+        systolic = {
+            "x": times,
+            "y": systolic,
+            "name": "Верхнее давление"
+        }
+
+        diastolic = {
+            "x": times,
+            "y": diastolic,
+            "name": "Нижнее давление"
+        }
+
+        pulse = {
+            "x": times,
+            "y": pulse,
+            "name": "Пульс"
+        }
+
+        medicine = {
+            "x": medicines_trace_times,
+            "y": [],
+            "text": medicines_names,
+            "dosage": dosage,
+            "amount": amount,
+            "name": 'Лекарства',
+            "medicines_data": medicines_trace_data
+
+        }
+
+        # print('medicine', medicine)
+
+        weight_series = {
+            "x": weight_trace_times,
+            "y": weight,
+            "name": 'Вес'
+        }
+
+        temperature_series = {
+            "x": temperature_trace_times,
+            "y": temperature,
+            "name": 'Температура'
+        }
+
+        # Формирование данных по уровню глюкозы
+
+        glukose_series = {
+            "x": glukose_trace_times,
+            "y": glukose,
+            "name": "Глюкоза"
+        }
+
+        print('constants', constants)
+
+        return render_template('graph.html',
+                               constants=constants,
+                               systolic=systolic,
+                               diastolic=diastolic,
+                               pulse_=pulse,
+                               glukose=glukose_series,
+                               weight=weight_series,
+                               temperature=temperature_series,
+                               medicine=medicine,
+                               medicine_trace_data=medicines_trace_data
+                               )
+    else:
+        return NONE_MEASUREMENTS
+
+    return "ok"
+
+@app.route('/settings', methods=['GET'])
+def settings():
+    global contracts
+
+    contract_id = quard()
+
+    if (contract_id == ERROR_KEY):
         return ERROR_KEY
 
-    quard()
+    if (contract_id == ERROR_CONTRACT):
+        return ERROR_CONTRACT
 
-    # if contract_id not in todos['contracts']:
-    #     return ERROR_CONTRACT
+    for contract in contracts:
+        if (contract_id == int(contract['id'])):
+            medicines = contract['medicines']
+            measurements = contract['measurements']
+            break
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            for medicine in todo[contract_id]['medicines']:
+    return render_template('settings.html',
+                           medicines_data=json.dumps(medicines),
+                           measurements_data=json.dumps(measurements))
+
+@app.route('/medicine/<uid>', methods=['GET'])
+def medicine_done(uid):
+    print('medicine_done(uid)', uid)
+
+    global contracts
+
+    contract_id = quard()
+
+    if contract_id in ERRORS:
+        return contract_id
+
+    for contract in contracts:
+        if contract_id == int(contract['id']):
+            for medicine in contract['medicines']:
                 if uid in medicine['uid']:
                     medicine['times'].append(time.time())
+                    break
+
+
+        # print('contract[medicines]', contract['medicines'])
 
     save_data()
 
@@ -456,545 +628,7 @@ def medicine_done(uid):
     #     <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
     #     """
 
-    return  MESS_THANKS
-
-@app.route('/graph-test', methods=['GET'])
-def graph():
-    contract_id = request.args.get('contract_id', '')
-    key = request.args.get('api_key', '')
-
-    if key != APP_KEY:
-        return ERROR_KEY
-
-    quard()
-
-    # if contract_id not in todos['contracts']:
-    #     print('graph-test')
-    #     return ERROR_CONTRACT
-
-    constants = {}
-    AD1 = []
-    AD2 = []
-    PU = []
-    pulse = []
-    glukose = []
-    weight = []
-    temperature = []
-    times = []
-    pressure_timestamp = []
-    pulse_trace_times = []
-    glukose_times = []
-    weight_times = []
-    glukose_trace_times = []
-    weight_trace_times = []
-    temperature_trace_times = []
-    mx = []
-    medicines_x = []
-    medicines_x_pulse = []
-    medicines_names = []
-    medicines_times = []
-    medicines_trace_times = []
-    medicines_trace_data = {}
-    medicines_times_ = []
-    max_array = []
-    min_array = []
-    interval = 60 * 60 * 2
-    time_placeholder = "%Y-%m-%d %H:%M:%S"
-    max_pulse = ''
-    min_pulse = ''
-    max_PU = ''
-    min_PU = ''
-    dosage = []
-    amount = []
-
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            measurements = todo[contract_id]['measurements']
-            medicines = todo[contract_id]['medicines']
-
-            # print('measurements', measurements)
-
-            for measurement in measurements:
-                if (measurement['name'] == 'pressure'):
-                    results = measurement['results']
-
-                    max_AD1 = measurement['max_systolic']
-                    min_AD1 = measurement['min_systolic']
-                    max_AD2 = measurement['max_diastolic']
-                    min_AD2 = measurement['min_diastolic']
-
-                    max_PU = measurement['max_pulse']
-                    min_PU = measurement['min_pulse']
-
-                    constants['max_systolic'] = max_AD1
-                    constants['min_systolic'] = min_AD1
-                    constants['max_diastolic'] = max_AD2
-                    constants['min_diastolic'] = min_AD2
-                    constants['max_PU'] = max_PU
-                    constants['min_PU'] = min_PU
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            AD1.append(result['values']['systolic'])
-                            AD2.append(result['values']['diastolic'])
-                            PU.append(result['values']['pulse_'])
-
-                            t = result['time']
-                            times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-                            pressure_timestamp.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'glukose'):
-                    results = measurement['results']
-                    max_glukose = measurement['max']
-                    min_glukose = measurement['min']
-                    constants['max_glukose'] = max_glukose
-                    constants['min_glukose'] = min_glukose
-
-                    alias = measurement['alias']
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            glukose.append(result['value'])
-                            t = result['time']
-                            glukose_times.append(t)
-                            glukose_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'weight'):
-                    results = measurement['results']
-                    max_weight = measurement['max']
-                    min_weight = measurement['min']
-                    constants['max_weight'] = max_weight
-                    constants['min_weight'] = min_weight
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            weight.append(result['value'])
-                            t = result['time']
-                            weight_times.append(t)
-                            weight_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'temperature'):
-                    results = measurement['results']
-                    constants['max_temperature'] = measurement['max']
-                    constants['min_temperature'] = measurement['min']
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            temperature.append(result['value'])
-                            temperature_trace_times.append(datetime.datetime.fromtimestamp(result['time']).strftime("%Y-%m-%d %H:%M:%S"))
-
-            # print('medicines', medicines)
-
-            for medicine in medicines:
-                # print('medicine', medicine)
-
-                for time__ in medicine['times']:
-                    # print('time__', time__)
-
-                    max_array.append(time__)
-                    min_array.append(time__)
-
-                    medicines_x.append(40)
-                    medicines_x_pulse.append(20)
-                    mx.append(medicine['dosage'])
-                    medicines_times.append(time__)
-                    date_format = datetime.datetime.fromtimestamp(time__).strftime("%Y-%m-%d %H:%M:%S")
-                    medicines_trace_times.append(date_format)
-                    medicines_times_.append(date_format)
-
-                if (medicine['show'] == True):
-                    medicines_names.append(medicine['name'])
-                    medicines_trace_data[medicine['name']] = {'medicines_times_': medicines_times_, 'dosage': medicine['dosage'], 'amount': medicine['amount']}
-
-                # print('medicines_times 1', medicines_times)
-
-                medicines_times_ = []
-
-    # print('medicines_trace_times', medicines_trace_times)
-
-    if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (temperature_trace_times):
-        color_pulse = "#000099"
-        color_systolic = "#ff5050"
-        color_diastolic = "#0099ff"
-        color_medicine = "brown"
-        color_glukose = "#336600"
-        color_danger = "#F2734C"
-
-        systolic = {
-            "x": times,
-            "y": AD1,
-            "name": "Верхнее давление",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {
-                "color": color_systolic
-            },
-            'marker': {
-                'size': 8
-            }
-        }
-
-        diastolic = {
-            "x": times,
-            "y": AD2,
-            "name": "Нижнее давление",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {"color": color_diastolic},
-            'marker': {
-                'size': 8
-            }
-        }
-
-        pulse_ = {
-            "x": times,
-            "y": PU,
-            "name": "Пульс",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {
-                "dash": "dot",
-                "color": color_pulse
-            },
-            'marker': {
-                'size': 8
-            }
-        }
-
-        trace_medicines = {
-            "x": medicines_trace_times,
-            "y": mx,
-            "text": medicines_names,
-            "dosage": dosage,
-            "amount": amount,
-            "type": 'skatter',
-            "mode": 'markers',
-            "lot_bgcolor": "rgba(200,255,0,0.1)",
-            "line": {"color": color_medicine},
-            "marker": {"size": 26},
-            "name": 'Лекарства'
-        }
-
-        # Формирование данных по измерению веса
-
-        weight_series = {
-            "x": weight_trace_times,
-            "y": weight,
-            "name": 'Вес'
-        }
-
-        # Формирование данных по измерению температуры
-
-        temperature_series = {
-            "x": temperature_trace_times,
-            "y": temperature,
-            "name": 'Температура'
-        }
-
-        # Формирование данных по уровню глюкозы
-
-        glukose_series = {
-            "x": glukose_trace_times,
-            "y": glukose,
-            "name": "Глюкоза"
-        }
-
-        return render_template('graph-test.html',
-                               constants=constants,
-                               systolic=systolic,
-                               diastolic=diastolic,
-                               pulse_=pulse_,
-                               glukose=glukose_series,
-                               weight=weight_series,
-                               temperature=temperature_series,
-                               medicine=trace_medicines,
-                               medicine_trace_data=medicines_trace_data
-                               )
-    else:
-        return "<strong>Измерений еще не проводилось.</strong>"
-
-    return "ok"
-
-@app.route('/graph', methods=['GET'])
-def graph_test():
-    contract_id = request.args.get('contract_id', '')
-    key = request.args.get('api_key', '')
-
-    if key != APP_KEY:
-        return ERROR_KEY
-
-    quard()
-
-    # if contract_id not in todos['contracts']:
-    #     print('graph-test')
-    #     return ERROR_CONTRACT
-
-    constants = {}
-    AD1 = []
-    AD2 = []
-    PU = []
-    pulse = []
-    glukose = []
-    weight = []
-    temperature = []
-    times = []
-    pressure_timestamp = []
-    pulse_trace_times = []
-    glukose_times = []
-    weight_times = []
-    glukose_trace_times = []
-    weight_trace_times = []
-    temperature_trace_times = []
-    mx = []
-    medicines_x = []
-    medicines_x_pulse = []
-    medicines_names = []
-    medicines_times = []
-    medicines_trace_times = []
-    medicines_trace_data = {}
-    medicines_times_ = []
-    max_array = []
-    min_array = []
-    interval = 60 * 60 * 2
-    time_placeholder = "%Y-%m-%d %H:%M:%S"
-    max_pulse = ''
-    min_pulse = ''
-    max_PU = ''
-    min_PU = ''
-    dosage = []
-    amount = []
-
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            measurements = todo[contract_id]['measurements']
-            medicines = todo[contract_id]['medicines']
-
-            # print('measurements', measurements)
-
-            for measurement in measurements:
-                if (measurement['name'] == 'pressure'):
-                    results = measurement['results']
-
-                    max_AD1 = measurement['max_systolic']
-                    min_AD1 = measurement['min_systolic']
-                    max_AD2 = measurement['max_diastolic']
-                    min_AD2 = measurement['min_diastolic']
-
-                    max_PU = measurement['max_pulse']
-                    min_PU = measurement['min_pulse']
-
-                    constants['max_systolic'] = max_AD1
-                    constants['min_systolic'] = min_AD1
-                    constants['max_diastolic'] = max_AD2
-                    constants['min_diastolic'] = min_AD2
-                    constants['max_PU'] = max_PU
-                    constants['min_PU'] = min_PU
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            AD1.append(result['values']['systolic'])
-                            AD2.append(result['values']['diastolic'])
-                            PU.append(result['values']['pulse_'])
-
-                            t = result['time']
-                            times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-                            pressure_timestamp.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'glukose'):
-                    results = measurement['results']
-                    max_glukose = measurement['max']
-                    min_glukose = measurement['min']
-                    constants['max_glukose'] = max_glukose
-                    constants['min_glukose'] = min_glukose
-
-                    alias = measurement['alias']
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            glukose.append(result['value'])
-                            t = result['time']
-                            glukose_times.append(t)
-                            glukose_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'weight'):
-                    results = measurement['results']
-                    max_weight = measurement['max']
-                    min_weight = measurement['min']
-                    constants['max_weight'] = max_weight
-                    constants['min_weight'] = min_weight
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            weight.append(result['value'])
-                            t = result['time']
-                            weight_times.append(t)
-                            weight_trace_times.append(datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S"))
-
-                if (measurement['name'] == 'temperature'):
-                    results = measurement['results']
-                    constants['max_temperature'] = measurement['max']
-                    constants['min_temperature'] = measurement['min']
-
-                    if (results):
-                        max_array.append(results[-1]['time'])
-                        min_array.append(results[0]['time'])
-
-                        for result in results:
-                            temperature.append(result['value'])
-                            temperature_trace_times.append(datetime.datetime.fromtimestamp(result['time']).strftime("%Y-%m-%d %H:%M:%S"))
-
-            # print('medicines', medicines)
-
-            for medicine in medicines:
-                # print('medicine', medicine)
-
-                for time__ in medicine['times']:
-                    # print('time__', time__)
-
-                    max_array.append(time__)
-                    min_array.append(time__)
-
-                    medicines_x.append(40)
-                    medicines_x_pulse.append(20)
-                    mx.append(medicine['dosage'])
-                    medicines_times.append(time__)
-                    date_format = datetime.datetime.fromtimestamp(time__).strftime("%Y-%m-%d %H:%M:%S")
-                    medicines_trace_times.append(date_format)
-                    medicines_times_.append(date_format)
-
-                if (medicine['show'] == True):
-                    medicines_names.append(medicine['name'])
-                    medicines_trace_data[medicine['name']] = {'medicines_times_': medicines_times_, 'dosage': medicine['dosage'], 'amount': medicine['amount']}
-
-                # print('medicines_times 1', medicines_times)
-
-                medicines_times_ = []
-
-    # print('medicines_trace_times', medicines_trace_times)
-
-    if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (temperature_trace_times):
-        color_pulse = "#000099"
-        color_systolic = "#ff5050"
-        color_diastolic = "#0099ff"
-        color_medicine = "brown"
-        color_glukose = "#336600"
-        color_danger = "#F2734C"
-
-        systolic = {
-            "x": times,
-            "y": AD1,
-            "name": "Верхнее давление",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {
-                "color": color_systolic
-            },
-            'marker': {
-                'size': 8
-            }
-        }
-
-        diastolic = {
-            "x": times,
-            "y": AD2,
-            "name": "Нижнее давление",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {"color": color_diastolic},
-            'marker': {
-                'size': 8
-            }
-        }
-
-        pulse_ = {
-            "x": times,
-            "y": PU,
-            "name": "Пульс",
-            "type": "scatter",
-            "mode": 'lines+markers',
-            "line": {
-                "dash": "dot",
-                "color": color_pulse
-            },
-            'marker': {
-                'size': 8
-            }
-        }
-
-        trace_medicines = {
-            "x": medicines_trace_times,
-            "y": mx,
-            "text": medicines_names,
-            "dosage": dosage,
-            "amount": amount,
-            "type": 'skatter',
-            "mode": 'markers',
-            "lot_bgcolor": "rgba(200,255,0,0.1)",
-            "line": {"color": color_medicine},
-            "marker": {"size": 26},
-            "name": 'Лекарства'
-        }
-
-        # Формирование данных по измерению веса
-
-        weight_series = {
-            "x": weight_trace_times,
-            "y": weight,
-            "name": 'Вес'
-        }
-
-        # Формирование данных по измерению температуры
-
-        temperature_series = {
-            "x": temperature_trace_times,
-            "y": temperature,
-            "name": 'Температура'
-        }
-
-        # Формирование данных по уровню глюкозы
-
-        glukose_series = {
-            "x": glukose_trace_times,
-            "y": glukose,
-            "name": "Глюкоза"
-        }
-
-        return render_template('graph-test.html',
-                               constants=constants,
-                               systolic=systolic,
-                               diastolic=diastolic,
-                               pulse_=pulse_,
-                               glukose=glukose_series,
-                               weight=weight_series,
-                               temperature=temperature_series,
-                               medicine=trace_medicines,
-                               medicine_trace_data=medicines_trace_data
-                               )
-    else:
-        return "<strong>Измерений еще не проводилось.</strong>"
-
-    return "ok"
+    return MESS_THANKS
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
@@ -1013,62 +647,68 @@ def action_pull(pull):
 
 @app.route('/settings', methods=['POST'])
 def setting_save():
-    global todos
+    global contracts
 
-    key = request.args.get('api_key', '')
-    contract_id = request.args.get('contract_id', '')
+    contract_id = quard()
 
-    if key != APP_KEY:
-        return ERROR_KEY
+    # contract_id = 'ERROR_CONTRACT'
 
-    quard()
+    # print('ERROR_CONTRACT', ERRORS['ERROR_CONTRACT'])
 
-    # if contract_id not in todos['contracts']:
-    #     return ERROR_CONTRACT
-    
+    if contract_id in ERRORS:
+        # print('ERRORS')
+        return contract_id
+
+    # data = json.loads(request.json['json'])
     data = json.loads(request.form.get('json'))
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            todo[contract_id]['medicines'] = data.get('medicines_data', [])
-            todo[contract_id]['measurements'] = data.get('measurements_data', [])
+    for contract in contracts:
+        if contract_id == int(contract['id']):
+            contract['medicines'] = data['medicines_data']
+            contract['measurements'] = data['measurements_data']
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            for medicine in todo[contract_id]['medicines']:
+            for medicine in contract['medicines']:
                 if "uid" not in medicine:
                     medicine['uid'] = str(uuid.uuid4())
 
                 if "created_at" not in medicine:
                     medicine['created_at'] = time.time()
 
-    # save()
+    # print('contracts', contracts)
+
     save_data()
 
     return "ok"
 
 @app.route('/init', methods=['POST'])
 def init():
-    global todos
+    global contracts
 
     new_contract = True
-    data = request.json
 
-    if data['api_key'] != APP_KEY:
-        return 'invalid key'
+    try:
+        data = request.json
 
-    contract_id = str(data['contract_id'])
+        print('data', data)
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            new_contract = False
+        if (data == None):
+            return 'None'
 
-            todo[contract_id]['actual'] = True
-            break
+        if data['api_key'] != APP_KEY:
+            return 'invalid key'
 
-    if (new_contract == True):
-        contract_item = {
-            contract_id: {
+        contract_id = int(data['contract_id'])
+
+        for contract in contracts:
+            if contract_id == int(contract['id']):
+                new_contract = False
+
+                contract['actual'] = True
+                break
+
+        if (new_contract == True):
+            contract = {
+                "id": contract_id,
                 "measurements": [
                     {
                         "name": "pressure",
@@ -1078,8 +718,8 @@ def init():
                         "min_systolic": 110,
                         "max_diastolic": 90,
                         "min_diastolic": 70,
-                        "max_pulse": 90,
-                        "min_pulse": 50,
+                        "max_pulse": 80,
+                        "min_pulse": 60,
                         "last_push": -1,
                         "timetable": [
                             {
@@ -1109,7 +749,7 @@ def init():
                         "name": "weight",
                         "alias": "Вес",
                         "mode": "daily",
-                        "max": 79,
+                        "max": 100,
                         "min": 50,
                         "last_push": -1,
                         "timetable": [
@@ -1140,8 +780,8 @@ def init():
                         "name": "temperature",
                         "alias": "Температура",
                         "mode": "daily",
-                        "max": 43,
-                        "min": 32,
+                        "max": 37,
+                        "min": 36,
                         "last_push": -1,
                         "timetable": [
                             {
@@ -1202,8 +842,13 @@ def init():
                 "medicines": [],
                 "actual": True
             }
-        }
-        todos['contracts'].append(contract_item)
+
+            contracts.append(contract)
+
+        # print('contracts', contracts)
+
+    except Exception as e:
+        print('error', e)
 
     save_data()
 
@@ -1211,25 +856,28 @@ def init():
 
 @app.route('/remove', methods=['POST'])
 def remove():
-    global todos
-
+    global contracts
+    # print('remove')
     data = request.json
     contract_id = str(data['contract_id'])
+
+    # print('contract_id', contract_id)
 
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
-    quard()
+    # quard()
 
     # if contract_id not in todos['contracts']:
     #     return "<strong>Ошибка</strong>"
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            todo[contract_id]['actual'] = False
+    for contract in contracts:
+        if contract_id == int(contract['id']):
+            # print('actual', )
+
+            contract['actual'] = False
             break
 
-    # save()
     save_data()
 
     return 'ok'
@@ -1242,20 +890,16 @@ def action_pull_save(pull):
     param_value = ''
     contract_id = quard()
 
-    if (contract_id == 'ERROR_KEY'):
-        return ERROR_KEY
-
-    if (contract_id == 'ERROR_CONTRACT'):
-        print('4')
-        return ERROR_CONTRACT
+    if (contract_id in ERRORS):
+        return contract_id
 
     if (pull in AVAILABLE_MEASUREMENTS):
         param = pull
         param_value = request.form.get(param, '')
 
-    for todo in todos['contracts']:
-        if contract_id in todo:
-            for measurement in todo[contract_id]['measurements']:
+    for contract in contracts:
+        if contract_id == int(contract['id']):
+            for measurement in contract['measurements']:
                 measurement_name = measurement['name']
 
                 if (pull in measurement_name):
@@ -1276,7 +920,8 @@ def action_pull_save(pull):
                         max_diastolic = int(measurement['max_diastolic'])
                         min_diastolic = int(measurement['min_diastolic'])
 
-                        if not (min_systolic <= int(systolic) <= max_systolic and min_diastolic <= int(diastolic) <= max_diastolic):
+                        if not (min_systolic <= int(systolic) <= max_systolic and min_diastolic <= int(
+                                diastolic) <= max_diastolic):
                             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
 
                         answer['time'] = time.time()
@@ -1285,13 +930,18 @@ def action_pull_save(pull):
                     else:
                         if check_float(param_value) == False:
                             return ERROR_FORM
-
+                        # dump('test')
                         answer = {}
                         max = float(measurement['max'])
                         min = float(measurement['min'])
                         param_value = float(param_value)
 
                         if param in measurement['name']:
+                            # dump(param, 'param')
+                            # dump(param_value, 'param_value')
+                            # dump(max, 'max')
+                            # dump(min, 'min')
+
                             if not (min <= param_value <= max):
                                 # print('param_value before', param_value)
 
@@ -1301,14 +951,20 @@ def action_pull_save(pull):
                                     if check_int(param_value) == False:
                                         return ERROR_FORM
 
-                                    # print('param_value after', param_value)
+                                    # print('params', param_value)
 
                                 delayed(1, warning, [contract_id, param, param_value])
                                 # print('not pressure', param, param_value)
                             answer['time'] = time.time()
                             answer['value'] = param_value
 
+                            print('answer', answer, measurement_name)
+
                             measurement['results'].append(answer)
+
+                            print('measurement', measurement)
+                            print('measurement[results]', measurement['results'])
+
                     save_data()
 
                     break
@@ -1317,29 +973,18 @@ def action_pull_save(pull):
 
 @app.route('/message', methods=['POST'])
 def save_message():
+    global contracts
+
     data = request.json
     key = data['api_key']
-    contract_id = str(data['contract_id'])
+    # contract_id = str(data['contract_id'])
 
     if key != APP_KEY:
         return ERROR_KEY
 
-    quard()
-
-    #
-    # if contract_id not in todos['contracts']:
-    #     return ERROR_CONTRACT
-    
     return "ok"
 
-t__ = Thread(target=sender__)
-t__.start()
+t = Thread(target=sender)
+t.start()
 
-# t = Thread(target=sender)
-# t.start()
-actions = [{
-    "name": "График давления",
-    "link": HOST + "/graph"
-}]
-# print('json.dumps', json.dumps(actions))
 app.run(port='9091', host='0.0.0.0')

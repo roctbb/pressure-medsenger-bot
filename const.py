@@ -1,8 +1,10 @@
 ERROR_KEY = "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
 ERROR_CONTRACT = "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 ERROR_FORM = "<strong>Ошибки при заполнении формы.</strong> Пожалуйста, что все поля заполнены.<br><a class='btn btn-success' onclick='history.go(-1);'>Назад</a>"
-MESS_THANKS = """<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"""
 
+ERRORS = {'ERROR_KEY': ERROR_KEY, 'ERROR_CONTRACT': ERROR_CONTRACT, 'ERROR_FORM': ERROR_FORM}
+
+MESS_THANKS = """<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"""
 MESS_GLUKOSE_PATIENT = "Ваш уровень глюкозы ({}) выходит за допустимый диапазон. Мы уже направили уведомление вашему врачу."
 MESS_GLUKOSE_DOCTOR = "Уровень глюкозы пациента ({}) выходит за допустимый диапазон."
 
@@ -34,6 +36,8 @@ MESS_MEASUREMENT = {
     'glukose': {'text': MESS_GLUKOSE_REMINDER, 'action_name': MESS_GLUKOSE_TITLE},
     'temperature': {'text': MESS_TEMPERATURE_REMINDER, 'action_name': MESS_TEMPERATURE_TITLE},
 }
+NONE_MEASUREMENTS = "<strong>Измерений еще не проводилось.</strong>"
+
 AVAILABLE_MEASUREMENTS = ['pressure', 'weight', 'glukose', 'temperature']
 AVAILABLE_MODES = ['daily', 'weekly', 'monthly', 'none']
 FORM_INPUTS = ['systolic', 'diastolic', 'weight', 'pulse_', 'glukose']
