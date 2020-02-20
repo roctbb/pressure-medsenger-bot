@@ -32,20 +32,14 @@ def load():
     global medicines
     global measurements
     global contracts
-    # global contract_id
 
     try:
         with open(file_name, 'r') as f:
             data = json.load(f)
 
         contracts = data['contracts']
-
-        # print('contracts', contracts)
-
-        # save_data()
     except Exception as e:
         print('error load()', e)
-        # save_data()
 
 def save_data():
     global contracts
@@ -54,7 +48,6 @@ def save_data():
         with open(file_name, 'w', encoding='UTF-8') as f_w:
             data['contracts'] = contracts
             json.dump(data, f_w, ensure_ascii=False)
-            # print('save_data()')
     except Exception as e:
         print('error save_data()', e)
 
@@ -95,7 +88,7 @@ def post_request(data, query='/api/agents/message'):
 def warning(contract_id, param, param_value, param_value_2=''):
     text_patient = ''
     text_doctor = ''
-    print('warning 1')
+
     if (param in AVAILABLE_MEASUREMENTS):
         if (param == 'pressure'):
             text_patient = MESS_PRESSURE_PATIENT.format(
@@ -138,20 +131,16 @@ def warning(contract_id, param, param_value, param_value_2=''):
 
         post_request(data_patient)
         post_request(data_doctor)
-        print('warning 2')
+        print('warning')
 
 def sender():
     global contracts
     global measurements
 
-    # day = 60 * 60 * 24
-    # week = 60 * 60 * 24 * 7
-    # month = 60 * 60 * 24 * 30
     deadline = 3 * 60 * 60
 
     while True:
         for contract in contracts:
-            # print(contract)
             medicines = contract['medicines']
             measurements = contract['measurements']
             contract_id = contract['id']
@@ -167,11 +156,6 @@ def sender():
                 name = measurement['name']
                 last_push = measurement['last_push']
 
-                # print('name', name)
-                # print('mode', mode)
-                # print('last_push', last_push)
-                # print('timetable', timetable)
-
                 if mode == 'daily':
                     for item in timetable:
                         hours = item['hours']
@@ -183,15 +167,9 @@ def sender():
                             control_time = b.timestamp()
                             current_time = time.time()
                             push_time = last_push
-
-                            # print('1) a, b, control_time, measurement_name', a, b, control_time, measurement_name)
-
                             diff_current_control = current_time - control_time
 
                             if diff_current_control > 0:
-                                # print(control_time, 'control_time')
-                                # print(push_time, 'push_time')
-
                                 if control_time > push_time:
                                     data = {
                                         "contract_id": contract_id,
@@ -208,7 +186,6 @@ def sender():
 
                                     measurement['last_push'] = current_time
                                     post_request(data)
-                                    print('data', data)
 
                 if mode == 'weekly':
                     for item in timetable:
@@ -229,8 +206,6 @@ def sender():
                                 diff_current_control = current_time - control_time
 
                                 if diff_current_control > 0:
-                                    # print('Время измерения', b, name, push_time - control_time, name)
-
                                     if control_time > push_time:
                                         data = {
                                             "contract_id": contract_id,
@@ -247,7 +222,6 @@ def sender():
 
                                         measurement['last_push'] = current_time
                                         post_request(data)
-                                        print('data mesurement weekly', data)
 
                 save_data()
 
@@ -262,11 +236,6 @@ def sender():
                 last_sent = medicine['last_sent']
                 medicine_dosage = medicine['dosage']
                 timetable = medicine['timetable']
-
-                # print('name', name)
-                # print('mode', mode)
-                # print('last_sent', last_sent)
-                # print('timetable', timetable)
 
                 if mode == 'daily':
                     for item in timetable:
@@ -300,7 +269,6 @@ def sender():
 
                                     medicine['last_sent'] = current_time
                                     post_request(data)
-                                    print('data medicine', data)
 
                 if mode == 'weekly':
                     for item in timetable:
@@ -310,8 +278,6 @@ def sender():
                             date = datetime.date.fromtimestamp(time.time())
                             day_week = date.today().isoweekday()
                             day_week__ = int(day_hour['day'])
-
-                            # print('day_hour', type(day_week__), type(day_week))
 
                             if day_week__ == day_week:
                                 a = day_hour['hour']
@@ -341,13 +307,8 @@ def sender():
 
                                         medicine['last_sent'] = current_time
                                         post_request(data)
-                                        print('data medicine weekly', data)
 
                 save_data()
-
-            #     print('')
-            #
-            # print('================================================')
 
         time.sleep(10)
 
@@ -379,11 +340,7 @@ def graph():
     global contracts
 
     contract_id = quard()
-
-    # print('graph contract_id', contract_id)
-
     constants = {}
-
     systolic = []
     diastolic = []
     pulse = []
@@ -408,8 +365,6 @@ def graph():
         measurements = contract['measurements']
 
         if (contract_id == int(contract['id'])):
-            # print('contract_id', contract_id)
-
             for measurement in measurements:
                 name = measurement['name']
 
@@ -460,8 +415,6 @@ def graph():
 
                                 weight_trace_times.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
 
-                                # print('weight_trace_times', weight_trace_times)
-
                     if (name == 'temperature'):
                         constants['max_' + name] = measurement['max']
                         constants['min_' + name] = measurement['min']
@@ -472,9 +425,6 @@ def graph():
                                 t = result['time']
 
                                 temperature_trace_times.append(datetime.datetime.fromtimestamp(t).strftime(time_placeholder))
-
-            # print('graph constants', constants)
-            # print('--------------------------------------------------')
 
             for medicine in medicines:
                 for time__ in medicine['times']:
@@ -488,16 +438,7 @@ def graph():
                                                               'dosage': medicine['dosage'],
                                                               'amount': medicine['amount']}
 
-                print('medicines_trace_data', medicines_trace_data)
-                print('medicines_trace_times', medicines_trace_times)
-
                 medicines_times_ = []
-
-    # print('times', times)
-    # print('medicines_trace_times', medicines_trace_times)
-    # print('glukose_trace_times', glukose_trace_times)
-    # print('weight_trace_times', weight_trace_times)
-    # print('temperature_trace_times', temperature_trace_times)
 
     if len(times) > 0 or len(medicines_trace_times) > 0 or len(glukose_trace_times) or len(weight_trace_times) or (
     temperature_trace_times):
@@ -530,8 +471,6 @@ def graph():
 
         }
 
-        # print('medicine', medicine)
-
         weight_series = {
             "x": weight_trace_times,
             "y": weight,
@@ -544,15 +483,11 @@ def graph():
             "name": 'Температура'
         }
 
-        # Формирование данных по уровню глюкозы
-
         glukose_series = {
             "x": glukose_trace_times,
             "y": glukose,
             "name": "Глюкоза"
         }
-
-        print('constants', constants)
 
         return render_template('graph.html',
                                constants=constants,
@@ -610,9 +545,6 @@ def medicine_done(uid):
                     medicine['times'].append(time.time())
                     break
 
-
-        # print('contract[medicines]', contract['medicines'])
-
     save_data()
 
     # medicines = list(filter(lambda m: m['uid'] == uid, contracts[contract_id]['medicines']))
@@ -638,7 +570,6 @@ def action_pull(pull):
         return ERROR_KEY
 
     if (auth == 'ERROR_CONTRACT'):
-        print('2')
         return ERROR_CONTRACT
 
     return render_template('measurement.html', tmpl=pull)
@@ -651,12 +582,7 @@ def setting_save():
 
     contract_id = quard()
 
-    # contract_id = 'ERROR_CONTRACT'
-
-    # print('ERROR_CONTRACT', ERRORS['ERROR_CONTRACT'])
-
     if contract_id in ERRORS:
-        # print('ERRORS')
         return contract_id
 
     # data = json.loads(request.json['json'])
@@ -674,8 +600,6 @@ def setting_save():
                 if "created_at" not in medicine:
                     medicine['created_at'] = time.time()
 
-    # print('contracts', contracts)
-
     save_data()
 
     return "ok"
@@ -688,8 +612,6 @@ def init():
 
     try:
         data = request.json
-
-        print('data', data)
 
         if (data == None):
             return 'None'
@@ -845,8 +767,6 @@ def init():
 
             contracts.append(contract)
 
-        # print('contracts', contracts)
-
     except Exception as e:
         print('error', e)
 
@@ -857,24 +777,17 @@ def init():
 @app.route('/remove', methods=['POST'])
 def remove():
     global contracts
-    # print('remove')
+
     data = request.json
     contract_id = str(data['contract_id'])
-
-    # print('contract_id', contract_id)
 
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
     # quard()
 
-    # if contract_id not in todos['contracts']:
-    #     return "<strong>Ошибка</strong>"
-
     for contract in contracts:
         if contract_id == int(contract['id']):
-            # print('actual', )
-
             contract['actual'] = False
             break
 
@@ -884,8 +797,6 @@ def remove():
 
 @app.route('/frame/<string:pull>', methods=['POST'])
 def action_pull_save(pull):
-    print('action_pull_save()', pull)
-
     param = ''
     param_value = ''
     contract_id = quard()
@@ -930,40 +841,25 @@ def action_pull_save(pull):
                     else:
                         if check_float(param_value) == False:
                             return ERROR_FORM
-                        # dump('test')
+
                         answer = {}
                         max = float(measurement['max'])
                         min = float(measurement['min'])
                         param_value = float(param_value)
 
                         if param in measurement['name']:
-                            # dump(param, 'param')
-                            # dump(param_value, 'param_value')
-                            # dump(max, 'max')
-                            # dump(min, 'min')
-
                             if not (min <= param_value <= max):
-                                # print('param_value before', param_value)
-
                                 if (param != 'glukose') and (param != 'temperature'):
                                     param_value = int(param_value)
 
                                     if check_int(param_value) == False:
                                         return ERROR_FORM
 
-                                    # print('params', param_value)
-
                                 delayed(1, warning, [contract_id, param, param_value])
-                                # print('not pressure', param, param_value)
+
                             answer['time'] = time.time()
                             answer['value'] = param_value
-
-                            print('answer', answer, measurement_name)
-
                             measurement['results'].append(answer)
-
-                            print('measurement', measurement)
-                            print('measurement[results]', measurement['results'])
 
                     save_data()
 
