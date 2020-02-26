@@ -111,6 +111,7 @@
     <div id="chartdiv_glukose" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_weight" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_temperature" class="chartdiv height-530 dark"></div>
+    <div id="chartdiv_more" class="chartdiv height-530 dark"></div>
 
     <script>
         const all_graph = document.getElementById('all_graph')
@@ -287,36 +288,30 @@
                 let dataObject = []
                 let x = data['x']
                 let y = data['y']
-                let dates_format = ''
 
                 for (item in x) {
-                    dates_format = formatDate(x[item])
-                    dataObject.push({"date": new Date(x[item]), "dates": new Date(x[item]), "dates_format": dates_format, "y": y[item]})
+                    let dateOut = x[item]
+                    let value_y = y[item]
+                    let dates_format = this.dateFormat(dateOut)
+                    dataObject.push({"date": dateOut, "dates": dateOut, "dates_format": dates_format, "y": value_y})
                 }
 
+                {#console.warn('dataObject', dataObject)#}
+
                 return dataObject
-            }
-        }
+            },
+            "dateFormat": function(date) {
+                let dateOut = new Date(date)
+                let month_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+                let month = dateOut.getMonth()
 
-        function formatDate__(date) {
-            return {
-                year: date.substr(0, 4),
-                month: date.substr(5, 2),
-                day: date.substr(8, 2),
-                hour: date.substr(11, 2),
-                min: date.substr(14, 2),
-                sec: date.substr(17, 2)
-            }
-        }
+                return dateOut.getDate() + '-' + month_array[month] + '-' + dateOut.getFullYear() + ' ' + dateOut.getHours() + ':' + dateOut.getMinutes()
+            },
+            "format": function(date_) {
+                let month_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+                let month = date_.getMonth()
 
-        function formatDate(date) {
-            return {
-                year: date.substr(0, 4),
-                month: date.substr(5, 2),
-                day: date.substr(8, 2),
-                hour: date.substr(11, 2),
-                min: date.substr(14, 2),
-                sec: date.substr(17, 2)
+                return date_.getDate() + '-' + month_array[month] + '-' + date_.getFullYear() + ' ' + date_.getHours() + ':' + date_.getMinutes()
             }
         }
 
@@ -330,19 +325,19 @@
         diastolic = createModel('diastolic', {{ diastolic | safe }})
         pulse_ = createModel('pulse_', {{ pulse_ | safe }})
 
-        console.log('constants', constants)
+        {#console.log('constants', constants)#}
 
         weight_model = createModel('weight', {{ weight | safe }})
 
-        console.log('systolic', systolic)
-        console.log('diastolic', diastolic)
-        console.log('pulse_', pulse_)
+        {#console.log('systolic', systolic)#}
+        {#console.log('diastolic', diastolic)#}
+        {#console.log('pulse_', pulse_)#}
 
         medicine = createModel('medicine', {{ medicine | safe }})
         medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
 
-        console.log('medicine', medicine)
-        console.log('medicine_trace_data', medicine_trace_data)
+        {#console.log('medicine', medicine)#}
+        {#console.log('medicine_trace_data', medicine_trace_data)#}
 
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
@@ -386,8 +381,8 @@
             var medicine_y = 20
             var medicine_text = medicine['text']
             var medicine_amount = medicine['amount']
-            var medicine_y_delta  = 0
-            var medicine_y_common = []
+            {#var medicine_y_delta  = 0#}
+            {#var medicine_y_common = []#}
             var config = {}
 
             if (medicine_x.length > 0 && systolic_dates.length == 0) {
@@ -400,7 +395,7 @@
 
             let date_in = ''
             let date_out = ''
-            let _y = -10
+            let _y = -20
             let series_name = ''
             let dosage = ''
             let amount = ''
@@ -423,6 +418,9 @@
             var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
             valueAxis.renderer.minGridDistance = 100;
 
+            {#console.warn('medicine_x', medicine_x)#}
+            {#console.warn('systolic_dates', systolic_dates)#}
+
             // Add data
             systolic_dates.forEach(function() {
 
@@ -430,41 +428,11 @@
 
                 // 1
 
-                try {
-                    date = formatDate__(systolic_dates[i])
-                } catch(e) {
-                    console.error('error custom', e)
-
-                }
-
                 systolic_value = systolic_values[i]
                 diastolic_value = diastolic_values[i]
                 pulse_value = pulse_values[i]
 
                 // 2
-
-                try {
-                    medicine_dates = formatDate(medicine_x[i])
-                } catch(e) {
-                    console.error('error custom', e)
-                }
-
-                if (i == 0) {
-                    medicine_y_common['day'] = medicine_dates['day']
-                    medicine_y_common['month'] = medicine_dates['month']
-                    medicine_y_common['year'] = medicine_dates['year']
-                } else if (i > 0) {
-                    if (medicine_y_common['day'] == medicine_dates['day'] && medicine_y_common['month'] == medicine_dates['month'] && medicine_y_common['month'] == medicine_dates['month']) {
-                        medicine_y_delta++
-                    } else {
-                        medicine_y_common['day'] = medicine_dates['day']
-                        medicine_y_common['month'] = medicine_dates['month']
-                        medicine_y_common['year'] = medicine_dates['year']
-                        medicine_y_delta = 0
-                    }
-                }
-
-                medicine_y = medicine_y + medicine_y_delta
 
                 if (systolic_value >= constants.max_systolic) {
                     systolic_up_color = namesConstants.get('color_danger')
@@ -490,23 +458,17 @@
                     disabled_pulse = true
                 }
 
-                data[i] = {
-                    medicine_dates: new Date(medicine_dates['year'], medicine_dates['month'], medicine_dates['day'], medicine_dates['hour'], medicine_dates['min'], medicine_dates['sec']),
-                    medicine_dates_tooltip: medicine_dates['day'] + '-' + medicine_dates['month'] + '-' + medicine_dates['year'],
-                    medicine_y: medicine_y,
-                    medicine_dosage: medicine_y[i],
-                    medicine_amount: medicine_amount[i],
-                    medicine_text: medicine_text[i],
+                let dateOut = new Date(systolic_dates[i])
+                let date_tooltip = dataObject.format(dateOut)
 
+                console.log('date_tooltip', date_tooltip)
+
+                data[i] = {
                     systolic_pressure: systolic_value,
                     diastolic_pressure: diastolic_value,
                     pulse_value: pulse_value,
-                    date: new Date(date['year'], date['month'] - 1, date['day'], date['hour'], date['min'], date['sec']),
-                    year: date['year'],
-                    month: date['month'],
-                    day: date['day'],
-                    hour: date['hour'],
-                    min: date['min'],
+                    date: dateOut,
+                    date_tooltip: date_tooltip,
                     max_systolic: constants.max_systolic,
                     min_diastolic: constants.min_diastolic,
                     max_pulse: constants.max_pulse,
@@ -520,52 +482,55 @@
                 i++
             })
 
+             {#console.log('data__', data)#}
+
             chart.data = data
+
+            console.log('chart.data', chart.data)
 
             // Create series Medicine
 
-            function createSeriesMedicine(field, data, series_name, color, type) {
-                if (type == 'medicine') {
-                    var series = chart.series.push(new am4charts__.LineSeries());
-                    series.dataFields.valueY = field
-                    series.dataFields.dateX = "date_out"
-                    series.dataFields.value = "name"
-                    series.name = series_name
-                    {#series.tooltipText = "medicine_text";#}
-                    {#series.strokeWidth = 2;#}
-                    {#series.propertyFields.stroke = "color"#}
-                    {#series.stroke = am4core__.color("yellow")#}
-                    series.strokeOpacity = 0
-                    {#series.sequencedInterpolation = true#}
-                    series.data = data
+            function createSeriesMedicine(field, data, series_name, color, config) {
+                var series = chart.series.push(new am4charts__.LineSeries());
+                series.dataFields.valueY = field
+                series.dataFields.dateX = "date_out"
+                series.dataFields.value = "name"
+                series.name = series_name
+                {#series.tooltipText = "medicine_text";#}
+                {#series.strokeWidth = 2;#}
+                {#series.propertyFields.stroke = "color"#}
+                {#series.stroke = am4core__.color("yellow")#}
+                series.strokeOpacity = 0
+                {#series.sequencedInterpolation = true#}
+                series.data = data
 
-                    {#var bullet = series.bullets.push(new am4core__.Circle())#}
+                {#var bullet = series.bullets.push(new am4core__.Circle())#}
 
-                    var bullet = series.bullets.push(new am4charts__.Bullet())
-                    var square = bullet.createChild(am4core.Rectangle)
-                    square.width = 12
-                    square.height = 12
-                    square.horizontalCenter = "middle"
-                    square.verticalCenter = "middle"
+                var bullet = series.bullets.push(new am4charts__.Bullet())
+                var square = bullet.createChild(am4core.Rectangle)
+                square.width = 12
+                square.height = 12
+                square.horizontalCenter = "middle"
+                square.verticalCenter = "middle"
 
-                    bullet.fill = am4core__.color(color)
-                    bullet.strokeOpacity = 0
-                    bullet.radius = 5
-                    bullet.fillOpacity = 0.7
-                    {#bullet.strokeWidth = 2#}
-                    {#bullet.stroke = am4core__.color("#ffffff")#}
+                bullet.fill = am4core__.color(color)
+                bullet.strokeOpacity = 0
+                bullet.radius = 5
+                bullet.fillOpacity = 0.7
+                {#bullet.strokeWidth = 2#}
+                {#bullet.stroke = am4core__.color("#ffffff")#}
 
-                    bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_out} {date_in.hour}:{date_in.min}"
+                bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}"
 
-                    var hoverState = bullet.states.create("hover")
-                    hoverState.properties.fillOpacity = 1
-                    hoverState.properties.strokeOpacity = 1
+                var hoverState = bullet.states.create("hover")
+                hoverState.properties.fillOpacity = 1
+                hoverState.properties.strokeOpacity = 1
 
-                    series.heatRules.push({ target: bullet, min: 2, max: 17, property: "radius" })
-                }
-
+                series.heatRules.push({ target: bullet, min: 2, max: 17, property: "radius" })
                 chart.scrollbarX = new am4core__.Scrollbar()
             }
+
+            {#console.warn('medicine_trace_data', medicine_trace_data)#}
 
             for (key in medicine_trace_data) {
                 data_ = medicine_trace_data[key]
@@ -574,19 +539,24 @@
                 dates_medicines = data_.medicines_times_
                 series_name = key
                 data_medicines_out = []
-                {#data = dataObject.dataTransform(model)#}
 
                 for (item in dates_medicines) {
-                    console.log('dates_medicines[item]', item, dates_medicines[item])
+                    {#console.warn('dates_medicines[item]', item, dates_medicines[item])#}
 
-                    date_in = formatDate(dates_medicines[item])
-                    {#console.log('date_in', date_in)#}
-                    date_out = new Date(date_in['year'], date_in['month'] - 1, date_in['day'], date_in['hour'], date_in['min'], date_in['sec'])
-                    {#console.log(date_in, date_out)#}
-                    data_medicines_out.push({"date_in": date_in, "date_out": date_out, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
+                    date_in = new Date(dates_medicines[item])
+                    date_tooltip = dataObject.format(date_in)
+
+                    console.log('date_tooltip', date_tooltip)
+
+                    data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
+
                 }
 
-                createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index], 'medicine')
+                {#console.log('data_medicines_out', data_medicines_out)#}
+
+                if (data_medicines_out.length > 0) {
+                    createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index])
+                }
 
                 _y -= 15
                 color_index++
@@ -606,6 +576,7 @@
 
                 bullet = series.bullets.push(new am4charts__.CircleBullet())
                 bullet.circle.strokeWidth = 1
+                bullet.tooltipText = config.tooltipText
 
                 chart.scrollbarX = new am4core__.Scrollbar()
 
@@ -628,7 +599,7 @@
                 }
             }
 
-            tooltipText = "Верхнее давление: [bold]{systolic_pressure}[normal] " + " | до " + constants.max_systolic + " | {day}-{month}-{year} {hour}:{min}"
+            tooltipText = "Верхнее давление: [bold]{systolic_pressure}[normal] " + " | до " + constants.max_systolic + " | {date_tooltip}"
 
             config = {
                 "color": namesConstants.get('color_pressure_up'),
@@ -637,7 +608,7 @@
 
             createSeries("systolic_pressure", systolic.name, config)
 
-            tooltipText = "Нижнее давление: [bold]{diastolic_pressure}[normal]" + " | до " + constants.max_diastolic + " | {day}-{month}-{year} {hour}:{min}"
+            tooltipText = "Нижнее давление: [bold]{diastolic_pressure}[normal]" + " | до " + constants.max_diastolic + " | {date_tooltip}"
 
             config = {
                 "color": namesConstants.get('color_pressure_down'),
@@ -646,7 +617,7 @@
 
             createSeries("diastolic_pressure", diastolic.name, config)
 
-            tooltipText = "Пульс: [bold]{pulse_value}[normal] | от " + constants.min_pulse + " до " + constants.max_pulse + " | " + " {day}-{month}-{year} {hour}:{min}"
+            tooltipText = "Пульс: [bold]{pulse_value}[normal] | от " + constants.min_pulse + " до " + constants.max_pulse + " | " + " {date_tooltip}"
 
             config = {
                 "color": namesConstants.get('color_pulse'),
@@ -729,6 +700,8 @@
                 min = params.min
                 max = params.max
 
+                {#console.log('')#}
+
                 for (key in data) {
                     if (data[key]['y'] > max || data[key]['y'] < min) {
                         data[key]['color_danger'] = namesConstants.get('color_danger')
@@ -738,7 +711,13 @@
                     }
                 }
 
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {dates_format.day}-{dates_format.month}-{dates_format.year} {dates_format.hour}:{dates_format.min}"
+                {#console.log('data', data)#}
+                {##}
+                {#for (param in params.model) {#}
+                {#    console.log('param%', param, params.model[param][0])#}
+                {#}#}
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {dates_format}"
 
                 config = {
                     "name": model.name,
@@ -787,7 +766,6 @@
 
         // Set theme
         {#am4Core.darkTheme(am4core)#}
-
         am4Core.defaultTheme(am4core)
 
         // ************************************
@@ -847,6 +825,28 @@
             "strokeWidth": 2,
             "model": {{ glukose | safe }}
         }
+
+        am4Core.makeGraph(params)
+
+        // *************************************
+        // ******* Create chart instance more
+        // *************************************
+
+        params = {
+            "div": "chartdiv_more",
+            "lang": am4lang_ru_RU,
+            "location": 0,
+            "distance": 100,
+            "y_min": 0,
+            "y_max": 200,
+            "min": constants.min_systolic,
+            "max": constants.max_systolic,
+            "color": "#a545c7",
+            "strokeWidth": 2,
+            "model": {{ systolic | safe }}
+        }
+
+        {#console.log('params', params)#}
 
         am4Core.makeGraph(params)
     </script>
