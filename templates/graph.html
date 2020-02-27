@@ -10,10 +10,7 @@
     <script src="https://www.amcharts.com/lib/4/charts.js"></script>
     <script src="https://www.amcharts.com/lib/4/lang/ru_RU.js"></script>
     <script src="https://www.amcharts.com/lib/4/lang/en_US.js"></script>
-    <script src="https://www.amcharts.com/lib/4/lang/de_DE.js"></script>
     <script src="https://www.amcharts.com/lib/4/themes/dark.js"></script>
-    <script src="https://www.amcharts.com/lib/4/themes/dataviz.js"></script>
-    <script src="https://www.amcharts.com/lib/4/themes/material.js"></script>
     <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
 
 <body>
@@ -111,7 +108,7 @@
     <div id="chartdiv_glukose" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_weight" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_temperature" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_more" class="chartdiv height-530 dark"></div>
+{#    <div id="chartdiv_more" class="chartdiv height-530 dark"></div>#}
 
     <script>
         const all_graph = document.getElementById('all_graph')
@@ -130,31 +127,26 @@
 
         all_graph.addEventListener('click', (event) => {
             Aux.showAll(allDiv)
-            console.log('event.target', event.target)
         })
 
         pressure_graph.addEventListener('click', (event) => {
             Aux.hideAll(allDiv)
             Aux.show(chartdiv__)
-            console.log('event.target', event.target)
         })
 
         weight_graph.addEventListener('click', (event) => {
             Aux.hideAll(allDiv)
             Aux.show(chartdiv_weight)
-            console.log('event.target', event.target)
         })
 
         glukose_graph.addEventListener('click', (event) => {
             Aux.hideAll(allDiv)
             Aux.show(chartdiv_glukose)
-            console.log('event.target', event.target)
         })
 
         temperature_graph.addEventListener('click', (event) => {
             Aux.hideAll(allDiv)
             Aux.show(chartdiv_temperature)
-            console.log('event.target', event.target)
         })
 
         theme.addEventListener('change', function (event) {
@@ -164,7 +156,6 @@
                 am4core__.useTheme(am4themes_animated)
                 chartdiv__.classList.remove('dark')
                 chartdiv__.style.display = "none"
-                console.log('chartdiv__', chartdiv__)
             }
         })
 
@@ -230,8 +221,6 @@
         let dataStorage = {
             "get": function (name) {
                 try {
-                    console.log('get', dataStorage[name])
-
                     return dataStorage[name]
                 } catch(e) {
                     Aux.error(e)
@@ -239,8 +228,6 @@
             },
             "set": function (index, value) {
                try {
-                    console.log('set', index, value)
-
                     dataStorage[index] = value
 
                     return dataStorage[index]
@@ -263,8 +250,6 @@
         }
 
         function createModel(...args) {
-            {#console.log('args', args)#}
-
             let model = new Interpolations(...args)
 
             model._id = args[0]
@@ -296,8 +281,6 @@
                     dataObject.push({"date": dateOut, "dates": dateOut, "dates_format": dates_format, "y": value_y})
                 }
 
-                {#console.warn('dataObject', dataObject)#}
-
                 return dataObject
             },
             "dateFormat": function(date) {
@@ -324,20 +307,9 @@
         systolic = createModel('systolic', {{ systolic | safe }})
         diastolic = createModel('diastolic', {{ diastolic | safe }})
         pulse_ = createModel('pulse_', {{ pulse_ | safe }})
-
-        {#console.log('constants', constants)#}
-
         weight_model = createModel('weight', {{ weight | safe }})
-
-        {#console.log('systolic', systolic)#}
-        {#console.log('diastolic', diastolic)#}
-        {#console.log('pulse_', pulse_)#}
-
         medicine = createModel('medicine', {{ medicine | safe }})
         medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
-
-        {#console.log('medicine', medicine)#}
-        {#console.log('medicine_trace_data', medicine_trace_data)#}
 
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
@@ -413,19 +385,13 @@
             var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
             categoryAxis.renderer.grid.template.location = 0
             {#categoryAxis.renderer.labels.template.rotation = 90;#}
-            //categoryAxis.renderer.minGridDistance = 30;
+            {#categoryAxis.renderer.minGridDistance = 30;#}
 
             var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
             valueAxis.renderer.minGridDistance = 100;
 
-            {#console.warn('medicine_x', medicine_x)#}
-            {#console.warn('systolic_dates', systolic_dates)#}
-
             // Add data
             systolic_dates.forEach(function() {
-
-                {#console.log('systolic_dates[i]', systolic_dates[i], medicine_x, medicine_x[i])#}
-
                 // 1
 
                 systolic_value = systolic_values[i]
@@ -461,8 +427,6 @@
                 let dateOut = new Date(systolic_dates[i])
                 let date_tooltip = dataObject.format(dateOut)
 
-                console.log('date_tooltip', date_tooltip)
-
                 data[i] = {
                     systolic_pressure: systolic_value,
                     diastolic_pressure: diastolic_value,
@@ -482,11 +446,7 @@
                 i++
             })
 
-             {#console.log('data__', data)#}
-
             chart.data = data
-
-            console.log('chart.data', chart.data)
 
             // Create series Medicine
 
@@ -530,8 +490,6 @@
                 chart.scrollbarX = new am4core__.Scrollbar()
             }
 
-            {#console.warn('medicine_trace_data', medicine_trace_data)#}
-
             for (key in medicine_trace_data) {
                 data_ = medicine_trace_data[key]
                 dosage = data_.dosage
@@ -541,8 +499,6 @@
                 data_medicines_out = []
 
                 for (item in dates_medicines) {
-                    {#console.warn('dates_medicines[item]', item, dates_medicines[item])#}
-
                     date_in = new Date(dates_medicines[item])
                     date_tooltip = dataObject.format(date_in)
 
@@ -551,8 +507,6 @@
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
                 }
-
-                {#console.log('data_medicines_out', data_medicines_out)#}
 
                 if (data_medicines_out.length > 0) {
                     createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index])
@@ -700,8 +654,6 @@
                 min = params.min
                 max = params.max
 
-                {#console.log('')#}
-
                 for (key in data) {
                     if (data[key]['y'] > max || data[key]['y'] < min) {
                         data[key]['color_danger'] = namesConstants.get('color_danger')
@@ -710,12 +662,6 @@
                         data[key]['disabled'] = true
                     }
                 }
-
-                {#console.log('data', data)#}
-                {##}
-                {#for (param in params.model) {#}
-                {#    console.log('param%', param, params.model[param][0])#}
-                {#}#}
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {dates_format}"
 
@@ -828,27 +774,6 @@
 
         am4Core.makeGraph(params)
 
-        // *************************************
-        // ******* Create chart instance more
-        // *************************************
-
-        params = {
-            "div": "chartdiv_more",
-            "lang": am4lang_ru_RU,
-            "location": 0,
-            "distance": 100,
-            "y_min": 0,
-            "y_max": 200,
-            "min": constants.min_systolic,
-            "max": constants.max_systolic,
-            "color": "#a545c7",
-            "strokeWidth": 2,
-            "model": {{ systolic | safe }}
-        }
-
-        {#console.log('params', params)#}
-
-        am4Core.makeGraph(params)
     </script>
 
 </body>
