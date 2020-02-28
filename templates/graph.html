@@ -269,6 +269,15 @@
         }
 
         dataObject = {
+            "num": function (param) {
+                let num_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
+
+                if (param < num_array.length) {
+                    return num_array[param]
+                } else {
+                    return param
+                }
+            },
              "dataTransform": function (data) {
                 let dataObject = []
                 let x = data['x']
@@ -277,24 +286,23 @@
                 for (item in x) {
                     let dateOut = x[item]
                     let value_y = y[item]
-                    let dates_format = this.dateFormat(dateOut)
-                    dataObject.push({"date": dateOut, "dates": dateOut, "dates_format": dates_format, "y": value_y})
+                    let date_format = this.str2date(dateOut)
+                    let tooltip_date = this.dateFormat(dateOut)
+                    dataObject.push({"date": dateOut, "dates": dateOut, "dates_format": date_format, "tooltip_date": tooltip_date, "y": value_y})
                 }
 
                 return dataObject
             },
             "dateFormat": function(date) {
                 let dateOut = new Date(date)
-                let month_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-                let month = dateOut.getMonth()
 
-                return dateOut.getDate() + '-' + month_array[month] + '-' + dateOut.getFullYear() + ' ' + dateOut.getHours() + ':' + dateOut.getMinutes()
+                return dateOut.getDate() + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
             },
-            "format": function(date_) {
-                let month_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-                let month = date_.getMonth()
-
-                return date_.getDate() + '-' + month_array[month] + '-' + date_.getFullYear() + ' ' + date_.getHours() + ':' + date_.getMinutes()
+            "format": function(dateOut) {
+                return dateOut.getDate() + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
+            },
+            "str2date": function(date) {
+                return new Date(date)
             }
         }
 
@@ -341,7 +349,6 @@
             var disabled_pulse = true
             var disabled_glukose = true
             var systolic_dates = systolic['x']
-
             var systolic_values = systolic['y']
             var diastolic_dates = diastolic['x']
             var diastolic_values = diastolic['y']
@@ -353,20 +360,15 @@
             var medicine_y = 20
             var medicine_text = medicine['text']
             var medicine_amount = medicine['amount']
-            {#var medicine_y_delta  = 0#}
-            {#var medicine_y_common = []#}
             var config = {}
 
             if (medicine_x.length > 0 && systolic_dates.length == 0) {
                 systolic_dates = medicine_x
             }
 
-            let data_medicines = []
             let dates_medicines = []
             let data_ = {}
-
             let date_in = ''
-            let date_out = ''
             let _y = -20
             let series_name = ''
             let dosage = ''
@@ -501,9 +503,6 @@
                 for (item in dates_medicines) {
                     date_in = new Date(dates_medicines[item])
                     date_tooltip = dataObject.format(date_in)
-
-                    console.log('date_tooltip', date_tooltip)
-
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
                 }
@@ -663,12 +662,12 @@
                     }
                 }
 
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {dates_format}"
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}"
 
                 config = {
                     "name": model.name,
                     "field": "y",
-                    "dateX": "dates",
+                    "dateX": "dates_format",
                     "tooltipText": tooltipText,
                     "color": params.color,
                     "color_danger": "color_danger",
@@ -753,6 +752,8 @@
         }
 
         am4Core.makeGraph(params)
+
+        params_temperature = params.model
 
         // *************************************
         // ******* Create chart instance glukose
