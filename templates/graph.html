@@ -278,6 +278,15 @@
                     return param
                 }
             },
+            "num_day": function (param) {
+                let num_array = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09']
+
+                if (param < num_array.length) {
+                    return num_array[param]
+                } else {
+                    return param
+                }
+            },
              "dataTransform": function (data) {
                 let dataObject = []
                 let x = data['x']
@@ -296,10 +305,10 @@
             "dateFormat": function(date) {
                 let dateOut = new Date(date)
 
-                return dateOut.getDate() + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
+                return this.num_day(dateOut.getDate()) + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
             },
             "format": function(dateOut) {
-                return dateOut.getDate() + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
+                return this.num_day(dateOut.getDate()) + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
             },
             "str2date": function(date) {
                 return new Date(date)
