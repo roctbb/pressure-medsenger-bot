@@ -411,7 +411,7 @@
 
                 // 2
 
-                if (systolic_value >= constants.max_systolic) {
+                if (systolic_value >= constants.max_systolic || systolic_value < constants.min_systolic) {
                     systolic_up_color = namesConstants.get('color_danger')
                     disabled_systolic = false
                 } else {
@@ -419,7 +419,7 @@
                     disabled_systolic = true
                 }
 
-                if (diastolic_value <= constants.min_diastolic) {
+                if (diastolic_value >= constants.max_diastolic || diastolic_value < constants.min_diastolic) {
                     diastolic_down_color = namesConstants.get('color_danger')
                     disabled_diastolic = false
                 } else {
@@ -427,7 +427,7 @@
                     disabled_diastolic = true
                 }
 
-                if (pulse_value >= constants.max_PU) {
+                if (pulse_value >= constants.max_pulse || pulse_value < constants.min_pulse) {
                     pulse_up_color = namesConstants.get('color_danger')
                     disabled_pulse = false
                 } else {

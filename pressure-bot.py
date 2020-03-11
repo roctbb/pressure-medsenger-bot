@@ -636,12 +636,12 @@ def init():
                         "name": "pressure",
                         "alias": "Давление",
                         "mode": "daily",
-                        "max_systolic": 130,
-                        "min_systolic": 110,
-                        "max_diastolic": 90,
-                        "min_diastolic": 70,
+                        "max_systolic": 140,
+                        "min_systolic": 90,
+                        "max_diastolic": 100,
+                        "min_diastolic": 30,
                         "max_pulse": 80,
-                        "min_pulse": 60,
+                        "min_pulse": 50,
                         "last_push": -1,
                         "timetable": [
                             {
@@ -777,6 +777,7 @@ def init():
 @app.route('/remove', methods=['POST'])
 def remove():
     global contracts
+
 
     data = request.json
     contract_id = str(data['contract_id'])
