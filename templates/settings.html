@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Измерения и прием лекарств</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
     <style>
+        .ccc {
+            color: #666666;
+            font-weight: 700;
+        }
+
         .red {
             color: red;
         }
@@ -85,69 +93,47 @@
 </head>
 <body>
 <div class="container mt15" id="app">
-    <h4 class="inline">Настройка канала консультирования</h4>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <h5 class="inline">Настройка канала консультирования</h5>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <input class="btn btn-success inline small mt5" type="button" v-on:click="add_medicines(medicines_data)" value="Добавить лекарство">
     <form v-on:submit.prevent="save">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Препарат</th>
-                    <th>Форма приема</th>
-                    <th>Время приема</th>
-                </tr>
+        <div class="row" v-for="(medicines, index) in medicines_data" v-if="!medicines.deleted_at">
+            <div class="col-md-4 col-sm-12">
+                <div v-if="medicines.show">
+                    <label class="small mb0 ccc" for="mode">Препарат</label>
 
-                <tr v-for="(medicines, index) in medicines_data" v-if="!medicines.deleted_at">
-                    <td>
-                        <div class="form-group" v-if="medicines.show">
-                            <input v-bind:id="medicines.uid" type="text" v-model="medicines.name" class="form-control">
-                            <button id="remove_medicines" class="btn btn-link" href="#" v-on:click.prevent="remove_medicines(medicines)">
-                                <small>Удалить</small>
-                            </button>
+                    <input v-bind:id="medicines.uid" type="text" v-model="medicines.name" class="form-control">
+                    <a id="remove_medicines" href="#" v-on:click.prevent="remove_medicines(medicines)">
+                        <small>Удалить</small>
+                    </a>
 
-                            <span class="red hide">Для удаления лекарства, нажмите кнопку Сохранить.</span>
-                        </div>
-                    </td>
+                    <span class="red hide">Для удаления лекарства, нажмите кнопку Сохранить.</span>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group" v-if="medicines.show">
+                    <label class="small mb0 ccc" for="mode">Форма приема</label>
 
-                    <td>
-                        <div class="form-group" v-if="medicines.show">
-                            <select class="form-control" v-model="medicines.mode">
-                                <option value="daily">Ежедневно</option>
-                                <option value="weekly">Еженедельно</option>
-                                <option value="monthly">Ежемесячно</option>
-                            </select>
+                    <select class="form-control" v-model="medicines.mode">
+                        <option value="daily">Ежедневно</option>
+                        <option value="weekly">Еженедельно</option>
+                        <option value="monthly">Ежемесячно</option>
+                    </select>
 
-                            <div>
-                                <span class="small mb0 lh11" for="dosage">Дозировка</span><br>
-                                <input type="text" class="form-control small inline" v-model="medicines.dosage">
-                            </div>
+                    <div>
+                        <span class="small mb0 lh11" for="dosage">Дозировка</span><br>
+                        <input type="text" class="form-control small inline w50" v-model="medicines.dosage">
+                    </div>
 
-                            <div>
-                                <span class="small mb0 lh11" for="amount">Кол-во</span><br>
-                                <input type="text" class="form-control small inline" placeholder="Кол-во" v-model="medicines.amount">
-                            </div>
+                    <div>
+                        <span class="small mb0 lh11" for="amount">Кол-во</span><br>
+                        <input type="text" class="form-control small inline w50" placeholder="Кол-во" v-model="medicines.amount">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <label class="small mb0 ccc" for="mode">Время приема</label>
 
-                        </div>
-                    </td>
-
-                    <td v-if="medicines.mode === 'daily'">
-                        <div class="form-group" v-if="medicines.show">
-                            <ul v-for="(medicine, index) in medicines.timetable">
-                                <li v-for="(hours, index) in medicine.hours">
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
-
-                                    <a href="#" v-on:click.prevent="$delete(medicine.hours, index)">
-                                        <small>&nbsp&nbspУдалить</small>
-                                    </a>
-                                </li>
-
-                                <a href="#" v-on:click.prevent="add_medicine_time(medicine.hours)">
-                                    <small class="mt-10">Добавить</small>
-                                </a>
-                            </ul>
-                        </div>
-                    </td>
-
-                    <td v-if="medicines.mode === 'weekly'">
+                <div v-if="medicines.mode === 'weekly'">
                         <div class="form-group" v-if="medicines.show">
                             <ul v-for="(medicine, index) in medicines.timetable">
                                 <li v-for="(days_week, index) in medicine.days_week">
@@ -173,222 +159,220 @@
                                 </a>
                             </ul>
                         </div>
-                    </td>
+                </div>
 
-                    <td v-if="medicines.mode === 'monthly'">
-                        <div class="form-group" v-if="medicines.show">
-                            <ul v-for="(medicine, index) in medicines.timetable">
-                                <li v-for="(days_month, index) in medicine.days_month">
-                                    <select class="form-control w30-inline small" v-model="days_month.day">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                        <option value="19">19</option>
-                                        <option value="20">20</option>
-                                        <option value="21">21</option>
-                                        <option value="22">22</option>
-                                        <option value="23">23</option>
-                                        <option value="24">24</option>
-                                        <option value="25">25</option>
-                                        <option value="26">26</option>
-                                        <option value="27">27</option>
-                                        <option value="28">28</option>
-                                        <option value="29">29</option>
-                                        <option value="30">30</option>
-                                        <option value="31">31</option>
-                                    </select>
+                <div v-if="medicines.mode === 'daily'">
+                    <div class="form-group" v-if="medicines.show">
+                        <ul v-for="(medicine, index) in medicines.timetable">
+                            <li v-for="(hours, index) in medicine.hours">
+                                <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
 
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
-
-                                    <a href="#" v-on:click.prevent="$delete(medicine.days_month, index)">
-                                        <small>&nbsp;&nbsp;Удалить</small>
-                                    </a>
-                                </li>
-
-                                <a href="#" v-on:click.prevent="add_medicine_month(medicine.days_month)">
-                                    <small class="mt-10">Добавить</small>
+                                <a href="#" v-on:click.prevent="$delete(medicine.hours, index)">
+                                    <small>&nbsp&nbspУдалить</small>
                                 </a>
-                            </ul>
-                        </div>
-                    </td>
+                            </li>
 
-                </tr>
-            </tbody>
-        </table>
+                            <a href="#" v-on:click.prevent="add_medicine_time(medicine.hours)">
+                                <small class="mt-10">Добавить</small>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
 
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Название</th>
-                    <th>Параметры измерения</th>
-                    <th>Время измерения</th>
-                </tr>
+                <div v-if="medicines.mode === 'monthly'">
+                    <div class="form-group" v-if="medicines.show">
+                        <ul v-for="(medicine, index) in medicines.timetable">
+                            <li v-for="(days_month, index) in medicine.days_month">
+                                <select class="form-control w30-inline small" v-model="days_month.day">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select>
 
-                <tr v-for="(measurements, index) in measurements_data">
-                    <td>
-                        <div class="form-group" v-bind:id="measurements.name">
-                            <input v-bind:id="measurements.name+'_checkbox'" type="checkbox" v-model="measurements.show" class="form-control">
-                            <label for="checkbox">${measurements.alias}</label>
-                        </div>
-                    </td>
+                                <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
 
-                    <td>
-                        <div class="form-group" v-bind:id="measurements.name+1" v-if="measurements.show">
-                            <select class="form-control" v-model="measurements.mode">
-                                <option value="daily">Ежедневно</option>
-                                <option value="weekly">Еженедельно</option>
-                                <option value="monthly">Ежемесячно</option>
-                            </select>
-
-                            <div v-if="measurements.max_systolic">
-                                <span class="small mb0 lh11" for="systolic">Макс. и мин. значения верхнего давлен.</span><br>
-                                <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
-                                <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
-                            </div>
-
-                            <div v-if="measurements.max_diastolic">
-                                <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. значения нижнего давлен.</span><br>
-                                <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
-                                <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
-                            </div>
-
-                            <div v-if="measurements.max_pulse">
-                                <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. значения пульса</span><br>
-                                <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
-                                <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
-                            </div>
-
-{#                            <div v-if="measurements.max_diastolic">#}
-{#                                <label class="small mb0" for="checkbox">Макс. знач</label>#}
-{#                                <input type="text" class="form-control small" placeholder="Макс" v-model="measurements.max_diastolic">#}
-{##}
-{#                                <label class="small mb0" for="checkbox">Мин. знач</label>#}
-{#                                <input type="text" class="form-control small" placeholder="Макс" v-model="measurements.min_diastolic">#}
-{#                            </div>#}
-
-                            <div v-if="measurements.max">
-                                <label class="small mb0" for="checkbox">Макс. значение</label>
-                                <input type="text" class="form-control small w30" placeholder="Макс" v-model="measurements.max">
-                                <label class="small mb0" for="checkbox">Мин. значение</label>
-                                <input type="text" class="form-control small w30" placeholder="Мин" v-model="measurements.min">
-                            </div>
-                        </div>
-                    </td>
-
-                    <td v-if="measurements.mode === 'weekly'">
-                        <div class="form-group" v-bind:id="measurements.name+2" v-if="measurements.show">
-                            <ul v-for="(measurement, index) in measurements.timetable">
-                                <li v-for="(days_week, index) in measurement.days_week">
-                                    <select class="form-control w30-inline small" v-model="days_week.day">
-                                        <option value="1">ПН</option>
-                                        <option value="2">ВТ</option>
-                                        <option value="3">СР</option>
-                                        <option value="4">ЧТ</option>
-                                        <option value="5">ПТ</option>
-                                        <option value="6">СБ</option>
-                                        <option value="7">ВС</option>
-                                    </select>
-
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
-
-                                    <a href="#" v-on:click.prevent="$delete(measurement.days_week, index)">
-                                        <small>&nbsp;&nbsp;Удалить</small>
-                                    </a>
-                                </li>
-
-                                <a href="#" v-on:click.prevent="add_measurement_day(measurement.days_week)">
-                                    <small class="mt-10">Добавить</small>
+                                <a href="#" v-on:click.prevent="$delete(medicine.days_month, index)">
+                                    <small>&nbsp;&nbsp;Удалить</small>
                                 </a>
-                            </ul>
-                        </div>
-                    </td>
+                            </li>
 
-                    <td v-if="measurements.mode === 'daily'">
-                        <div class="form-group" v-bind:id="measurements.name+3" v-if="measurements.show">
-                            <ul v-for="(measurement, index) in measurements.timetable">
-                                <li v-for="(hours, index) in measurement.hours">
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
+                            <a href="#" v-on:click.prevent="add_medicine_month(medicine.days_month)">
+                                <small class="mt-10">Добавить</small>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                                    <a href="#" v-on:click.prevent="$delete(measurement.hours, index)">
-                                        <small>&nbsp;&nbsp;Удалить</small>
-                                    </a>
-                                </li>
+        <div class="row" v-for="(measurements, index) in measurements_data">
+            <div class="col-md-4 col-sm-12" v-bind:id="measurements.name">
+                <input v-bind:id="measurements.name+'_checkbox'" type="checkbox" v-model="measurements.show">
+                <label for="checkbox">${measurements.alias}</label>
+            </div>
+            <div class="col-md-4 col-sm-12" v-bind:id="measurements.name+1" v-if="measurements.show">
+                <label class="small mb0 ccc" for="mode">Параметры измерения</label>
 
-                                <a href="#" v-on:click.prevent="add_measurement_time(measurement.hours)">
-                                    <small class="mt-10">Добавить</small>
+                <select class="form-control" v-model="measurements.mode">
+                    <option value="daily">Ежедневно</option>
+                    <option value="weekly">Еженедельно</option>
+                    <option value="monthly">Ежемесячно</option>
+                </select>
+
+                <div v-if="measurements.max_systolic">
+                    <span class="small mb0 lh11" for="systolic">Макс. и мин. систолическое</span><br>
+                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
+                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
+                </div>
+
+                <div v-if="measurements.max_diastolic">
+                    <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. диастолическое</span><br>
+                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
+                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
+                </div>
+
+                <div v-if="measurements.max_pulse">
+                    <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. пульс</span><br>
+                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
+                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
+                </div>
+
+                <div v-if="measurements.max">
+                    <label class="small mb0" for="checkbox">Макс. значение</label>
+                    <input type="text" class="form-control small w30" placeholder="Макс" v-model="measurements.max">
+                    <label class="small mb0" for="checkbox">Мин. значение</label>
+                    <input type="text" class="form-control small w30" placeholder="Мин" v-model="measurements.min">
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12" v-if="measurements.show">
+                <label class="small mb0 ccc" for="mode">Время измерения</label>
+
+                <div v-if="measurements.mode === 'daily'">
+                    <div v-bind:id="measurements.name+3" v-if="measurements.show">
+                        <ul v-for="(measurement, index) in measurements.timetable">
+                            <li v-for="(hours, index) in measurement.hours">
+                                <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
+
+                                <a href="#" v-on:click.prevent="$delete(measurement.hours, index)">
+                                    <small>&nbsp;&nbsp;Удалить</small>
                                 </a>
-                            </ul>
-                        </div>
-                    </td>
+                            </li>
 
-                    <td v-if="measurements.mode === 'monthly'">
-                        <div class="form-group" v-bind:id="measurements.name+5" v-if="measurements.show">
-                            <ul v-for="(measurement, index) in measurements.timetable">
-                                <li v-for="(days_month, index) in measurement.days_month">
-                                    <select class="form-control w30-inline small" v-model="days_month.day">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                        <option value="19">19</option>
-                                        <option value="20">20</option>
-                                        <option value="21">21</option>
-                                        <option value="22">22</option>
-                                        <option value="23">23</option>
-                                        <option value="24">24</option>
-                                        <option value="25">25</option>
-                                        <option value="26">26</option>
-                                        <option value="27">27</option>
-                                        <option value="28">28</option>
-                                        <option value="29">29</option>
-                                        <option value="30">30</option>
-                                    </select>
+                            <a href="#" v-on:click.prevent="add_measurement_time(measurement.hours)">
+                                <small class="mt-10">Добавить</small>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
 
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
+                <div v-if="measurements.mode === 'weekly'">
+                    <div v-bind:id="measurements.name+2" v-if="measurements.show">
+                        <ul v-for="(measurement, index) in measurements.timetable">
+                            <li v-for="(days_week, index) in measurement.days_week">
+                                <select class="form-control w30-inline small" v-model="days_week.day">
+                                    <option value="1">ПН</option>
+                                    <option value="2">ВТ</option>
+                                    <option value="3">СР</option>
+                                    <option value="4">ЧТ</option>
+                                    <option value="5">ПТ</option>
+                                    <option value="6">СБ</option>
+                                    <option value="7">ВС</option>
+                                </select>
 
-                                    <a href="#" v-on:click.prevent="$delete(measurement.days_month, index)">
-                                        <small>&nbsp;&nbsp;Удалить</small>
-                                    </a>
-                                </li>
+                                <input type="text" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
 
-                                <a href="#" v-on:click.prevent="add_measurement_month(measurement.days_month)">
-                                    <small style="margin-top: -10px !important;">Добавить</small>
+                                <a href="#" v-on:click.prevent="$delete(measurement.days_week, index)">
+                                    <small>&nbsp;&nbsp;Удалить</small>
                                 </a>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                            </li>
+
+                            <a href="#" v-on:click.prevent="add_measurement_day(measurement.days_week)">
+                                <small class="mt-10">Добавить</small>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+                <div v-if="measurements.mode === 'monthly'">
+                    <div v-bind:id="measurements.name+5" v-if="measurements.show">
+                        <ul v-for="(measurement, index) in measurements.timetable">
+                            <li v-for="(days_month, index) in measurement.days_month">
+                                <select class="form-control w30-inline small" v-model="days_month.day">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                </select>
+
+                                <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
+
+                                <a href="#" v-on:click.prevent="$delete(measurement.days_month, index)">
+                                    <small>&nbsp;&nbsp;Удалить</small>
+                                </a>
+                            </li>
+
+                            <a href="#" v-on:click.prevent="add_measurement_month(measurement.days_month)">
+                                <small style="margin-top: -10px !important;">Добавить</small>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="form-group">
             <input type="submit" class="btn-success btn" value="Сохранить"/>
