@@ -247,25 +247,25 @@
                     <option value="monthly">Ежемесячно</option>
                 </select>
 
-                <div v-if="!measurements.max">
+                <div v-if="measurements.name === 'pressure'">
                     <span class="small mb0 lh11" for="systolic">Макс. и мин. систолическое</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
                 </div>
 
-                <div v-if="!measurements.max">
+                <div v-if="measurements.name === 'pressure'">
                     <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. диастолическое</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
                 </div>
 
-                <div v-if="!measurements.max">
+                <div v-if="measurements.name === 'pressure'">
                     <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. пульс</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
                 </div>
 
-                <div v-if="measurements.max">
+                <div v-if="measurements.name !== 'pressure'">
                     <label class="small mb0" for="checkbox">Макс. значение</label>
                     <input type="text" class="form-control small w30" placeholder="Макс" v-model="measurements.max">
                     <label class="small mb0" for="checkbox">Мин. значение</label>
