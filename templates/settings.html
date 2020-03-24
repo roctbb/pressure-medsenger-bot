@@ -247,19 +247,19 @@
                     <option value="monthly">Ежемесячно</option>
                 </select>
 
-                <div v-if="measurements.max_systolic">
+                <div v-if="!measurements.max">
                     <span class="small mb0 lh11" for="systolic">Макс. и мин. систолическое</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
                 </div>
 
-                <div v-if="measurements.max_diastolic">
+                <div v-if="!measurements.max">
                     <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. диастолическое</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
                 </div>
 
-                <div v-if="measurements.max_pulse">
+                <div v-if="!measurements.max">
                     <span style="line-height: 11px" class="small mb0" for="systolic">Макс. и мин. пульс</span><br>
                     <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
                     <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
