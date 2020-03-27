@@ -17,9 +17,48 @@ contracts = []
 medicines = []
 measurements = []
 
+# Default functions
+
+def max_systolic_default():
+    return 140
+
+def min_systolic_default():
+    return 90
+
+def max_diastolic_default():
+    return 100
+
+def min_diastolic_default():
+    return 30
+
+def max_pulse_default():
+    return 80
+
+def min_pulse_default():
+    return 50
+
+def max_weight_default():
+    return 100
+
+def min_weight_default():
+    return 50
+
+def max_temperature_default():
+    return 37
+
+def min_temperature_default():
+    return 36
+
+def max_glukose_default():
+    return 6.5
+
+def min_glukose_default():
+    return 4
+
+# Common functions
+
 def dump(data, label):
     print('dump: ' + label + ' ', data)
-
 def delayed(delay, f, args):
     print('args', args)
     timer = threading.Timer(delay, f, args=args)
@@ -38,6 +77,7 @@ def load():
             data = json.load(f)
 
         contracts = data['contracts']
+        # print('contracts', contracts)
     except Exception as e:
         print('error load()', e)
 
@@ -316,16 +356,23 @@ def quard():
     global contracts
 
     key = request.args.get('api_key', '')
-    contract_id = int(request.args.get('contract_id', ''))
+
+    try:
+        contract_id = int(request.args.get('contract_id', ''))
+    except Exception as e:
+        print('error quard()', e)
+        return 'ERROR_CONTRACT'
 
     if key != APP_KEY:
         return 'ERROR_KEY'
 
-    for contract in contracts:
-        if (contract_id == int(contract['id'])):
-            return contract_id
-
-    return 'ERROR_CONTRACT'
+    try:
+        for contract in contracts:
+            if (contract_id == int(contract['id'])):
+                return contract_id
+    except Exception as e:
+        print('error for contract in contracts', e)
+        return 'ERROR_CONTRACT'
 
 load()
 
@@ -636,12 +683,12 @@ def init():
                         "name": "pressure",
                         "alias": "Давление",
                         "mode": "daily",
-                        "max_systolic": 140,
-                        "min_systolic": 90,
-                        "max_diastolic": 100,
-                        "min_diastolic": 30,
-                        "max_pulse": 80,
-                        "min_pulse": 50,
+                        "max_systolic": max_systolic_default(),
+                        "min_systolic": min_systolic_default(),
+                        "max_diastolic": max_diastolic_default(),
+                        "min_diastolic": min_diastolic_default(),
+                        "max_pulse": max_pulse_default(),
+                        "min_pulse": min_pulse_default(),
                         "last_push": -1,
                         "timetable": [
                             {
@@ -671,8 +718,8 @@ def init():
                         "name": "weight",
                         "alias": "Вес",
                         "mode": "daily",
-                        "max": 100,
-                        "min": 50,
+                        "max": max_weight_default(),
+                        "min": min_weight_default(),
                         "last_push": -1,
                         "timetable": [
                             {
@@ -702,8 +749,8 @@ def init():
                         "name": "temperature",
                         "alias": "Температура",
                         "mode": "daily",
-                        "max": 37,
-                        "min": 36,
+                        "max": max_temperature_default(),
+                        "min": min_temperature_default(),
                         "last_push": -1,
                         "timetable": [
                             {
@@ -733,8 +780,8 @@ def init():
                         "name": "glukose",
                         "alias": "Глюкоза",
                         "mode": "daily",
-                        "max": 6.5,
-                        "min": 4,
+                        "max": max_glukose_default(),
+                        "min": min_glukose_default(),
                         "last_push": -1,
                         "timetable": [
                             {
@@ -814,6 +861,9 @@ def action_pull_save(pull):
             for measurement in contract['measurements']:
                 measurement_name = measurement['name']
 
+                print('pull', pull)
+                print('measurement_name', measurement_name)
+
                 if (pull in measurement_name):
                     if (measurement_name == 'pressure'):
                         answer = {}
@@ -824,15 +874,49 @@ def action_pull_save(pull):
                         if False in map(check_digit, [systolic, diastolic, pulse_]):
                             return ERROR_FORM
 
-                        systolic = int(systolic)
-                        diastolic = int(diastolic)
-                        pulse_ = int(pulse_)
-                        max_systolic = int(measurement['max_systolic'])
-                        min_systolic = int(measurement['min_systolic'])
-                        max_diastolic = int(measurement['max_diastolic'])
-                        min_diastolic = int(measurement['min_diastolic'])
+                        try:
+                            systolic = int(systolic)
+                        except Exception as e:
+                            systolic = 120
+                            print('systolic = int(systolic)', e)
 
-                        if not (min_systolic <= int(systolic) <= max_systolic and min_diastolic <= int(
+                        try:
+                            diastolic = int(diastolic)
+                        except Exception as e:
+                            diastolic = 80
+                            print('diastolic = int(diastolic)', e)
+
+                        try:
+                            pulse_ = int(pulse_)
+                        except Exception as e:
+                            pulse_ = 60
+                            print('pulse_ = int(pulse_)', e)
+
+                        try:
+                            max_systolic = int(measurement['max_systolic'])
+                        except Exception as e:
+                            max_systolic = max_systolic_default()
+                            print('max_systolic = int(measurement[max_systolic])', e)
+
+                        try:
+                            min_systolic = int(measurement['min_systolic'])
+                        except Exception as e:
+                            min_systolic = min_systolic_default()
+                            print('min_systolic = int(measurement[min_systolic])', e)
+
+                        try:
+                            max_diastolic = int(measurement['max_diastolic'])
+                        except Exception as e:
+                            max_diastolic = max_diastolic_default()
+                            print('max_diastolic = int(measurement[max_diastolic])', e)
+
+                        try:
+                            min_diastolic = int(measurement['min_diastolic'])
+                        except Exception as e:
+                            min_diastolic = min_diastolic_default()
+                            print('min_diastolic = int(measurement[min_diastolic])', e)
+
+                        if not (min_systolic <= systolic <= max_systolic and min_diastolic <= int(
                                 diastolic) <= max_diastolic):
                             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
 
@@ -844,8 +928,19 @@ def action_pull_save(pull):
                             return ERROR_FORM
 
                         answer = {}
-                        max = float(measurement['max'])
-                        min = float(measurement['min'])
+
+                        try:
+                            max = float(measurement['max'])
+                        except Exception as e:
+                            max = 0
+                            print("float(measurement['max']", e)
+
+                        try:
+                            min = float(measurement['min'])
+                        except Exception as e:
+                            min = 0
+                            print("min = float(measurement['min'])", e)
+
                         param_value = float(param_value)
 
                         if param in measurement['name']:
