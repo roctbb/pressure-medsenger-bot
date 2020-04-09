@@ -178,6 +178,7 @@ def sender():
     global measurements
 
     deadline = 3 * 60 * 60
+    sleep_time = 600
 
     while True:
         for contract in contracts:
@@ -263,8 +264,6 @@ def sender():
                                         measurement['last_push'] = current_time
                                         post_request(data)
 
-                save_data()
-
             for medicine in medicines:
                 show = medicine['show']
 
@@ -348,9 +347,9 @@ def sender():
                                         medicine['last_sent'] = current_time
                                         post_request(data)
 
-                save_data()
+        save_data()
 
-        time.sleep(10)
+        time.sleep(sleep_time)
 
 def quard():
     global contracts
