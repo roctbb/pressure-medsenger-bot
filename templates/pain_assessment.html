@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Оценка боли</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <style>
+        .w20 {
+            width: 20%;
+        }
+
+        .w30 {
+            width: 30%;
+        }
+
+        .w100 {
+            width: 100% !important;
+        }
+
+        .mt15 {
+            margin-top: 15px;
+        }
+
+        .mt25 {
+            margin-top: 25px;
+        }
+
+        .inline {
+            width: 20%;
+            display: inline;
+        }
+
+        .focus {
+            /**/
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container mt15">
+            <h4>Оценка болевых ощущений</h4>
+
+            <form method="POST" class="mt25">
+                <div class="form-group">
+                    <select class="form-control w30-inline small" id="pain_assessment" name="pain_assessment">
+                        <option value="0">0 баллов</option>
+                        <option value="1">1 балл</option>
+                        <option value="2">2 балла</option>
+                        <option value="3">3 балла</option>
+                        <option value="4">4 балла</option>
+                        <option value="5">5 баллов</option>
+                        <option value="6">6 баллов</option>
+                        <option value="7">7 баллов</option>
+                        <option value="8">8 баллов</option>
+                        <option value="9">9 баллов</option>
+                        <option value="10">10 баллов</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="w30" for="comments">Комментарии:</label>
+                    <input type="text" class="form-control w100" name="comments" id="comments">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" class="btn-success btn" value="Сохранить"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

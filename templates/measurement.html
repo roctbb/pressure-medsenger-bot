@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Измерение пульса</title>
+    <title>Измерения</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script
@@ -12,8 +12,16 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <style>
+        .w20 {
+            width: 20%;
+        }
+
         .w30 {
             width: 30%;
+        }
+
+        .w100 {
+            width: 100% !important;
         }
 
         .mt15 {
@@ -28,28 +36,36 @@
             width: 30%;
             display: inline;
         }
+
+        .focus {
+            /**/
+        }
     </style>
 </head>
-<body>
+<body onload="">
     <div id="app">
-        <div v-if="tmpl === 'pressure'" class="container mt15">
-            <h4>Какое у вас давление?</h4>
-
-            <form method="POST" class="mt25">
-                <div class="form-group">
-                    <label class="w30" for="pressure">Давление:</label>
-                    <input type="number" class="form-control inline" name="systolic" id="systolic"> /
-                    <input type="number" class="form-control inline" name="diastolic" id="diastolic">
-                </div>
-                <div class="form-group">
-                    <label class="w30" for="pulse">Пульс:</label>
-                    <input type="number" class="form-control inline" name="pulse_" id="pulse_">
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="btn-success btn" value="Сохранить"/>
-                </div>
-            </form>
-        </div>
+{#        <div v-if="tmpl === 'pressure'" class="container mt15">#}
+{#            <h4>Какое у вас давление?</h4>#}
+{##}
+{#            <form method="POST" class="mt25">#}
+{#                <div class="form-group">#}
+{#                    <label class="w30" for="pressure">Давление:</label>#}
+{#                    <input type="number" class="form-control inline focus" name="systolic" id="systolic"> /#}
+{#                    <input type="number" class="form-control inline" name="diastolic" id="diastolic">#}
+{#                </div>#}
+{#                <div class="form-group">#}
+{#                    <label class="w30" for="pulse">Пульс:</label>#}
+{#                    <input type="number" class="form-control inline" name="pulse_" id="pulse_">#}
+{#                </div>#}
+{#                <div class="form-group">#}
+{#                    <label class="w30" for="comments">Комментарии:</label>#}
+{#                    <input type="text" class="form-control w100" name="comments" id="comments">#}
+{#                </div>#}
+{#                <div class="form-group">#}
+{#                    <input type="submit" class="btn-success btn" value="Сохранить"/>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
 
         <div v-if="tmpl === 'weight'" class="container mt15">
             <h4>Какой у вас вес?</h4>
@@ -57,7 +73,11 @@
             <form method="POST" class="mt25">
                 <div class="form-group">
                     <label class="w30" for="pulse">Вес:</label>
-                    <input type="number" class="form-control inline" name="weight" id="weight">
+                    <input type="number" step="any" class="form-control inline focus" name="weight" id="weight">
+                </div>
+                <div class="form-group">
+                    <label class="w30" for="comments">Комментарии:</label>
+                    <input type="text" class="form-control w100" name="comments" id="comments">
                 </div>
                 <div class="form-group">
                     <input type="submit" class="btn-success btn" value="Сохранить"/>
@@ -71,7 +91,12 @@
             <form method="POST" class="mt25">
                 <div class="form-group">
                     <label class="w30" for="glukose">Уровень глюкозы:</label>
-                    <input type="number" step="any" class="form-control inline" name="glukose" id="glukose">
+                    <input type="number" step="any" class="form-control inline" name="glukose" id="glukose" autofocus>
+                    <input type="hidden" name="focus_el" id="focus_el" value="glukose">
+                </div>
+                <div class="form-group">
+                    <label class="w30" for="comments">Комментарии:</label>
+                    <input type="text" class="form-control w100" name="comments" id="comments">
                 </div>
                 <div class="form-group">
                     <input type="submit" class="btn-success btn" value="Сохранить"/>
@@ -80,12 +105,17 @@
         </div>
 
         <div v-if="tmpl === 'temperature'" class="container mt15">
-            <h4>Какой у вас температура?</h4>
+            <h4>Какая у вас температура?</h4>
 
             <form method="POST" class="mt25">
                 <div class="form-group">
                     <label class="w30" for="temperature">Температура:</label>
-                    <input type="number" step="any" class="form-control inline" name="temperature" id="temperature">
+                    <input type="number" step="any" class="form-control inline" name="temperature" id="temperature" autofocus>
+                    <input type="hidden" name="focus_el" id="focus_el" value="temperature">
+                </div>
+                <div class="form-group">
+                    <label class="w30" for="comments">Комментарии:</label>
+                    <input type="text" class="form-control w100" name="comments" id="comments">
                 </div>
                 <div class="form-group">
                     <input type="submit" class="btn-success btn" value="Сохранить"/>
@@ -113,6 +143,33 @@
             },
             delimiters: ['${', '}']
         })
+
+        let focus_el = document.getElementsByClassName("focus")
+        {#focus_el.opener.focus()#}
+        console.log('focus_el', focus_el)
+
+        {#function setFocus() {#}
+        {#    let focus_el = document.getElementById("focus_el")#}
+        {##}
+        {#    if (focus_el == 'temperature') {#}
+        {#        document.getElementById(focus_el).focus()#}
+        {#    }#}
+        {##}
+        {#    console.log('focus_el.value;', focus_el.value);#}
+        {#}#}
+
+        {#function setFocus() {#}
+        {#    document.getElementById("glukose").focus();#}
+        {#}#}
+        {##}
+        {#function setFocus() {#}
+        {#    document.getElementById("weight").focus();#}
+        {#}#}
+        {##}
+        {#function setFocus() {#}
+        {#    document.getElementById("systolic").focus();#}
+        {#}#}
+
     </script>
 </body>
 </html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Измерение давления</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <style>
+        .w20 {
+            width: 20%;
+        }
+
+        .w30 {
+            width: 30%;
+        }
+
+        .w100 {
+            width: 100% !important;
+        }
+
+        .mt15 {
+            margin-top: 15px;
+        }
+
+        .mt25 {
+            margin-top: 25px;
+        }
+
+        .inline {
+            width: 20%;
+            display: inline;
+        }
+
+        .focus {
+            /**/
+        }
+
+        .error {
+            {#max-width: 228px;#}
+            display: none;
+            font-size: 11px;
+            {#line-height: 15px;#}
+            color: red;
+            {#position: absolute;#}
+            padding-left: 10rem;
+            {#top: calc(100% + 8px);#}
+            {#z-index: 100;#}
+            {#padding: 6px 10px 7px;#}
+            {#-webkit-border-radius: 6px;#}
+            {#border-radius: 6px;#}
+            {#background: #d99;#}
+        }
+
+        {#.error:before {#}
+        {#    width: 0;#}
+        {#    height: 0;#}
+        {#    content: '';#}
+        {#    position: absolute;#}
+        {#    left: 15px;#}
+        {#    top: -7px;#}
+        {#    border-right: 8px solid transparent;#}
+        {#    border-left: 8px solid transparent;#}
+        {#    border-bottom: 8px solid #d99;#}
+        {#}#}
+    </style>
+</head>
+<body onload="setFocus()">
+    <div id="app">
+        <div class="container mt15">
+            <h4>Какое у вас давление?</h4>
+
+            <form method="POST" class="mt25" id="main-form">
+                <div class="form-group">
+                    <label class="w30" for="pressure">Давление:</label>
+                    <input type="number" class="form-control inline" name="systolic" id="systolic" autofocus> /
+                    <input type="number" class="form-control inline" name="diastolic" id="diastolic">
+                    <span id="error-sys" class="error"> </span>
+                    <span id="error-dia" class="error"> </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="w30" for="pulse">Пульс:</label>
+                    <input type="number" class="form-control inline" name="pulse_" id="pulse_">
+                    <span id="error-pulse" class="error"> </span>
+                </div>
+                <div class="form-group">
+                    <label class="w30" for="comments">Комментарии:</label>
+                    <input type="text" class="form-control w100" name="comments" id="comments">
+                    <span id="error-comments" class="error"> </span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" id="save" class="btn-success btn" value="Сохранить"/>
+                </div>
+
+{#                <button @click="focused = true">Focus the input</button>#}
+{#                <input type="text" v-focus="focused">#}
+            </form>
+        </div>
+    </div>
+
+{#    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>#}
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>#}
+
+    <script>
+
+        {#var app = new Vue({#}
+        {#    el: '#app',#}
+        {#    data: {#}
+        {#        tmpl: "{{ tmpl }}"#}
+        {#    },#}
+        {#    methods: {#}
+        {#        hide: function () {#}
+        {#            // stub#}
+        {#        },#}
+        {#        show: function () {#}
+        {#            // stub#}
+        {#        },#}
+        {#        focused() {#}
+                    {#return {#}
+                    {#  focused: false,#}
+                    {#}#}
+        {#            console.log('vue setFocus()')#}
+        {#        }#}
+        {#    },#}
+        {#    delimiters: ['${', '}']#}
+        {#})#}
+
+        {#Vue.directive('focus', {#}
+        {#    inserted: function (el) {#}
+        {#        el.focus()#}
+        {#    }#}
+        {#})#}
+
+        function setFocus() {
+            let focus_el = document.getElementById("systolic")
+            focus_el.focus()
+
+            console.log('onload body', focus_el, document.activeElement)
+        }
+
+        let focus_el = document.getElementById("systolic");
+
+        console.log('focus_el 1', focus_el);
+
+        focus_el.addEventListener('DOMContentLoaded', (event) => {
+            console.log('DOMContentLoaded');
+        })
+
+
+        {#focus_el = document.getElementById("systolic")#}
+        {#focus_el.focus()#}
+
+        console.log('END')
+
+
+
+    </script>
+
+    <script>
+        ;(function() {
+            'use strict'
+
+            const constants = {{ constants | safe }}
+
+            console.log('constants', constants)
+
+            const Validation = {
+                'patt_integer': /[0-9]+/,
+                'patt_float': /[0-9]+\.{0,1}\,{0,1}[0-9]+/,
+                'patt_name': /^[а-яёА-ЯЁ\s]+$/,
+                'patt_email': /^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z])+$/,
+                'patt_spam': /[^\<\>\[\]%\&'`]+$/,
+                'is_empty': function (val) {
+                    if (!val) {
+                        return true
+                    } else {
+                        return false
+                    }
+                },
+                'test_integer': function (val, el, text, event) {
+                    let res = this.patt_integer.test(val)
+
+                    this.generateError(res, el, text, event)
+
+                    return
+                },
+                'test_float': function (val, el, text, event) {
+                    let res = this.patt_float.test(val)
+
+                    this.generateError(res, el, text, event)
+                    
+                    return
+                },
+                'test_name': function (val, el, text, event) {
+                    let res = this.patt_name.test(val)
+
+                    this.generateError(res, el, text, event)
+                    
+                    return
+                },
+                'test_email': function (val, el, text, event) {
+                    let res = this.patt_email.test(val)
+
+                    this.generateError(res, el, text, event)
+                    
+                    return
+                },
+                'test_spam': function (val, el, text, event) {
+                    let res = this.patt_spam.test(val)
+
+                    this.generateError(res, el, text, event)
+
+                    return
+                },
+                'show': function(el) {
+                    el.style.display = 'block'
+                },
+                'hide': function(el) {
+                    el.style.display = 'none'
+                },
+                'hide_error_all': function(el_array) {
+                    el_array.forEach(function(entry) {
+                        Validation.hide(entry)
+                    });
+                },
+                'makeErrorHtml': function(el, text) {
+                    el.className = 'error'
+                    el.innerHTML = text
+
+                    this.show(el)
+                },
+                'generateError': function(res, el, text, event) {
+                    if (!res) {
+                        this.makeErrorHtml(el, text)
+                        event.preventDefault()
+                    } else {
+                        this.hide(el)
+                    }
+
+                },
+                'validate': function() {
+
+                    console.log('validate')
+                }
+            }
+
+            const getElement = function(el) {
+                return document.getElementById(el)
+            }
+
+            const form = document.getElementById('main-form')
+
+            if (!form) return
+
+            form.addEventListener('submit', function (event) {
+                let sys = getElement('systolic')
+                let dia = getElement('diastolic')
+                let pulse = getElement('pulse_')
+                let comments = getElement('comments')
+                let error_sys = getElement('error-sys')
+                let error_dia = getElement('error-dia')
+                let error_pulse = getElement('error-pulse')
+                let error_comments = getElement('error-comments')
+
+                Validation.hide_error_all([error_sys, error_dia, error_pulse, error_comments])
+
+                if (!sys.value) {
+                    Validation.makeErrorHtml(error_sys, 'Заполните поле Давление (левое)')
+                    {#console.log('sys is blank')#}
+                    event.preventDefault()
+                    return
+                } else {
+                    Validation.hide(error_sys)
+                }
+
+                if (!dia.value) {
+                    Validation.makeErrorHtml(error_dia, 'Заполните поле Давление (правое)')
+                    {#console.log('dia is blank')#}
+                    event.preventDefault()
+                    return
+                } else {
+                    {#console.log('hide(error_dia)')#}
+                    Validation.hide(error_dia)
+                }
+
+                if (!pulse.value) {
+                    Validation.makeErrorHtml(error_pulse, 'Заполните поле Пульс')
+                    {#console.log('pulse is blank')#}
+                    event.preventDefault()
+                    return
+                } else {
+                    Validation.hide(error_pulse)
+                }
+
+                Validation.test_integer(sys.value, error_sys, errorMess[0], event)
+                Validation.test_integer(dia.value, error_dia, errorMess[1], event)
+                Validation.test_integer(pulse.value, error_pulse, errorMess[2], event)
+
+                if (Validation.is_empty(!comments.value)) {
+                    Validation.test_spam(comments.value, error_comments, errorMess[3], event)
+                }
+
+                {#console.log('constants.sys_min', sys.value, constants.sys_min)#}
+
+                if (sys.value > constants.sys_max) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_sys, 'Систолическое давление не может быть выше ' + constants.sys_max)
+                }
+
+                if (sys.value < constants.sys_min) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_sys, 'Систолическое давление не может быть ниже ' + constants.sys_min)
+                }
+
+                if (dia.value > constants.dia_max) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_dia, 'Диастолическое давление не может быть выше ' + constants.dia_max)
+                }
+
+                if (dia.value < constants.dia_min) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_dia, 'Диастолическое давление не может быть ниже ' + constants.dia_min)
+                }
+
+                if (pulse.value > constants.pulse_max) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_pulse, 'Пульс не может быть выше ' + constants.pulse_max)
+                }
+
+                if (pulse.value < constants.pulse_min) {
+                    event.preventDefault()
+                    Validation.makeErrorHtml(error_pulse, 'Пульс не может быть ниже ' + constants.pulse_min)
+                }
+
+            })
+
+            {#// коллекция полей формы из которой мы будем извлекать данные#}
+            {#let	elements	= form.querySelectorAll('.form-control'),#}
+
+            let errorMess	= [
+                'Удалите запрещенные символы из полей Давление',
+                'Удалите запрещенные символы из полей Давление',
+                'Удалите запрещенные символы из поля Пульс',
+                'Удалите запрещенные символы < > ][ из поля Комментарии'
+
+            ]
+
+        })();
+    </script>
+</body>
+</html>
