@@ -485,12 +485,6 @@ def sender():
                                                 print('31 pattern <= hours_array[0]', hours_array[0], pattern, action_deadline)
                                                 break
 
-                                            # if (pattern == hours_array[0]):
-                                            #     action_deadline = hours_array[0] - pattern
-                                            #     print('31 pattern <= hours_array[0]', hours_array[0], pattern,
-                                            #           action_deadline)
-                                            #     break
-
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0], pattern, action_deadline)
