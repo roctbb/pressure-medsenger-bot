@@ -288,7 +288,7 @@ def check_str(val):
 def post_request(data, query='/api/agents/message'):
     try:
         print('post_request()')
-        print('data', data)
+        print('MAIN', MAIN_HOST + query)
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request', e)
@@ -2238,7 +2238,8 @@ def init():
                 }
 
                 print('data preset pressure', data)
-                post_request(data)
+                delayed(1, post_request, data)
+                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2369,7 +2370,8 @@ def init():
                 }
 
                 print('data preset weight', data)
-                post_request(data)
+                delayed(1, post_request, data)
+                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2420,7 +2422,8 @@ def init():
                 }
 
                 print('data preset waist', data)
-                post_request(data)
+                delayed(1, post_request, data)
+                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2511,7 +2514,8 @@ def init():
                 }
 
                 print('data preset shin', data)
-                post_request(data)
+                delayed(1, post_request, data)
+                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
