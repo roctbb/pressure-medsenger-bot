@@ -2238,7 +2238,7 @@ def init():
                 }
 
                 print('data preset pressure', data)
-                delayed(1, post_request, data)
+                delayed(1, post_request, [data])
                 # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2370,7 +2370,7 @@ def init():
                 }
 
                 print('data preset weight', data)
-                delayed(1, post_request, data)
+                delayed(1, post_request, [data])
                 # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2422,7 +2422,7 @@ def init():
                 }
 
                 print('data preset waist', data)
-                delayed(1, post_request, data)
+                delayed(1, post_request, [data])
                 # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2514,7 +2514,7 @@ def init():
                 }
 
                 print('data preset shin', data)
-                delayed(1, post_request, data)
+                delayed(1, post_request, [data])
                 # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
