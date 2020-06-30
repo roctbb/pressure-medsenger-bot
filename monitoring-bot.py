@@ -2191,26 +2191,68 @@ def init():
                 print('ERROR')
                 return result
 
+            # Варианты параметра preset следующие:
+            # heartfailure - измерение веса, давления, обхвата талии и голени раз в день;
+            # stenocardia или fibrillation - измерение веса, давления раз в день.
+
+            preset = None
+
+            if data['preset']:
+                preset = data['preset']
+
+            #  *************************************************************** SYS
+
             params = '{"max_systolic":140,"min_systolic":90,"max_diastolic":90,"min_diastolic":60,"max_pulse":80,"min_pulse":50}'
             timetable = '{"days_month":[{"day":1,"hour":10}],"days_week":[{"day":1,"hour":10}],"hours":[{"value": 10}]}'
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'systolic_pressure'," + \
-                        "'верхнее давление'," + \
-                        "'daily'," + \
-                        "'мм рт ст'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'systolic_pressure'," + \
+                            "'верхнее давление'," + \
+                            "'daily'," + \
+                            "'мм рт ст'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "true," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
+
+                name = 'pressure'
+
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[name]['text'],
+                        "action_link": "frame/" + name,
+                        "action_deadline": time.time() + (60 * 60 * 24),
+                        "action_name": MESS_MEASUREMENT[name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    }
+                }
+
+                print('data preset pressure', data)
+                post_request(data)
+            else:
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'systolic_pressure'," + \
+                            "'верхнее давление'," + \
+                            "'daily'," + \
+                            "'мм рт ст'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "false," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
 
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # ***************************************************************
+            # *************************************************************** DIA
 
             params = '{}'
 
@@ -2230,7 +2272,7 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # ***************************************************************
+            # *************************************************************** PULSE
 
             params = '{}'
 
@@ -2250,7 +2292,7 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # ***************************************************************
+            # *************************************************************** TEMPERATURE
 
             params = '{"max":37,"min":35}'
 
@@ -2270,7 +2312,7 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** glukose
+            # *************************************************************** GLUKOSE
 
             params = '{"max":7,"min":5}'
 
@@ -2290,47 +2332,109 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** weight
+            # *************************************************************** WEIGHT
 
             params = '{}'
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'weight'," + \
-                        "'вес'," + \
-                        "'daily'," + \
-                        "'кг'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'weight'," + \
+                            "'вес'," + \
+                            "'daily'," + \
+                            "'кг'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "true," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
+
+                name = 'weight'
+
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[name]['text'],
+                        "action_link": "frame/" + name,
+                        "action_deadline": time.time() + (60 * 60 * 24),
+                        "action_name": MESS_MEASUREMENT[name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    }
+                }
+
+                print('data preset weight', data)
+                post_request(data)
+            else:
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'weight'," + \
+                            "'вес'," + \
+                            "'daily'," + \
+                            "'кг'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "false," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
 
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** waist
+            # *************************************************************** WAIST
 
             params = '{"max":0,"min":0}'
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'waist'," + \
-                        "'объем талии для сердечно-сосудистых пациентов'," + \
-                        "'daily'," + \
-                        "'см'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+            if (preset == 'heartfailure'):
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'waist'," + \
+                            "'обхват талии для сердечно-сосудистых пациентов'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "true," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
+
+                name = 'waist'
+
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[name]['text'],
+                        "action_link": "frame/" + name,
+                        "action_deadline": time.time() + (60 * 60 * 24),
+                        "action_name": MESS_MEASUREMENT[name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    }
+                }
+
+                print('data preset waist', data)
+                post_request(data)
+            else:
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'waist'," + \
+                            "'обхват талии для сердечно-сосудистых пациентов'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "false," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
 
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** spo2
+            # *************************************************************** SPO2
 
             params = '{"max":100,"min":93}'
 
@@ -2350,7 +2454,7 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** pain_assessment
+            # *************************************************************** PAIN_ASSESSMENT
 
             params = '{"max":10,"min":0}'
 
@@ -2370,48 +2474,91 @@ def init():
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** shin_left
+            # *************************************************************** SHIN_LEFT
 
             params = '{"max":35,"min":10}'
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'shin_volume_left'," + \
-                        "'измерение объема голени левой'," + \
-                        "'daily'," + \
-                        "'см'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+            if (preset == 'heartfailure'):
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'shin_volume_left'," + \
+                            "'измерение обхвата голени левой'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "true," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
+
+                name = 'shin'
+
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[name]['text'],
+                        "action_link": "frame/" + name,
+                        "action_deadline": time.time() + (60 * 60 * 24),
+                        "action_name": MESS_MEASUREMENT[name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    }
+                }
+
+                print('data preset shin', data)
+                post_request(data)
+            else:
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'shin_volume_left'," + \
+                            "'измерение обхвата голени левой'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable + Aux.quote() + "," + \
+                            "false," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
 
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # *************************************************************** shin_right
+            # *************************************************************** SHIN_RIGHT
 
             timetable_empty = '{}'
             params = '{}'
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'shin_volume_right'," + \
-                        "'измерение объема голени правой'," + \
-                        "'daily'," + \
-                        "'см'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable_empty + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+            if (preset == 'heartfailure'):
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'shin_volume_right'," + \
+                            "'измерение обхвата голени правой'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable_empty + Aux.quote() + "," + \
+                            "true," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
+            else:
+                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
+                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
+                            "'shin_volume_right'," + \
+                            "'измерение обхвата голени правой'," + \
+                            "'daily'," + \
+                            "'см'," + \
+                            Aux.quote() + params + Aux.quote() + "," + \
+                            Aux.quote() + timetable_empty + Aux.quote() + "," + \
+                            "false," + \
+                            "(select * from now()),(select * from now()),(select * from now()))"
 
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
                 return result
 
-            # ***************************************************************
+            # *************************************************************** NEXT MEASUREMENT
 
     except Exception as e:
         print('error', e)
