@@ -2151,6 +2151,8 @@ def init():
     try:
         data = request.json
 
+        print('data', data)
+
         if (data == None):
             print('None')
             return 'None'
@@ -2199,6 +2201,8 @@ def init():
 
             if data['preset']:
                 preset = data['preset']
+
+            print('preset', preset)
 
             #  *************************************************************** SYS
 
