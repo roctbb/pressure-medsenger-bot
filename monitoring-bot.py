@@ -797,15 +797,25 @@ def graph():
                     constants['min_weight'] = MIN_WEIGHT_DEFAULT
 
             if (name == 'shin_volume_left'):
-                constants['max_shin_left'] = params['max']
-                constants['min_shin_left'] = params['min']
-                constants['max_shin_left'] = params['max']
-                constants['min_shin_right'] = params['min']
+                try:
+                    constants['max_shin_left'] = params['max']
+                    constants['min_shin_left'] = params['min']
+                except Exception as e:
+                    constants['max_shin_left'] = MAX_SHIN
+                    constants['min_shin_left'] = MIN_SHIN
+
+            if (name == 'shin_volume_right'):
+                try:
+                    constants['max_shin_right'] = params['max']
+                    constants['min_shin_right'] = params['min']
+                except Exception as e:
+                    constants['max_shin_right'] = params['max']
+                    constants['min_shin_right'] = params['min']
 
             if (name == 'temperature'):
                 try:
-                    constants['max_temperature'] = params['max']
-                    constants['min_temperature'] = params['min']
+                    constants['max_temperature'] = MAX_SHIN
+                    constants['min_temperature'] = MIN_SHIN
                 except Exception as e:
                     constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
