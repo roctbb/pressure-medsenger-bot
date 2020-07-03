@@ -1,24 +1,65 @@
 backhistory = "<br><a style='font-family: Arial; cursor: pointer; border: 0px solid #ccc; top-padding: 3px;' class='btn btn-success' onclick='history.go(-1);'><strong><< Назад</strong></a>"
 open_tag = "<p style='font-family: Arial;'>"
+close_tag = "</p>"
 
-ERROR_KEY = "<p style='font-family: Arial;'><strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой.</p>"
-ERROR_CONTRACT = "<p style='font-family: Arial;'><strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой.</p>"
-ERROR_FORM = "<p style='font-family: Arial;'><strong>Ошибки при заполнении формы.<br></strong> Пожалуйста, проверьте, что все поля заполнены.</p>" + backhistory
+MAX_SPO2 = 100
+MIN_SPO2 = 50
+MAX_WAIST = 150
+MIN_WAIST = 20
+MAX_WEIGHT = 150
+MIN_WEIGHT = 15
+MAX_TEMPERATURE = 42
+MIN_TEMPERATURE = 35
+MAX_SYSTOLIC = 300
+MIN_SYSTOLIC = 40
+MAX_DIASTOLIC = 150
+MIN_DIASTOLIC = 15
+MAX_PULSE = 200
+MIN_PULSE = 10
+MAX_GLUKOSE = 30
+MIN_GLUKOSE = 1
+MAX_SHIN = 50
+MIN_SHIN = 5
 
-ERROR_OUTSIDE_TEMPERATURE = "<p style='font-family: Arial;'>Допустимый диапазон температуры 35-42 градуса по Цельсию.</p>" + backhistory
-ERROR_OUTSIDE_SYSTOLIC = "<p style='font-family: Arial;'>Допустимый диапазон верхнего давления 40-300 мм рт ст.</p>" + backhistory
-ERROR_OUTSIDE_DIASTOLIC = "<p style='font-family: Arial;'>Допустимый диапазон нижнего давления 15-150 мм рт ст.</p>" + backhistory
-ERROR_OUTSIDE_PULSE = "<p style='font-family: Arial;'>Допустимый диапазон пульса 10-200 уд в мин.</p>" + backhistory
-ERROR_OUTSIDE_WEIGHT = "<p style='font-family: Arial;'>Допустимый диапазон измерений веса 2-150 кг.</p>" + backhistory
-ERROR_OUTSIDE_GLUKOSE = "<p style='font-family: Arial;'>Допустимый диапазон показаний глюкозы 1-30 моль/л.</p>" + backhistory
-ERROR_OUTSIDE_SPO2 = "<p style='font-family: Arial;'>Допустимый уровень насыщения крови кислородом не менее 50%.</p>" + backhistory
-ERROR_OUTSIDE_WAIST = "<p style='font-family: Arial;'>Допустимый объем талии не более 120 см, не менее 25 см.</p>" + backhistory
-ERROR_OUTSIDE_SHIN = "Допустимый диапазон измерения объема голени от 5 см до 50 см." + backhistory
+MAX_SHIN_DEFAULT = 35
+MIN_SHIN_DEFAULT = 10
+
+MAX_WEIGHT_DEFAULT = 150
+MIN_WEIGHT_DEFAULT = 45
+
+MAX_SYSTOLIC_DEFAULT = 140
+MIN_SYSTOLIC_DEFAULT = 90
+
+MAX_DIASTOLIC_DEFAULT = 100
+MIN_DIASTOLIC_DEFAULT = 30
+
+MAX_PULSE_DEFAULT = 80
+MIN_PULSE_DEFAULT = 50
+
+MAX_TEMPERATURE_DEFAULT = 37
+MIN_TEMPERATURE_DEFAULT = 36
+
+MAX_GLUKOSE_DEFAULT = 6.5
+MIN_GLUKOSE_DEFAULT = 4
+
+ERROR_KEY = open_tag + "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой." + close_tag
+ERROR_CONTRACT = open_tag + "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой." + close_tag
+ERROR_FORM = open_tag + "<strong>Ошибки при заполнении формы.<br></strong> Пожалуйста, проверьте, что все поля заполнены." + close_tag + backhistory
+
+ERROR_OUTSIDE_TEMPERATURE = open_tag + "Допустимый диапазон температуры " + str(MIN_TEMPERATURE) + "-" + str(MAX_TEMPERATURE) + " градуса по Цельсию." + close_tag + backhistory
+ERROR_OUTSIDE_SYSTOLIC = open_tag + "Допустимый диапазон верхнего давления " + str(MIN_SYSTOLIC) + "-" + str(MAX_SYSTOLIC) + " мм рт ст." + close_tag + backhistory
+ERROR_OUTSIDE_DIASTOLIC = open_tag + "Допустимый диапазон нижнего давления " + str(MIN_DIASTOLIC) + "-" + str(MAX_DIASTOLIC) + " мм рт ст." + close_tag + backhistory
+ERROR_OUTSIDE_PULSE = open_tag + "Допустимый диапазон пульса " + str(MIN_PULSE) + "-" + str(MAX_PULSE) + " ударов в минуту." + close_tag + backhistory
+ERROR_OUTSIDE_WEIGHT = open_tag + "Допустимый диапазон измерений веса " + str(MIN_WEIGHT) + "-" + str(MAX_WEIGHT) + " кг." + close_tag + backhistory
+ERROR_OUTSIDE_GLUKOSE = open_tag + "Допустимый диапазон показаний глюкозы " + str(MIN_GLUKOSE) + "-" + str(MAX_GLUKOSE) + " моль/л." + close_tag + backhistory
+ERROR_OUTSIDE_SPO2 = open_tag + "Допустимый уровень насыщения крови кислородом не менее " + str(MIN_SPO2) + "%." + close_tag + backhistory
+ERROR_OUTSIDE_WAIST = open_tag + "Допустимый обхват талии " + str(MIN_WAIST) + "-" + str(MAX_WAIST) + " см." + close_tag + backhistory
+ERROR_OUTSIDE_SHIN = open_tag + "Допустимый диапазон измерения обхвата голени " + str(MIN_SHIN) + "-" + str(MAX_SHIN) + " см." + close_tag + backhistory
 ERRORS = {'ERROR_KEY': ERROR_KEY, 'ERROR_CONTRACT': ERROR_CONTRACT, 'ERROR_FORM': ERROR_FORM}
 
 
 
-MESS_THANKS = """<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"""
+MESS_THANKS = "<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"
 MESS_GLUKOSE_PATIENT = "Ваш уровень глюкозы ({}) выходит за допустимый диапазон. Мы уже направили уведомление вашему врачу."
 MESS_GLUKOSE_DOCTOR = "Уровень глюкозы пациента ({}) выходит за допустимый диапазон."
 

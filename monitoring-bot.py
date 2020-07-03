@@ -97,9 +97,6 @@ class DB:
 
     @staticmethod
     def select(query_str):
-        # print(query_str)
-        # print(Debug.delimiter())
-
         try:
             conn = None
             conn = DB.connection()
@@ -117,108 +114,6 @@ class DB:
             if conn is not None:
                 conn.close()
 
-class Defaults:
-    @staticmethod
-    def ex_static_method():
-        print("ex_static_method")
-
-    # sys
-    @classmethod
-    def sys_max(cls):
-        return 300
-
-    @classmethod
-    def sys_min(cls):
-        return 40
-
-    @classmethod
-    def max_systolic_default(cls):
-        return 140
-
-    @classmethod
-    def min_systolic_default(cls):
-        return 90
-
-    # dia
-    @classmethod
-    def max_diastolic_default(cls):
-        return 100
-
-    @classmethod
-    def min_diastolic_default(cls):
-        return 30
-
-    @classmethod
-    def dia_max(cls):
-        return 150
-
-    @classmethod
-    def dia_min(cls):
-        return 15
-
-    # pulse
-    @classmethod
-    def max_pulse_default(cls):
-        return 80
-
-    @classmethod
-    def pulse_max(cls):
-        return 200
-
-    @classmethod
-    def pulse_min(cls):
-        return 10
-
-    @classmethod
-    def min_pulse_default(cls):
-        return 50
-
-    # shin
-    @classmethod
-    def max_shin_default(cls):
-        return 35
-
-    @classmethod
-    def min_shin_default(cls):
-        return 10
-
-    @classmethod
-    def max_shin(cls):
-        return 50
-
-    @classmethod
-    def min_shin(cls):
-        return 5
-
-    # weight
-    @classmethod
-    def max_weight_default(cls):
-        return 150
-
-    @classmethod
-    def min_weight_default(cls):
-        return 45
-
-    # temperature
-    @classmethod
-    def max_temperature_default(cls):
-        return 37
-
-    @classmethod
-    def min_temperature_default(cls):
-        return 36
-
-    # glukose
-    @classmethod
-    def max_glukose_default(cls):
-        return 6.5
-
-    @classmethod
-    def min_glukose_default(cls):
-        return 4
-
-    def ex_method(self):
-        print('ex_method', self)
 
 class Debug:
     @staticmethod
@@ -898,8 +793,8 @@ def graph():
                     constants['max_weight'] = params['max']
                     constants['min_weight'] = params['min']
                 except Exception as e:
-                    constants['max_weight'] = Defaults.max_weight_default()
-                    constants['min_weight'] = Defaults.min_weight_default()
+                    constants['max_weight'] = MAX_WEIGHT_DEFAULT
+                    constants['min_weight'] = MIN_WEIGHT_DEFAULT
 
             if (name == 'shin_volume_left'):
                 constants['max_shin_left'] = params['max']
@@ -912,16 +807,16 @@ def graph():
                     constants['max_temperature'] = params['max']
                     constants['min_temperature'] = params['min']
                 except Exception as e:
-                    constants['max_temperature'] = Defaults.max_temperature_default()
-                    constants['min_temperature'] = Defaults.min_temperature_default()
+                    constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
+                    constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
             if (name == 'glukose'):
                 try:
                     constants['max_glukose'] = params['max']
                     constants['min_glukose'] = params['min']
                 except Exception as e:
-                    constants['max_glukose'] = Defaults.max_glukose_default()
-                    constants['min_glukose'] = Defaults.min_glukose_default()
+                    constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
+                    constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
 
             if (name == 'pain_assessment'):
                 try:
@@ -975,7 +870,6 @@ def graph():
 
         for row in records:
             sys_max_value = row[1]
-            # print('query sys max', sys_max_value, query_str)
 
         # stat min
 
@@ -988,7 +882,6 @@ def graph():
 
         for row in records:
             sys_min_value = row[1]
-            # print('query sys min', sys_min_value, query_str)
 
         # stat avg
 
@@ -1001,14 +894,13 @@ def graph():
 
         for row in records:
             sys_avg_value = row[1]
-            # print('query sys avg', int(sys_avg_value), query_str)
 
         # sys_common_count
 
         query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
             contract_id) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
 
-        print('query_str', query_str)
+        # print('query_str', query_str)
 
         records = DB.select(query_str)
 
@@ -1017,12 +909,8 @@ def graph():
         for row in records:
             sys_common_count = row[1]
 
-
-
         query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
             contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(constants['max_systolic']) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        print('query_str', query_str)
 
         records = DB.select(query_str)
 
@@ -1032,7 +920,6 @@ def graph():
 
         for row in records:
             sys_norm_count = row[1]
-            # print('query norm', int(sys_norm_count), query_str)
 
         try:
             sys_slice_normal = (sys_norm_count * 100) // sys_common_count
@@ -1063,7 +950,6 @@ def graph():
         for row in records:
             sys_avg_week = row[1]
         query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        print('query_str ZZZ', query_str)
         records = DB.select(query_str)
         sys_common_count_week = 0
         for row in records:
@@ -1148,8 +1034,6 @@ def graph():
             "name": "Верхнее давление"
         }
 
-        # print('systolic_dic', systolic_dic)
-
         systolic = systolic_dic
 
         # START DIA DATA
@@ -1186,7 +1070,6 @@ def graph():
 
         for row in records:
             dia_max_value = row[1]
-            # print('query dia max', dia_max_value, query_str)
 
         # stat min
 
@@ -1199,7 +1082,6 @@ def graph():
 
         for row in records:
             dia_min_value = row[1]
-            # print('query dia min', dia_min_value, query_str)
 
         # stat avg
 
@@ -1212,7 +1094,6 @@ def graph():
 
         for row in records:
             dia_avg_value = row[1]
-            # print('query dia avg', dia_avg_value, query_str)
 
         # dia_common_count
 
@@ -1317,8 +1198,6 @@ def graph():
             dia_common_count_week = row[1]
         andWhere = " and mr.value < " + Aux.quote() + str(constants['max_diastolic']) + Aux.quote()
         query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + andWhere + " GROUP BY m.id"
-        # print(query_str)
-        # print(Debug.delimiter())
         records = DB.select(query_str)
         dia_normal_count_week = 0
         dia_slice_normal_week = 0
@@ -1395,7 +1274,6 @@ def graph():
         dosage = []
         amount = []
         medicines_data = {}
-        # medicines_times_ = []
 
         for row in records:
             date_ = row[13]
@@ -1788,13 +1666,8 @@ def settings():
                 shin['max'] = params['max']
                 shin['min'] = params['min']
             except Exception as e:
-                shin['max'] = Defaults.max_shin()
-                shin['min'] = Defaults.min_shin()
-
-            # shin['max_left_shin'] = params['max']
-            # shin['min_left_shin'] = params['min']
-            # shin['max_right_shin'] = params['max']
-            # shin['min_right_shin'] = params['min']
+                shin['max'] = MAX_SHIN
+                shin['min'] = MIN_SHIN
 
             measurements_main.append(shin)
 
@@ -1934,20 +1807,20 @@ def action_pull(pull):
     if(pull == 'shin'):
         constants = {}
 
-        constants['shin_max'] = Defaults.max_shin()
-        constants['shint_min'] = Defaults.min_shin()
+        constants['shin_max'] = MAX_SHIN
+        constants['shint_min'] = MIN_SHIN
 
         return render_template('shin.html', tmpl=pull, constants=constants)
 
     if (pull == 'pressure'):
         constants = {}
 
-        constants['sys_max'] = Defaults.sys_max()
-        constants['sys_min'] = Defaults.sys_min()
-        constants['dia_max'] = Defaults.dia_max()
-        constants['dia_min'] = Defaults.dia_min()
-        constants['pulse_max'] = Defaults.pulse_max()
-        constants['pulse_min'] = Defaults.pulse_min()
+        constants['sys_max'] = MAX_SYSTOLIC
+        constants['sys_min'] = MIN_SYSTOLIC
+        constants['dia_max'] = MAX_DIASTOLIC
+        constants['dia_min'] = MIN_DIASTOLIC
+        constants['pulse_max'] = MAX_PULSE
+        constants['pulse_min'] = MIN_PULSE
 
         return render_template('pressure.html', tmpl=pull, constants=constants)
 
@@ -2081,7 +1954,6 @@ def setting_save():
                     element = el['value']
 
                     hour_value_ = int(element)
-                    # print(hour_value_)
 
                     if (hour_value_ == 24):
                         hour_value_ = 0
@@ -2151,7 +2023,7 @@ def init():
     try:
         data = request.json
 
-        print('data', data)
+        # print('data', data)
 
         if (data == None):
             print('None')
@@ -2202,7 +2074,7 @@ def init():
             if data['preset']:
                 preset = data['preset']
 
-            print('preset', preset)
+            # print('preset', preset)
 
             #  *************************************************************** SYS
 
@@ -2237,9 +2109,8 @@ def init():
                     }
                 }
 
-                print('data preset pressure', data)
+                # print('data preset pressure', data)
                 delayed(1, post_request, [data])
-                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2369,9 +2240,8 @@ def init():
                     }
                 }
 
-                print('data preset weight', data)
+                # print('data preset weight', data)
                 delayed(1, post_request, [data])
-                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2421,9 +2291,8 @@ def init():
                     }
                 }
 
-                print('data preset waist', data)
+                # print('data preset waist', data)
                 delayed(1, post_request, [data])
-                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2513,9 +2382,8 @@ def init():
                     }
                 }
 
-                print('data preset shin', data)
+                # print('data preset shin', data)
                 delayed(1, post_request, [data])
-                # post_request(data)
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2620,18 +2488,16 @@ def action_pull_save(pull):
     contract_id = quard()
 
     if (contract_id in ERRORS):
-        print('contract_id', contract_id)
+        # print('contract_id', contract_id)
         return contract_id
 
     if (pull in AVAILABLE_MEASUREMENTS):
-        print('pull in AVAILABLE_MEASUREMENTS', pull)
+        # print('pull in AVAILABLE_MEASUREMENTS', pull)
         param = pull
         param_value = request.form.get(param, '')
         comments = request.form.get('comments', '')
 
     if (pull == 'shin'):
-
-
         shin_left = request.form.get('shin_left', '')
         shin_right = request.form.get('shin_right', '')
 
@@ -2650,10 +2516,10 @@ def action_pull_save(pull):
             shin_right = Defaults.max_shin_default()
             print('Exception int(shin_right)', e)
 
-        if (shin_left < Defaults.min_shin() or shin_left > Defaults.max_shin()):
+        if (shin_left < MIN_SHIN or shin_left > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
 
-        if (shin_right < Defaults.min_shin() or shin_right > Defaults.max_shin()):
+        if (shin_right < MIN_SHIN or shin_right > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
 
         query_str = "select params from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
@@ -2674,7 +2540,7 @@ def action_pull_save(pull):
             min_shin = Defaults.min_shin_default()
             print("WARNING_NOT_INT", e)
 
-        if not (10 <= int(shin_left) <= 35 and 10 <= int(shin_right) <= 35):
+        if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
 
         # insert shin_left
@@ -2689,8 +2555,6 @@ def action_pull_save(pull):
 
         DB.query(query_str)
 
-        # add_record(contract_id, 'leg_circumference_left', shin_left, int(time.time()))
-
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
 
         # insert shin_right
@@ -2704,8 +2568,6 @@ def action_pull_save(pull):
         query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
 
         DB.query(query_str)
-
-        # add_record(contract_id, 'leg_circumference_right', shin_right, int(time.time()))
 
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
 
@@ -2735,13 +2597,13 @@ def action_pull_save(pull):
             pulse_ = 60
             print('int(pulse)', e)
 
-        if (systolic < Defaults.sys_min() or systolic > Defaults.sys_max()):
+        if (systolic < MIN_SYSTOLIC or systolic > MAX_SYSTOLIC):
             return ERROR_OUTSIDE_SYSTOLIC
 
-        if (diastolic < Defaults.dia_min() or diastolic > Defaults.dia_max()):
+        if (diastolic < MIN_DIASTOLIC or diastolic > MAX_DIASTOLIC):
             return ERROR_OUTSIDE_DIASTOLIC
 
-        if (pulse_ < Defaults.pulse_min() or pulse_ > Defaults.pulse_max()):
+        if (pulse_ < MIN_PULSE or pulse_ > MAX_PULSE):
             return ERROR_OUTSIDE_PULSE
 
         query_str = "select params from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
@@ -2751,30 +2613,23 @@ def action_pull_save(pull):
         for row in records:
             params = row[0]
 
-        max_systolic = params['max_systolic']
-        min_systolic = params['min_systolic']
-        max_diastolic = params['max_diastolic']
-        min_diastolic = params['min_diastolic']
-        max_pulse = params['max_pulse']
-        min_pulse = params['min_pulse']
-
         try:
-            max_systolic = int(max_systolic)
-            min_systolic = int(min_systolic)
-            max_diastolic = int(max_diastolic)
-            min_diastolic = int(min_diastolic)
-            max_pulse = int(max_pulse)
-            min_pulse = int(min_pulse)
+            max_systolic = int(params['max_systolic'])
+            min_systolic = int(params['min_systolic'])
+            max_diastolic = int(params['max_diastolic'])
+            min_diastolic = int(params['min_diastolic'])
+            max_pulse = int(params['max_pulse'])
+            min_pulse = int(params['min_pulse'])
         except Exception as e:
-            max_systolic = Defaults.max_systolic_default()
-            min_systolic = Defaults.min_systolic_default()
-            max_diastolic = Defaults.max_diastolic_default()
-            min_diastolic = Defaults.min_diastolic_default()
-            max_pulse = Defaults.max_pulse_default()
-            min_pulse = Defaults.min_pulse_default()
+            max_systolic = MAX_SYSTOLIC_DEFAULT
+            min_systolic = MIN_SYSTOLIC_DEFAULT
+            max_diastolic = MAX_DIASTOLIC_DEFAULT
+            min_diastolic = MIN_DIASTOLIC_DEFAULT
+            max_pulse = MAX_PULSE_DEFAULT
+            min_pulse = MIN_PULSE_DEFAULT
             print("WARNING_NOT_INT", e)
 
-        if not (int(min_systolic) <= int(systolic) <= int(max_systolic) and int(min_diastolic) <= int(diastolic) <= int(max_diastolic)):
+        if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
 
         query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'systolic_pressure'"
@@ -2841,27 +2696,23 @@ def action_pull_save(pull):
             min = 0
             print("WARNING_FLOAT", e)
 
+        max = float(max)
+        min = float(min)
         param_value = float(param_value)
 
-        # if (param == 'shin' and (param_value < 5 or param_value > 50)):
-        #     return ERROR_OUTSIDE_SHIN
-
-        if (param == 'spo2' and (param_value < 50 or param_value > 100)):
+        if (param == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             return ERROR_OUTSIDE_SPO2
 
-        if (param == 'waist' and (param_value < 20 or param_value > 120)):
+        if (param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST)):
             return ERROR_OUTSIDE_WAIST
 
-        # if (param == 'pain_assessment' and (param_value < 15 or param_value > 150)):
-        #     return ERROR_OUTSIDE_
-
-        if (param == 'weight' and (param_value < 15 or param_value > 150)):
+        if (param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT)):
             return ERROR_OUTSIDE_WEIGHT
 
-        if (param == 'glukose' and (param_value < 1 or param_value > 130)):
+        if (param == 'glukose' and (param_value < MIN_GLUKOSE or param_value > MAX_GLUKOSE)):
             return ERROR_OUTSIDE_GLUKOSE
 
-        if (param == 'temperature' and (param_value < 35 or param_value > 42)):
+        if (param == 'temperature' and (param_value < MIN_TEMPERATURE or param_value > MAX_TEMPERATURE)):
             return ERROR_OUTSIDE_TEMPERATURE
 
         param_for_record = param
@@ -2875,7 +2726,7 @@ def action_pull_save(pull):
         if (param == 'shin_volume_right'):
             param_for_record = 'leg_circumference_right'
 
-        if not (float(min) <= param_value <= float(max)):
+        if (param_value < min or param_value > max):
             # Сигналим врачу
             delayed(1, warning, [contract_id, param, param_value])
 
@@ -2890,11 +2741,9 @@ def action_pull_save(pull):
 
         DB.query(query_str)
 
-        # add_record(contract_id, param_for_record, param_value, time.time())
-
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
 
-    print('action_pull_save(pull)', pull)
+    # print('action_pull_save(pull)', pull)
 
     return MESS_THANKS
 
@@ -2903,7 +2752,6 @@ def action_pull_save(pull):
 def save_message():
     data = request.json
     key = data['api_key']
-    # contract_id = str(data['contract_id'])
 
     if key != APP_KEY:
         return ERROR_KEY
