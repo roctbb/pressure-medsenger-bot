@@ -777,16 +777,21 @@ def graph():
             name = row[2]
             params = row[6]
 
-            # print('params', params)
-            # print(Debug.delimiter())
-
             if (name == 'systolic_pressure'):
-                constants['max_systolic'] = params['max_systolic']
-                constants['min_systolic'] = params['min_systolic']
-                constants['max_diastolic'] = params['max_diastolic']
-                constants['min_diastolic'] = params['min_diastolic']
-                constants['max_pulse'] = params['max_pulse']
-                constants['min_pulse'] = params['min_pulse']
+                try:
+                    constants['max_systolic'] = params['max_systolic']
+                    constants['min_systolic'] = params['min_systolic']
+                    constants['max_diastolic'] = params['max_diastolic']
+                    constants['min_diastolic'] = params['min_diastolic']
+                    constants['max_pulse'] = params['max_pulse']
+                    constants['min_pulse'] = params['min_pulse']
+                except:
+                    constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
+                    constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
+                    constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
+                    constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
+                    constants['max_pulse'] = MAX_PULSE_DEFAULT
+                    constants['min_pulse'] = MIN_PULSE_DEFAULT
 
             if (name == 'weight'):
                 try:
@@ -800,22 +805,18 @@ def graph():
                 try:
                     constants['max_shin_left'] = params['max']
                     constants['min_shin_left'] = params['min']
-                except Exception as e:
-                    constants['max_shin_left'] = MAX_SHIN
-                    constants['min_shin_left'] = MIN_SHIN
-
-            if (name == 'shin_volume_right'):
-                try:
                     constants['max_shin_right'] = params['max']
                     constants['min_shin_right'] = params['min']
                 except Exception as e:
-                    constants['max_shin_right'] = params['max']
-                    constants['min_shin_right'] = params['min']
+                    constants['max_shin_left'] = MAX_SHIN_DEFAULT
+                    constants['min_shin_left'] = MIN_SHIN_DEFAULT
+                    constants['max_shin_right'] = MAX_SHIN_DEFAULT
+                    constants['min_shin_right'] = MIN_SHIN_DEFAULT
 
             if (name == 'temperature'):
                 try:
-                    constants['max_temperature'] = MAX_SHIN
-                    constants['min_temperature'] = MIN_SHIN
+                    constants['max_temperature'] = params['max']
+                    constants['min_temperature'] = params['min']
                 except Exception as e:
                     constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
@@ -833,24 +834,24 @@ def graph():
                     constants['max_pain'] = params['max']
                     constants['min_pain'] = params['min']
                 except Exception as e:
-                    constants['max_pain'] = 10
-                    constants['min_pain'] = 0
+                    constants['max_pain'] = MAX_PAIN_DEFAULT
+                    constants['min_pain'] = MIN_PAIN_DEFAULT
 
             if (name == 'spo2'):
                 try:
                     constants['max_spo2'] = params['max']
                     constants['min_spo2'] = params['min']
                 except Exception as e:
-                    constants['max_spo2'] = 100
-                    constants['min_spo2'] = 93
+                    constants['max_spo2'] = MAX_SPO2
+                    constants['min_spo2'] = MIN_SPO2
 
             if (name == 'waist'):
                 try:
                     constants['max_waist'] = params['max']
                     constants['min_waist'] = params['min']
                 except Exception as e:
-                    constants['max_waist'] = 100
-                    constants['min_waist'] = 93
+                    constants['max_waist'] = MAX_WAIST_DEFAULT
+                    constants['min_waist'] = MIN_WAIST_DEFAULT
 
         query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'systolic_pressure') ORDER BY time ASC"
 

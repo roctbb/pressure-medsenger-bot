@@ -20,6 +20,8 @@ MAX_GLUKOSE = 30
 MIN_GLUKOSE = 1
 MAX_SHIN = 50
 MIN_SHIN = 5
+MAX_PAIN = 10
+MIN_PAIN = 0
 
 MAX_SHIN_DEFAULT = 35
 MIN_SHIN_DEFAULT = 10
@@ -41,6 +43,12 @@ MIN_TEMPERATURE_DEFAULT = 36
 
 MAX_GLUKOSE_DEFAULT = 6.5
 MIN_GLUKOSE_DEFAULT = 4
+
+MAX_PAIN_DEFAULT = 7
+MIN_PAIN_DEFAULT = 0
+
+MAX_WAIST_DEFAULT = 100
+MIN_WAIST_DEFAULT = 93
 
 ERROR_KEY = open_tag + "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой." + close_tag
 ERROR_CONTRACT = open_tag + "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой." + close_tag
