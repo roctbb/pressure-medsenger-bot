@@ -9,6 +9,8 @@ from database import *
 from const import *
 import threading
 import psycopg2
+import json
+
 
 # from flask_sqlalchemy import SQLAlchemy
 # from psycopg2 import sql
@@ -23,6 +25,19 @@ class Profiler(object):
         if delta > 1:
             print("Elapsed time: {:.3f} sec".format(delta))
 
+
+params_json = [{
+    "name": "Верхний предел систолического давления",
+    "type": "number",
+    "required": True,
+    "description": "Максимально-допустимый верхний предел систолического давления",
+    "default": "141",
+    "code": "max_systolic"
+}]
+
+print(json.dumps(params_json))
+
+
 class Aux:
     @staticmethod
     def quote():
@@ -31,6 +46,7 @@ class Aux:
     @staticmethod
     def doublequote():
         return '"'
+
 
 class DB:
     @staticmethod
@@ -120,9 +136,11 @@ class Debug:
     def delimiter():
         return '-------------------------------------------------------------------------------'
 
+
 app = Flask(__name__)
 
 data = {}
+
 
 def add_record(contract_id, category_name, value, record_time=None):
     data = {
@@ -143,13 +161,16 @@ def add_record(contract_id, category_name, value, record_time=None):
     except Exception as e:
         print('connection error', e)
 
+
 def dump(data, label):
     print('dump: ' + label + ' ', data)
+
 
 def delayed(delay, f, args):
     print('args', args)
     timer = threading.Timer(delay, f, args=args)
     timer.start()
+
 
 def check_float(number):
     try:
@@ -158,6 +179,7 @@ def check_float(number):
     except:
         return False
 
+
 def check_digit(number):
     try:
         int(number)
@@ -165,11 +187,13 @@ def check_digit(number):
     except:
         return False
 
+
 def digit(val):
     try:
         return int(val)
     except:
         return False
+
 
 def check_str(val):
     try:
@@ -177,6 +201,7 @@ def check_str(val):
         return True
     except:
         return False
+
 
 # ************
 
@@ -187,6 +212,7 @@ def post_request(data, query='/api/agents/message'):
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request', e)
+
 
 def warning(contract_id, param, param_value, param_value_2=''):
     text_patient = ''
@@ -268,6 +294,7 @@ def warning(contract_id, param, param_value, param_value_2=''):
         print('warning')
         print(Debug.delimiter())
 
+
 def sender():
     deadline = 1
 
@@ -343,29 +370,34 @@ def sender():
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('11 pattern < hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('11 pattern < hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = 24
-                                                print('12 pattern == hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('12 pattern == hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern > hours_array[0]):
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                print('13 pattern > hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('13 pattern > hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(pattern)
 
-                                                print('21 pattern < hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('21 pattern < hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('22 pattern > hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('22 pattern > hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             # if (pattern > hours_array[0] and pattern < hours_array[1]):
@@ -377,12 +409,14 @@ def sender():
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                print('31 pattern <= hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('31 pattern <= hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0], pattern, action_deadline)
+                                                print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0],
+                                                      pattern, action_deadline)
                                                 break
 
                                             if (i > 0):
@@ -390,7 +424,8 @@ def sender():
 
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-                                                    print('33 hours_array[i] >= pattern', hours_array[0], pattern, action_deadline)
+                                                    print('33 hours_array[i] >= pattern', hours_array[0], pattern,
+                                                          action_deadline)
                                                     # break
 
                                     # if (action_deadline > 0):
@@ -411,7 +446,7 @@ def sender():
                                         "message": {
                                             "text": MESS_MEASUREMENT[name]['text'],
                                             "action_link": "frame/" + name,
-                                            "action_deadline":  data_deadline - 600,
+                                            "action_deadline": data_deadline - 600,
                                             "action_name": MESS_MEASUREMENT[name]['action_name'],
                                             "action_onetime": True,
                                             "only_doctor": False,
@@ -419,8 +454,6 @@ def sender():
                                         },
                                         "hour_value": hour_value
                                     }
-
-
 
                                     data_update_deadline = int(time.time()) - (4 * 60 * 60)
 
@@ -450,7 +483,8 @@ def sender():
                                     print(Debug.delimiter())
 
                                     query_str = "UPDATE measurements set last_push = '" + \
-                                                str(datetime.datetime.fromtimestamp(current_time).isoformat()) + Aux.quote() + \
+                                                str(datetime.datetime.fromtimestamp(
+                                                    current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
 
                                     DB.query(query_str)
@@ -562,23 +596,27 @@ def sender():
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = 24
-                                                print('112 pattern == hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('112 pattern == hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern > hours_array[0]):
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                print('113 pattern > hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('113 pattern > hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(pattern)
-                                                print('221 pattern < hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('221 pattern < hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('222 pattern > hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('222 pattern > hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             # if (pattern > hours_array[0] and pattern < hours_array[1]):
@@ -590,7 +628,8 @@ def sender():
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                print('331 pattern <= hours_array[0]', hours_array[0], pattern, action_deadline)
+                                                print('331 pattern <= hours_array[0]', hours_array[0], pattern,
+                                                      action_deadline)
                                                 break
 
                                             # if (pattern == hours_array[0]):
@@ -601,7 +640,8 @@ def sender():
 
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('332 pattern >= hours_array[len_hours_array-1]', hours_array[0], pattern, action_deadline)
+                                                print('332 pattern >= hours_array[len_hours_array-1]', hours_array[0],
+                                                      pattern, action_deadline)
                                                 break
 
                                             if (i > 0):
@@ -609,7 +649,8 @@ def sender():
 
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-                                                    print('333 hours_array[i] >= pattern', hours_array[0], pattern, action_deadline)
+                                                    print('333 hours_array[i] >= pattern', hours_array[0], pattern,
+                                                          action_deadline)
                                                     # break
 
                                     # if (action_deadline > 0):
@@ -666,16 +707,16 @@ def sender():
                                     print(Debug.delimiter())
 
                                     query_str = "UPDATE medicines set last_push = '" + \
-                                                str(datetime.datetime.fromtimestamp(current_time).isoformat()) + Aux.quote() + \
+                                                str(datetime.datetime.fromtimestamp(
+                                                    current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
 
                                     DB.query(query_str)
 
-
-
                                     post_request(data)
 
         time.sleep(20)
+
 
 def quard():
     key = request.args.get('api_key', '')
@@ -719,11 +760,13 @@ def quard():
 
     return contract_id
 
+
 # GET ROUTES
 
 @app.route('/', methods=['GET'])
 def index():
     return 'waiting for the thunder!'
+
 
 @app.route('/csv-reader', methods=['GET'])
 def csv_reader__():
@@ -735,6 +778,7 @@ def csv_reader__():
     # csv_reader('./backup/amCharts.csv')
     print('csv_reader()')
     return 'csv_reader()'
+
 
 @app.route('/graph', methods=['GET'])
 def graph():
@@ -853,7 +897,8 @@ def graph():
                     constants['max_waist'] = MAX_WAIST_DEFAULT
                     constants['min_waist'] = MIN_WAIST_DEFAULT
 
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'systolic_pressure') ORDER BY time ASC"
+        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = 'systolic_pressure') ORDER BY time ASC"
 
         records = DB.select(query_str)
 
@@ -921,7 +966,8 @@ def graph():
             sys_common_count = row[1]
 
         query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(constants['max_systolic']) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
+            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(
+            constants['max_systolic']) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
 
         records = DB.select(query_str)
 
@@ -1119,7 +1165,9 @@ def graph():
             dia_common_count = row[1]
 
         query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(constants['max_diastolic']) + Aux.quote() + " and m.name = " + Aux.quote() + str(name) + Aux.quote() + " GROUP BY m.id"
+            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(
+            constants['max_diastolic']) + Aux.quote() + " and m.name = " + Aux.quote() + str(
+            name) + Aux.quote() + " GROUP BY m.id"
 
         records = DB.select(query_str)
 
@@ -1293,7 +1341,7 @@ def graph():
 
         query_str = "SELECT m.name, m.dosage, m.amount, m.id, count(m.id) c FROM medicines m INNER JOIN medicines_results mr ON m.id = mr.medicines_id " + \
                     " WHERE contract_id = " + \
-                     Aux.quote() + str(contract_id) + Aux.quote() + \
+                    Aux.quote() + str(contract_id) + Aux.quote() + \
                     " GROUP BY m.id"
 
         records = DB.select(query_str)
@@ -1538,7 +1586,8 @@ def graph():
 
         param_name = 'shin_volume_left'
 
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'shin_volume_left') ORDER BY time ASC"
+        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = 'shin_volume_left') ORDER BY time ASC"
 
         records = DB.select(query_str)
 
@@ -1572,7 +1621,8 @@ def graph():
 
         param_name = 'shin_volume_right'
 
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'shin_volume_right') ORDER BY time ASC"
+        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = 'shin_volume_right') ORDER BY time ASC"
 
         records = DB.select(query_str)
 
@@ -1624,6 +1674,7 @@ def graph():
         return NONE_MEASUREMENTS
 
     return "ok"
+
 
 @app.route('/settings', methods=['GET'])
 def settings():
@@ -1726,7 +1777,8 @@ def settings():
 
     measurements_main.append(pressure)
 
-    query_str = "SELECT m.name, m.dosage, m.amount, m.id, m.timetable, m.show, m.last_push, m.created_at, m.mode FROM medicines m  WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+    query_str = "SELECT m.name, m.dosage, m.amount, m.id, m.timetable, m.show, m.last_push, m.created_at, m.mode FROM medicines m  WHERE contract_id = " + Aux.quote() + str(
+        contract_id) + Aux.quote()
     records = DB.select(query_str)
 
     medicines_new = []
@@ -1815,7 +1867,7 @@ def action_pull(pull):
         print('/frame ERROR_CONTRACT')
         return ERROR_CONTRACT
 
-    if(pull == 'shin'):
+    if (pull == 'shin'):
         constants = {}
 
         constants['shin_max'] = MAX_SHIN
@@ -1866,8 +1918,6 @@ def setting_save():
         params = {}
         id = measurement['id']
         name = measurement['name']
-
-
 
         if (name == 'pressure'):
             params['max_systolic'] = measurement['max_systolic']
@@ -2034,7 +2084,7 @@ def init():
     try:
         data = request.json
 
-        # print('data', data)
+        print('data', data)
 
         if (data == None):
             print('None')
@@ -2057,7 +2107,8 @@ def init():
 
         if id > 0:
             new_contract = False
-            query_str = "UPDATE actual_bots SET actual = true WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+            query_str = "UPDATE actual_bots SET actual = true WHERE contract_id = " + Aux.quote() + str(
+                contract_id) + Aux.quote()
 
             result = DB.query(query_str)
 
@@ -2085,12 +2136,56 @@ def init():
             if data['preset']:
                 preset = data['preset']
 
-            # print('preset', preset)
+            print('preset', preset)
+
+            preset_params = None
+
+            if data['params']:
+                preset_params = data['params']
+
+            print('preset_params', preset_params)
 
             #  *************************************************************** SYS
 
-            params = '{"max_systolic":140,"min_systolic":90,"max_diastolic":90,"min_diastolic":60,"max_pulse":80,"min_pulse":50}'
-            timetable = '{"days_month":[{"day":1,"hour":10}],"days_week":[{"day":1,"hour":10}],"hours":[{"value": 10}]}'
+            if (preset_params['max_systolic']):
+                max_systolic = preset_params['max_systolic']
+            else:
+                max_systolic = MAX_SYSTOLIC
+
+            params = {
+                "max_systolic": max_systolic,
+                "min_systolic": 90,
+                "max_diastolic": 90,
+                "min_diastolic": 60,
+                "max_pulse": 80,
+                "min_pulse": 50
+            }
+
+            params = json.dumps(params)
+
+            print('params', params)
+
+            timetable = {
+                "days_month": [
+                    {
+                        "day": 1,
+                        "hour": 10
+                    }
+                ],
+                "days_week": [
+                    {
+                        "day": 1,
+                        "hour": 10
+                    }
+                ],
+                "hours": [
+                    {
+                        "value": 10
+                    }
+                ]
+            }
+
+            timetable = json.dumps(timetable)
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2477,7 +2572,8 @@ def remove():
             id = row[1]
 
         if id > 0:
-            query_str = "UPDATE actual_bots SET actual = false WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+            query_str = "UPDATE actual_bots SET actual = false WHERE contract_id = " + Aux.quote() + str(
+                contract_id) + Aux.quote()
 
             result = DB.query(query_str)
 
@@ -2533,7 +2629,8 @@ def action_pull_save(pull):
         if (shin_right < MIN_SHIN or shin_right > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
+        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
 
         records = DB.select(query_str)
 
@@ -2555,28 +2652,36 @@ def action_pull_save(pull):
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
 
         # insert shin_left
-        query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'shin_volume_left'"
+        query_str = "select id from measurements where contract_id = " + str(
+            contract_id) + " and name = 'shin_volume_left'"
 
         records = DB.select(query_str)
 
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(shin_left) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            shin_left) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+            comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
 
         # insert shin_right
-        query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'shin_volume_right'"
+        query_str = "select id from measurements where contract_id = " + str(
+            contract_id) + " and name = 'shin_volume_right'"
 
         records = DB.select(query_str)
 
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+            comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
@@ -2617,7 +2722,8 @@ def action_pull_save(pull):
         if (pulse_ < MIN_PULSE or pulse_ > MAX_PULSE):
             return ERROR_OUTSIDE_PULSE
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
+        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
 
         records = DB.select(query_str)
 
@@ -2643,14 +2749,18 @@ def action_pull_save(pull):
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
 
-        query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'systolic_pressure'"
+        query_str = "select id from measurements where contract_id = " + str(
+            contract_id) + " and name = 'systolic_pressure'"
 
         records = DB.select(query_str)
 
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(systolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            systolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+            comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
@@ -2658,14 +2768,18 @@ def action_pull_save(pull):
 
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
 
-        query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'diastolic_pressure'"
+        query_str = "select id from measurements where contract_id = " + str(
+            contract_id) + " and name = 'diastolic_pressure'"
 
         records = DB.select(query_str)
 
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(diastolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            diastolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+            comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
@@ -2680,7 +2794,9 @@ def action_pull_save(pull):
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(pulse_) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            pulse_) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
@@ -2692,7 +2808,8 @@ def action_pull_save(pull):
         if check_float(param_value) == False:
             return ERROR_FORM
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
+        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
 
         records = DB.select(query_str)
 
@@ -2741,14 +2858,18 @@ def action_pull_save(pull):
             # Сигналим врачу
             delayed(1, warning, [contract_id, param, param_value])
 
-        query_str = "select id from measurements where contract_id = " + Aux.quote() + str(contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
+        query_str = "select id from measurements where contract_id = " + Aux.quote() + str(
+            contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
 
         records = DB.select(query_str)
 
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(id) + ",(select * from now())," + str(param_value) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+            id) + ",(select * from now())," + str(
+            param_value) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+            comments) + Aux.quote() + ")"
 
         DB.query(query_str)
 
@@ -2774,7 +2895,3 @@ t = Thread(target=sender)
 t.start()
 
 app.run(port='9099', host='0.0.0.0')
-
-
-
-
