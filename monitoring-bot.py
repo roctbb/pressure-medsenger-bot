@@ -9,8 +9,6 @@ from database import *
 from const import *
 import threading
 import psycopg2
-import json
-
 
 # from flask_sqlalchemy import SQLAlchemy
 # from psycopg2 import sql
@@ -26,16 +24,10 @@ class Profiler(object):
             print("Elapsed time: {:.3f} sec".format(delta))
 
 
-params_json = [{
-    "name": "Верхний предел систолического давления",
-    "type": "number",
-    "required": True,
-    "description": "Максимально-допустимый верхний предел систолического давления",
-    "default": "141",
-    "code": "max_systolic"
-}]
-
-print(json.dumps(params_json))
+class Debug:
+    @staticmethod
+    def delimiter():
+        return '-------------------------------------------------------------------------------'
 
 
 class Aux:
@@ -129,12 +121,6 @@ class DB:
         finally:
             if conn is not None:
                 conn.close()
-
-
-class Debug:
-    @staticmethod
-    def delimiter():
-        return '-------------------------------------------------------------------------------'
 
 
 app = Flask(__name__)
@@ -487,6 +473,8 @@ def sender():
                                                     current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
 
+                                    print('query_str', query_str)
+
                                     DB.query(query_str)
                                     print('data test', data)
                                     post_request(data)
@@ -690,11 +678,19 @@ def sender():
                                         "action_deadline": data_update_deadline
                                     }
 
+                                    print('data_update', data_update)
+
                                     try:
                                         query = '/api/agents/correct_action_deadline'
                                         # print('post request')
-                                        # print('MAIN_HOST + query', MAIN_HOST + query)
-                                        # # print('data', data)
+                                        print('MAIN_HOST + query', MAIN_HOST + query)
+                                        # print('data', data)
+
+                                        data_update = json.dumps(data_update)
+
+                                        print('data_update medicine', data_update)
+                                        print(Debug.delimiter())
+
                                         response = requests.post(MAIN_HOST + query, json=data_update)
                                         print('response', response.status_code)
 
@@ -703,13 +699,15 @@ def sender():
                                     except Exception as e:
                                         print('error requests.post', e)
 
-                                    print('data_update medicine', data_update)
-                                    print(Debug.delimiter())
+                                    # print('data_update medicine', data_update)
+                                    # print(Debug.delimiter())
 
                                     query_str = "UPDATE medicines set last_push = '" + \
                                                 str(datetime.datetime.fromtimestamp(
                                                     current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
+
+                                    print('query_str medicines', query_str)
 
                                     DB.query(query_str)
 
@@ -886,8 +884,8 @@ def graph():
                     constants['max_spo2'] = params['max']
                     constants['min_spo2'] = params['min']
                 except Exception as e:
-                    constants['max_spo2'] = MAX_SPO2
-                    constants['min_spo2'] = MIN_SPO2
+                    constants['max_spo2'] = MAX_SPO2_DEFAULT
+                    constants['min_spo2'] = MIN_SPO2_DEFAULT
 
             if (name == 'waist'):
                 try:
@@ -1901,6 +1899,40 @@ def action_pull(pull):
 
 # POST ROUTES
 
+@app.route('/status', methods=['POST'])
+def status():
+    print('status')
+
+    try:
+        data = request.json
+        print('status() | data', data)
+    except Exception as e:
+        print('error status()', e)
+        return 'error status'
+
+    if data['api_key'] != APP_KEY:
+        return 'invalid key'
+
+    query_str = "SELECT contract_id FROM actual_bots"
+
+    records = DB.select(query_str)
+
+    tracked_contracts = []
+
+    for row in records:
+        tracked_contracts.append(row[0])
+
+    answer = {
+        "is_tracking_data": True,
+        "supported_scenarios": SUPPORTED_SCENARIOS,
+        "tracked_contracts": tracked_contracts
+    }
+
+    print('answer', answer)
+
+    return json.dumps(answer)
+
+
 @app.route('/settings', methods=['POST'])
 def setting_save():
     contract_id = quard()
@@ -2096,6 +2128,8 @@ def init():
 
         contract_id = data['contract_id']
 
+        print('contract_id', contract_id)
+
         query_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
 
         records = DB.select(query_str)
@@ -2138,7 +2172,7 @@ def init():
 
             print('preset', preset)
 
-            preset_params = None
+            preset_params = []
 
             if data['params']:
                 preset_params = data['params']
@@ -2147,23 +2181,49 @@ def init():
 
             #  *************************************************************** SYS
 
-            if (preset_params['max_systolic']):
+            try:
                 max_systolic = preset_params['max_systolic']
-            else:
-                max_systolic = MAX_SYSTOLIC
+            except Exception as e:
+                max_systolic = MAX_SYSTOLIC_DEFAULT
+
+            try:
+                min_systolic = preset_params['min_systolic']
+            except Exception as e:
+                max_systolic = MIN_SYSTOLIC_DEFAULT
+
+            try:
+                max_diastolic = preset_params['max_diastolic']
+            except Exception as e:
+                max_diastolic = MAX_DIASTOLIC_DEFAULT
+
+            try:
+                min_diastolic = preset_params['min_diastolic']
+            except Exception as e:
+                min_diastolic = MIN_DIASTOLIC_DEFAULT
+
+            try:
+                max_pulse = preset_params['max_pulse']
+            except Exception as e:
+                max_pulse = MAX_PULSE_DEFAULT
+
+            try:
+                min_pulse = preset_params['min_pulse']
+            except Exception as e:
+                min_pulse = MIN_PULSE_DEFAULT
 
             params = {
                 "max_systolic": max_systolic,
-                "min_systolic": 90,
-                "max_diastolic": 90,
-                "min_diastolic": 60,
-                "max_pulse": 80,
-                "min_pulse": 50
+                "min_systolic": min_systolic,
+                "max_diastolic": max_diastolic,
+                "min_diastolic": min_diastolic,
+                "max_pulse": max_pulse,
+                "min_pulse": min_pulse
             }
 
             params = json.dumps(params)
 
             print('params', params)
+            print(Debug.delimiter())
 
             timetable = {
                 "days_month": [
@@ -2236,7 +2296,8 @@ def init():
 
             # *************************************************************** DIA
 
-            params = '{}'
+            params = {}
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2256,7 +2317,8 @@ def init():
 
             # *************************************************************** PULSE
 
-            params = '{}'
+            params = {}
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2276,7 +2338,12 @@ def init():
 
             # *************************************************************** TEMPERATURE
 
-            params = '{"max":37,"min":35}'
+            params = {
+                "max": MAX_TEMPERATURE_DEFAULT,
+                "min": MIN_TEMPERATURE_DEFAULT
+            }
+
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2296,7 +2363,12 @@ def init():
 
             # *************************************************************** GLUKOSE
 
-            params = '{"max":7,"min":5}'
+            params = {
+                "max": MAX_GLUKOSE_DEFAULT,
+                "min": MIN_GLUKOSE_DEFAULT
+            }
+
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2316,7 +2388,30 @@ def init():
 
             # *************************************************************** WEIGHT
 
-            params = '{}'
+            # print('preset_params', preset_params)
+
+            try:
+                max_weight = preset_params['max_weight']
+            except Exception as e:
+                max_weight = MAX_WEIGHT_DEFAULT
+
+            try:
+                min_weight = preset_params['min_weight']
+            except Exception as e:
+                min_weight = MIN_WEIGHT_DEFAULT
+
+            params = {
+                "max": max_weight,
+                "min": min_weight
+            }
+
+            params = json.dumps(params)
+
+            print('params weight', params)
+
+            preset_on = (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation')
+
+            print('preset_on', preset_on)
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2329,6 +2424,8 @@ def init():
                             Aux.quote() + timetable + Aux.quote() + "," + \
                             "true," + \
                             "(select * from now()),(select * from now()),(select * from now()))"
+
+                # query_str = "INSERT INTO measurements (id, contract_id, name, alias, mode, unit, params, timetable, show, last_push, created_at, updated_at) " + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s), " + "(nextval('measurements$id$seq'), " + Aux.quote() + str(contract_id) + Aux.quote() + ", " + "'weight', " + "'вес'," + "'daily'," + "'кг'," + Aux.quote() + params + Aux.quote() + "," + Aux.quote() + timetable + Aux.quote() + "," + "true," + "(select * from now()),(select * from now()),(select * from now()))"
 
                 name = 'weight'
 
@@ -2360,6 +2457,8 @@ def init():
                             "false," + \
                             "(select * from now()),(select * from now()),(select * from now()))"
 
+            print('query_str', query_str)
+
             result = DB.query(query_str)
 
             if (result != 'SUCCESS_QUERY'):
@@ -2367,7 +2466,22 @@ def init():
 
             # *************************************************************** WAIST
 
-            params = '{"max":0,"min":0}'
+            try:
+                max_waist = preset_params['max_waist']
+            except Exception as e:
+                max_waist = MAX_WAIST_DEFAULT
+
+            try:
+                min_waist = preset_params['min_waist']
+            except Exception as e:
+                min_waist = MIN_WAIST_DEFAULT
+
+            params = {
+                "max": max_waist,
+                "min": min_waist
+            }
+
+            params = json.dumps(params)
 
             if (preset == 'heartfailure'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2418,7 +2532,12 @@ def init():
 
             # *************************************************************** SPO2
 
-            params = '{"max":100,"min":93}'
+            params = {
+                "max": MAX_SPO2_DEFAULT,
+                "min": MIN_SPO2_DEFAULT
+            }
+
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2438,7 +2557,12 @@ def init():
 
             # *************************************************************** PAIN_ASSESSMENT
 
-            params = '{"max":10,"min":0}'
+            params = {
+                "max": MAX_PAIN_DEFAULT,
+                "min": MIN_PAIN_DEFAULT
+            }
+
+            params = json.dumps(params)
 
             query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                         Aux.quote() + str(contract_id) + Aux.quote() + "," + \
@@ -2458,7 +2582,12 @@ def init():
 
             # *************************************************************** SHIN_LEFT
 
-            params = '{"max":35,"min":10}'
+            params = {
+                "max": MAX_SHIN_DEFAULT,
+                "min": MIN_SHIN_DEFAULT
+            }
+
+            params = json.dumps(params)
 
             if (preset == 'heartfailure'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2510,7 +2639,9 @@ def init():
             # *************************************************************** SHIN_RIGHT
 
             timetable_empty = '{}'
-            params = '{}'
+
+            params = {}
+            params = json.dumps(params)
 
             if (preset == 'heartfailure'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2543,7 +2674,7 @@ def init():
             # *************************************************************** NEXT MEASUREMENT
 
     except Exception as e:
-        print('error', e)
+        print('error init()', e)
         return 'ERROR INIT'
 
     return 'ok'

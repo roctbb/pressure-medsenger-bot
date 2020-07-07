@@ -47,8 +47,11 @@ MIN_GLUKOSE_DEFAULT = 4
 MAX_PAIN_DEFAULT = 7
 MIN_PAIN_DEFAULT = 0
 
-MAX_WAIST_DEFAULT = 100
-MIN_WAIST_DEFAULT = 93
+MAX_SPO2_DEFAULT = 100
+MIN_SPO2_DEFAULT = 93
+
+MAX_WAIST_DEFAULT = 150
+MIN_WAIST_DEFAULT = 30
 
 ERROR_KEY = open_tag + "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой." + close_tag
 ERROR_CONTRACT = open_tag + "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой." + close_tag
@@ -143,3 +146,4 @@ NONE_MEASUREMENTS = "<strong>Измерений еще не проводилос
 AVAILABLE_MEASUREMENTS = ['pressure', 'weight', 'glukose', 'temperature', 'pain_assessment', 'spo2', 'waist', 'shin']
 AVAILABLE_MODES = ['daily', 'weekly', 'monthly', 'none']
 FORM_INPUTS = ['systolic', 'diastolic', 'weight', 'pulse_', 'glukose', 'spo2', 'waist', 'shin']
+SUPPORTED_SCENARIOS = ['heartfailure', 'stenocardia', 'fibrillation']
