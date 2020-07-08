@@ -140,12 +140,12 @@ def add_record(contract_id, category_name, value, record_time=None):
         data['time'] = record_time
 
     try:
-        print('data', data)
-        print('call add_record()', MAIN_HOST + '/api/agents/records/add')
+        # print('data', data)
+        # print('call add_record()', MAIN_HOST + '/api/agents/records/add')
         requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
 
     except Exception as e:
-        print('connection error', e)
+        print('error requests.post', e)
 
 
 def dump(data, label):
@@ -153,7 +153,7 @@ def dump(data, label):
 
 
 def delayed(delay, f, args):
-    print('args', args)
+    # print('args', args)
     timer = threading.Timer(delay, f, args=args)
     timer.start()
 
@@ -189,15 +189,15 @@ def check_str(val):
         return False
 
 
-# ************
+# ***************************************************
 
 def post_request(data, query='/api/agents/message'):
     try:
-        print('post_request()')
-        print('MAIN', MAIN_HOST + query)
+        # print('post_request()')
+        # print('MAIN', MAIN_HOST + query)
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
-        print('error post_request', e)
+        print('error post_request()', e)
 
 
 def warning(contract_id, param, param_value, param_value_2=''):
@@ -356,75 +356,65 @@ def sender():
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('11 pattern < hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('11 pattern < hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = 24
-                                                print('12 pattern == hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('12 pattern == hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
 
                                             if (pattern > hours_array[0]):
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                print('13 pattern > hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('13 pattern > hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(pattern)
 
-                                                print('21 pattern < hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('21 pattern < hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('22 pattern > hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('22 pattern > hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
-
-                                            # if (pattern > hours_array[0] and pattern < hours_array[1]):
-                                            #     action_deadline = hours_array[0] - pattern
-                                            #     print('23 pattern < hours_array[0]', action_deadline)
-                                            #     break
 
                                         if (len_hours_array > 2):
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                print('31 pattern <= hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
+                                                # print('31 pattern <= hours_array[0]', hours_array[0], pattern,
+                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0],
-                                                      pattern, action_deadline)
+                                                # print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0],
+                                                #       pattern, action_deadline)
                                                 break
 
                                             if (i > 0):
-                                                # true_hour = hours_array[i]
-
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
                                                     print('33 hours_array[i] >= pattern', hours_array[0], pattern,
                                                           action_deadline)
                                                     # break
 
-                                    # if (action_deadline > 0):
-                                    #     deadline = action_deadline
-
-                                    print('action_deadline', action_deadline)
+                                    # print('action_deadline', action_deadline)
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
 
-                                    print('name', name)
-                                    print('int(time.time())', int(time.time()))
-                                    print('data_deadline', data_deadline - 600)
+                                    # print('name', name)
+                                    # print('int(time.time())', int(time.time()))
+                                    # print('data_deadline', data_deadline - 600)
 
                                     data = {
                                         "contract_id": contract_id,
@@ -458,10 +448,8 @@ def sender():
                                         # print('MAIN_HOST + query', MAIN_HOST + query)
                                         # print('data', data)
                                         response = requests.post(MAIN_HOST + query, json=data_update)
-                                        print('response', response.status_code)
+                                        print('response ' + MAIN_HOST + query, response.status_code)
 
-                                        if (response.status_code == 200):
-                                            print('requests.post', response.text)
                                     except Exception as e:
                                         print('error requests.post', e)
 
@@ -662,14 +650,14 @@ def sender():
                                         }
                                     }
 
-                                    print('name medicine', name)
-                                    print('data_deadline medicine', data_deadline - 600)
-                                    print('int(time.time()) medicine', int(time.time()))
+                                    # print('name medicine', name)
+                                    # print('data_deadline medicine', data_deadline - 600)
+                                    # print('int(time.time()) medicine', int(time.time()))
                                     # print(Debug.delimiter())
 
                                     data_update_deadline = int(time.time()) - (4 * 60 * 60)
 
-                                    print('data_update_deadline | medicine', data_update_deadline)
+                                    # print('data_update_deadline | medicine', data_update_deadline)
 
                                     data_update = {
                                         "contract_id": contract_id,
@@ -678,24 +666,28 @@ def sender():
                                         "action_deadline": data_update_deadline
                                     }
 
-                                    print('data_update', data_update)
+                                    # print('data_update', data_update)
 
                                     try:
                                         query = '/api/agents/correct_action_deadline'
                                         # print('post request')
-                                        print('MAIN_HOST + query', MAIN_HOST + query)
+                                        # print('MAIN_HOST + query', MAIN_HOST + query)
                                         # print('data', data)
 
-                                        data_update = json.dumps(data_update)
+                                        print('data_update', type(data_update), data_update)
+                                        print(Debug.delimiter())
 
-                                        print('data_update medicine', data_update)
+                                        # data_update = json.dumps(data_update)
+
+                                        print('data_update dumps', type(data_update), data_update)
                                         print(Debug.delimiter())
 
                                         response = requests.post(MAIN_HOST + query, json=data_update)
-                                        print('response', response.status_code)
+                                        print('response | medicine: ', MAIN_HOST + query, response.status_code)
+                                        print(Debug.delimiter())
 
-                                        if (response.status_code == 200):
-                                            print('requests.post', response.text)
+                                        # if (response.status_code == 200):
+                                        #     print('requests.post', response.text)
                                     except Exception as e:
                                         print('error requests.post', e)
 
@@ -2745,13 +2737,13 @@ def action_pull_save(pull):
         try:
             shin_left = int(shin_left)
         except Exception as e:
-            shin_left = Defaults.max_shin_default()
+            shin_left = MAX_SHIN_DEFAULT
             print('Exception int(shin_left)', e)
 
         try:
             shin_right = int(shin_right)
         except Exception as e:
-            shin_right = Defaults.max_shin_default()
+            shin_right = MAX_SHIN_DEFAULT
             print('Exception int(shin_right)', e)
 
         if (shin_left < MIN_SHIN or shin_left > MAX_SHIN):
@@ -2775,8 +2767,8 @@ def action_pull_save(pull):
             max_shin = int(max_shin)
             min_shin = int(min_shin)
         except Exception as e:
-            max_shin = Defaults.max_shin_default()
-            min_shin = Defaults.min_shin_default()
+            max_shin = MAX_SHIN
+            min_shin = MIN_SHIN
             print("WARNING_NOT_INT", e)
 
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
