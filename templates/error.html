@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container main">
+        <h2>{% block error_text %}{% endblock %}</h2>
+        <p>Return on the <a href="/">main</a> page.</p>
+    </div>
+
+{% endblock %}
