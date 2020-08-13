@@ -1208,13 +1208,15 @@
             // Create series
             function createSeries(field, name, config, data) {
                 var series = chart.series.push(new am4charts__.LineSeries());
+                series.groupData = false;
                 series.dataFields.valueY = field;
                 series.dataFields.dateX = "date";
                 series.name = name;
                 series.tooltipText = config.tooltipText;
                 series.strokeWidth = 2;
-                series.propertyFields.stroke = "color"
-                series.stroke = am4core__.color(config.color)
+                series.propertyFields.stroke = "color";
+                series.stroke = am4core__.color(config.color);
+
 
                 {#console.log('610 field', field)#}
 
@@ -1235,6 +1237,7 @@
 
                 bullet.tooltipText = config.tooltipText
                 chart.scrollbarX = new am4core__.Scrollbar()
+                chart.scrollbarН = new am4core__.Scrollbar()
 
                 if (name == systolic.name) {
                     {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
