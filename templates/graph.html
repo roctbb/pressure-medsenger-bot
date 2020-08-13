@@ -325,7 +325,7 @@
             <li><a id="spo2_button" href="#">Насыщение крови кислородом</a></li>
             <li><a id="waist_button" href="#">Объем талии</a></li>
             <li><a id="shin_button" href="#">Объем голени</a></li>
-            <li><a id="stat_button" href="#">Статистика измерения давления</a></li>
+{#            <li><a id="stat_button" href="#">Статистика измерения давления</a></li>#}
 
 {#			<li class="current"><a href="#">Portfolio</a></li>#}
 {#			<li><a href="#">Illustration</a></li>#}
@@ -373,216 +373,216 @@
     <div id="chartdiv_pain" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_shin" class="chartdiv height-530 dark"></div>
 
-    <div id="stat">
-        <h1 class="item-center font-base dark-green">Статистика измерений давления</h1>
-
-        <!-- SYS -->
-
-        <div class="item-border">
-            <h2 class="item-center dark-green">Систолическое давление - за полный период</h2>
-            <div id="sys-stat" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ systolic['sys_max_value'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ systolic['sys_min_value'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ systolic['sys_avg_value'] }}</span>
-                </div>
-
-            </div>
-            <div id="sys-stat-donat" class="font-base"></div>
-        </div>
-        <div class="item-border">
-            <h2 class="item-center dark-green">Систолическое давление - за месяц</h2>
-            <div id="" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ systolic['sys_max_month'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ systolic['sys_min_month'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ systolic['sys_avg_month'] }}</span>
-                </div>
-
-            </div>
-            <div id="sys-stat-month" class="font-base"></div>
-        </div>
-        <div class="item-border">
-            <h2 class="item-center dark-green">Систолическое давление - за неделю</h2>
-            <div id="" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ systolic['sys_max_week'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ systolic['sys_min_week'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ systolic['sys_avg_week'] }}</span>
-                </div>
-
-            </div>
-            <div id="sys-stat-week" class="font-base"></div>
-        </div>
-
-
-        <!-- DIA -->
-        <div class="item-border">
-            <h2 class="item-center dark-green">Диастолическое давление - за полный период</h2>
-            <div id="sys-stat" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ diastolic['dia_max_value'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ diastolic['dia_min_value'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ diastolic['dia_avg_value'] }}</span>
-                </div>
-
-            </div>
-            <div id="dia-stat-donat" class="font-base"></div>
-        </div>
-
-        <div class="item-border">
-            <h2 class="item-center dark-green">Диастолическое давление - за месяц</h2>
-            <div id="sys-stat" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ diastolic['dia_max_month'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ diastolic['dia_min_month'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ diastolic['dia_avg_month'] }}</span>
-                </div>
-
-            </div>
-            <div id="dia-stat-month" class="font-base"></div>
-        </div>
-
-        <div class="item-border">
-            <h2 class="item-center dark-green">Диастолическое давление - за неделю</h2>
-            <div id="sys-stat" class="row font-base">
-
-                <div class="row_cell">
-                    <p>
-                       максимальное
-                    </p>
-                    <p>
-                       <span class="bold">{{ diastolic['dia_max_week'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        минимальное
-                    </p>
-                    <p>
-                        <span class="bold">{{ diastolic['dia_min_week'] }}</span>
-                    </p>
-                </div>
-
-                <div class="row_cell">
-                    <p>
-                        среднее
-                    </p>
-                    <span class="bold">{{ diastolic['dia_avg_week'] }}</span>
-                </div>
-
-            </div>
-            <div id="dia-stat-week" class="font-base"></div>
-        </div>
-
-        <figure class="highcharts-figure font-base">
-            <div id="container"></div>
+{#    <div id="stat">#}
+{#        <h1 class="item-center font-base dark-green">Статистика измерений давления</h1>#}
+{##}
+{#        <!-- SYS -->#}
+{##}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Систолическое давление - за полный период</h2>#}
+{#            <div id="sys-stat" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ systolic['sys_max_value'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ systolic['sys_min_value'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ systolic['sys_avg_value'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="sys-stat-donat" class="font-base"></div>#}
+{#        </div>#}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Систолическое давление - за месяц</h2>#}
+{#            <div id="" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ systolic['sys_max_month'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ systolic['sys_min_month'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ systolic['sys_avg_month'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="sys-stat-month" class="font-base"></div>#}
+{#        </div>#}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Систолическое давление - за неделю</h2>#}
+{#            <div id="" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ systolic['sys_max_week'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ systolic['sys_min_week'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ systolic['sys_avg_week'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="sys-stat-week" class="font-base"></div>#}
+{#        </div>#}
+{##}
+{##}
+{#        <!-- DIA -->#}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Диастолическое давление - за полный период</h2>#}
+{#            <div id="sys-stat" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ diastolic['dia_max_value'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ diastolic['dia_min_value'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ diastolic['dia_avg_value'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="dia-stat-donat" class="font-base"></div>#}
+{#        </div>#}
+{##}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Диастолическое давление - за месяц</h2>#}
+{#            <div id="sys-stat" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ diastolic['dia_max_month'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ diastolic['dia_min_month'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ diastolic['dia_avg_month'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="dia-stat-month" class="font-base"></div>#}
+{#        </div>#}
+{##}
+{#        <div class="item-border">#}
+{#            <h2 class="item-center dark-green">Диастолическое давление - за неделю</h2>#}
+{#            <div id="sys-stat" class="row font-base">#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                       максимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                       <span class="bold">{{ diastolic['dia_max_week'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        минимальное#}
+{#                    </p>#}
+{#                    <p>#}
+{#                        <span class="bold">{{ diastolic['dia_min_week'] }}</span>#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="row_cell">#}
+{#                    <p>#}
+{#                        среднее#}
+{#                    </p>#}
+{#                    <span class="bold">{{ diastolic['dia_avg_week'] }}</span>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#            <div id="dia-stat-week" class="font-base"></div>#}
+{#        </div>#}
+{##}
+{#        <figure class="highcharts-figure font-base">#}
+{#            <div id="container"></div>#}
     {#        <p class="highcharts-description">#}
     {#            Графики давления и пульса пациента.#}
     {#        </p>#}
-        </figure>
-    </div>
+{#        </figure>#}
+{#    </div>#}
 
 {#    <!-- Chart code -->#}
 {#    <script>#}
@@ -657,7 +657,7 @@
         const glukose_graph = document.getElementById('glukose_graph')
         const temperature_graph = document.getElementById('temperature_graph')
         const pain_button = document.getElementById('pain_button')
-        const stat_button = document.getElementById('stat_button')
+        {#const stat_button = document.getElementById('stat_button')#}
         const spo2_button = document.getElementById('spo2_button')
         const waist_button = document.getElementById('waist_button')
         const shin_button = document.getElementById('shin_button')
@@ -669,15 +669,15 @@
         const theme = document.getElementById('theme')
         const chartdiv_pain = document.getElementById('chartdiv_pain')
         const chartdiv_spo2 = document.getElementById('chartdiv_spo2')
-        const stat = document.getElementById('stat')
+        {#const stat = document.getElementById('stat')#}
         const chartdiv_waist = document.getElementById('chartdiv_waist')
         const chartdiv_shin = document.getElementById('chartdiv_shin')
 
         {#console.log('chartdiv_pain', chartdiv_pain)#}
 
-        const allDiv = [chartdiv__, chartdiv_glukose, chartdiv_weight, chartdiv_temperature, chartdiv_pain, chartdiv_spo2, stat, chartdiv_waist, chartdiv_shin]
+        const allDiv = [chartdiv__, chartdiv_glukose, chartdiv_weight, chartdiv_temperature, chartdiv_pain, chartdiv_spo2, chartdiv_waist, chartdiv_shin]
 
-        const allLinks = [all_graph, pressure_graph, weight_graph, glukose_graph, temperature_graph, pain_button, stat_button, spo2_button, waist_button, shin_button]
+        const allLinks = [all_graph, pressure_graph, weight_graph, glukose_graph, temperature_graph, pain_button, spo2_button, waist_button, shin_button]
 
         const activeClass = 'current'
 
@@ -725,9 +725,9 @@
         {#    }#}
         {#})#}
 
-        stat_button.addEventListener('click', (event) => {
-            toggleAll(stat, stat_button)
-        })
+        {#stat_button.addEventListener('click', (event) => {#}
+        {#    toggleAll(stat, stat_button)#}
+        {#})#}
 
         spo2_button.addEventListener('click', (event) => {
             toggleAll(chartdiv_spo2, spo2_button)
@@ -2122,7 +2122,7 @@
             pieSeries.hiddenState.properties.startAngle = -50;
 
 
-        }); // end am4core.ready()
+        }); // end am4core.ready()ready
     </script>
 
     <!-- Chart pressure -->
@@ -2270,128 +2270,128 @@
             i++;
         });
 
-        Highcharts.setOptions({
-            lang: {
-                loading: 'Загрузка...',
-                months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
-                weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
-                shortMonths: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сент', 'Окт', 'Нояб', 'Дек'],
-                exportButtonTitle: "Экспорт",
-                printButtonTitle: "Печать",
-                rangeSelectorFrom: "С",
-                rangeSelectorTo: "По",
-                rangeSelectorZoom: "Период",
-                downloadPNG: 'Скачать PNG',
-                downloadJPEG: 'Скачать JPEG',
-                downloadPDF: 'Скачать PDF',
-                downloadSVG: 'Скачать SVG',
-                printChart: 'Напечатать график'
-            }
-        });
-
-        Highcharts.chart('container', {
-            chart: {
-                type: 'spline',
-                scrollablePlotArea: {
-                    minWidth: 600,
-                    scrollPositionX: 1
-                }
-            },
-            title: {
-                text: 'Графики давления',
-                align: 'left'
-            },
-            subtitle: {
-                text: 'Измерения тонометром CS',
-                align: 'left'
-            },
-            xAxis: {
-                type: 'datetime',
-                labels: {
-                    overflow: 'justify'
-                }
-            },
-            yAxis: {
-                title: {
-                    text: 'Шкала давления (мм рт ст)'
-                },
-                minorGridLineWidth: 0,
-                gridLineWidth: 0,
-                alternateGridColor: null,
-                plotBands: [{ // Light air
-                    from: 90,
-                    to: 140,
-                    color: 'rgb(255, 153, 0, 0.1)',
-                    label: {
-                        text: '',
-                        style: {
-                            color: '#156449'
-                        }
-                    }
-                }, { // High wind
-                    from: 60,
-                    to: 100,
-                    color: 'rgba(68, 170, 20, 0.1)',
-                    label: {
-                        text: '',
-                        style: {
-                            color: '#635279'
-                        }
-                    }
-                }]
-            },
-            tooltip: {
-               formatter: function() {
-                   return this.point.tooltip;
-               }
-            },
-            plotOptions: {
-                series: {
-                    cursor: 'pointer',
-                    events: {
-                        click: function () {
-                            alert('You just clicked the graph');
-                        }
-                    }
-                },
-                spline: {
-                    lineWidth: 2,
-                    states: {
-                        hover: {
-                            lineWidth: 2
-                        }
-                    },
-                    marker: {
-                        enabled: true,
-                        fillColor: '#FFFFFF',
-                        lineWidth: 2,
-                        lineColor: null // inherit from series
-
-                    }
-                }
-            },
-            series: [{
-                color: 'orange',
-                name: 'SYS',
-                data: data_sys
-            },
-            {
-                color: 'green',
-                name: 'DIS',
-                data: data_dia
-            }],
-            navigation: {
-                menuItemStyle: {
-                    fontWeight: 'normal',
-                    background: 'none'
-                },
-                menuItemHoverStyle: {
-                    fontWeight: 'bold',
-                    background: 'none',
-                    color: 'black'
-                }
-            }
-        });
+        {#Highcharts.setOptions({#}
+        {#    lang: {#}
+        {#        loading: 'Загрузка...',#}
+        {#        months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],#}
+        {#        weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],#}
+        {#        shortMonths: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сент', 'Окт', 'Нояб', 'Дек'],#}
+        {#        exportButtonTitle: "Экспорт",#}
+        {#        printButtonTitle: "Печать",#}
+        {#        rangeSelectorFrom: "С",#}
+        {#        rangeSelectorTo: "По",#}
+        {#        rangeSelectorZoom: "Период",#}
+        {#        downloadPNG: 'Скачать PNG',#}
+        {#        downloadJPEG: 'Скачать JPEG',#}
+        {#        downloadPDF: 'Скачать PDF',#}
+        {#        downloadSVG: 'Скачать SVG',#}
+        {#        printChart: 'Напечатать график'#}
+        {#    }#}
+        {#});#}
+        {##}
+        {#Highcharts.chart('container', {#}
+        {#    chart: {#}
+        {#        type: 'spline',#}
+        {#        scrollablePlotArea: {#}
+        {#            minWidth: 600,#}
+        {#            scrollPositionX: 1#}
+        {#        }#}
+        {#    },#}
+        {#    title: {#}
+        {#        text: 'Графики давления',#}
+        {#        align: 'left'#}
+        {#    },#}
+        {#    subtitle: {#}
+        {#        text: 'Измерения тонометром CS',#}
+        {#        align: 'left'#}
+        {#    },#}
+        {#    xAxis: {#}
+        {#        type: 'datetime',#}
+        {#        labels: {#}
+        {#            overflow: 'justify'#}
+        {#        }#}
+        {#    },#}
+        {#    yAxis: {#}
+        {#        title: {#}
+        {#            text: 'Шкала давления (мм рт ст)'#}
+        {#        },#}
+        {#        minorGridLineWidth: 0,#}
+        {#        gridLineWidth: 0,#}
+        {#        alternateGridColor: null,#}
+        {#        plotBands: [{ // Light air#}
+        {#            from: 90,#}
+        {#            to: 140,#}
+        {#            color: 'rgb(255, 153, 0, 0.1)',#}
+        {#            label: {#}
+        {#                text: '',#}
+        {#                style: {#}
+        {#                    color: '#156449'#}
+        {#                }#}
+        {#            }#}
+        {#        }, { // High wind#}
+        {#            from: 60,#}
+        {#            to: 100,#}
+        {#            color: 'rgba(68, 170, 20, 0.1)',#}
+        {#            label: {#}
+        {#                text: '',#}
+        {#                style: {#}
+        {#                    color: '#635279'#}
+        {#                }#}
+        {#            }#}
+        {#        }]#}
+        {#    },#}
+        {#    tooltip: {#}
+        {#       formatter: function() {#}
+        {#           return this.point.tooltip;#}
+        {#       }#}
+        {#    },#}
+        {#    plotOptions: {#}
+        {#        series: {#}
+        {#            cursor: 'pointer',#}
+        {#            events: {#}
+        {#                click: function () {#}
+        {#                    alert('You just clicked the graph');#}
+        {#                }#}
+        {#            }#}
+        {#        },#}
+        {#        spline: {#}
+        {#            lineWidth: 2,#}
+        {#            states: {#}
+        {#                hover: {#}
+        {#                    lineWidth: 2#}
+        {#                }#}
+        {#            },#}
+        {#            marker: {#}
+        {#                enabled: true,#}
+        {#                fillColor: '#FFFFFF',#}
+        {#                lineWidth: 2,#}
+        {#                lineColor: null // inherit from series#}
+        {##}
+        {#            }#}
+        {#        }#}
+        {#    },#}
+        {#    series: [{#}
+        {#        color: 'orange',#}
+        {#        name: 'SYS',#}
+        {#        data: data_sys#}
+        {#    },#}
+        {#    {#}
+        {#        color: 'green',#}
+        {#        name: 'DIS',#}
+        {#        data: data_dia#}
+        {#    }],#}
+        {#    navigation: {#}
+        {#        menuItemStyle: {#}
+        {#            fontWeight: 'normal',#}
+        {#            background: 'none'#}
+        {#        },#}
+        {#        menuItemHoverStyle: {#}
+        {#            fontWeight: 'bold',#}
+        {#            background: 'none',#}
+        {#            color: 'black'#}
+        {#        }#}
+        {#    }#}
+        {#});#}
     </script>
 
 {#    <script>#}
