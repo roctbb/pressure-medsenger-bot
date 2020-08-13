@@ -1,7 +1,7 @@
 import datetime
 import time
 from threading import Thread
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, flash, redirect, url_for
 import json
 import requests
 from config import *
@@ -9,9 +9,10 @@ from database import *
 from const import *
 import threading
 import psycopg2
+from multiprocessing import Process
+from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
 
-# from flask_sqlalchemy import SQLAlchemy
-# from psycopg2 import sql
 
 class Profiler(object):
     def __enter__(self):
@@ -86,8 +87,8 @@ class DB:
     @staticmethod
     def query(query_str):
         try:
-            print(query_str)
-            print(Debug.delimiter())
+            # print(query_str)
+            # print(Debug.delimiter())
             conn = None
             conn = DB.connection()
             cursor = conn.cursor()
@@ -123,9 +124,151 @@ class DB:
                 conn.close()
 
 
-app = Flask(__name__)
 
-data = {}
+app = Flask(__name__)
+# app.config.from_object(__name__)
+
+db_uri = "postgres://{}:{}@{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+app.config.update(ENV='developer')
+# app.config.update(DEBUG=True)
+app.config.update(SECRET_KEY='JKJH!Jhjhjhj456545_jgnbh~hfgbgb')
+
+# print('app.config', app.config)
+
+db = SQLAlchemy(app)
+
+class Users(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80))
+    email = db.Column(db.String(120))
+
+    def __init__(self, id, username, email):
+        self.id = id
+        self.username = username
+        self.email = email
+
+class ActualBots(db.Model):
+    __tablename__ = 'actual_bots'
+
+    id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer)
+    actual = db.Column(db.Boolean)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+
+    # def __init__(self, id, contract_id, actual, created_at, updated_at):
+    #     self.id = id
+    #     self.contract_id = contract_id
+    #     self.actual = actual
+    #     self.created_at = created_at
+    #     self.updated_at = updated_at
+
+    # def __repr__(self):
+    #     return "\nActualBots: ('%s','%s')\n---------------------------\n" % (self.contract_id, self.actual)
+
+# for actual_bot in actual_bots:
+#     print('actual_bot', actual_bot)
+
+class CategoryParams(db.Model):
+    __tablename__ = 'category_params'
+
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(25))
+    mode = db.Column(db.String(10))
+    params = db.Column(db.JSON)
+    timetable = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+
+    def __init__(self, id, category, mode, params, timetable, created_at, updated_at):
+        self.id = id
+        self.category = category
+        self.mode = mode
+        self.params = params
+        self.timetable = timetable
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    # def __repr__(self):
+    #     return "\nCategoryParams: ('%s','%s', '%s')\n---------------------------\n" % (self.category, self.params, self.timetable)
+
+# category_params = CategoryParams.query.all()
+# print(category_params)
+# CategoryParamsObj = CategoryParams.query.filter_by(category='systolic_pressure').first()
+# print(CategoryParamsObj)
+# params = CategoryParamsObj.params
+# timetable = CategoryParamsObj.timetable
+# print('=================')
+
+# print('CategoryParamsObj', CategoryParamsObj)
+# print('')
+# print('params', params['max'])
+# print('')
+# print('timetable', timetable)
+# print('')
+# print('db', db)
+# print(Debug.delimiter())
+
+bootstrap = Bootstrap(app)
+
+# data = {}
+
+def getCategories():
+    try:
+        data_request = {
+            "api_key": APP_KEY
+        }
+
+        response = requests.post(MAIN_HOST + '/api/agents/records/categories', json=data_request)
+
+        # print('response', response)
+
+        if (response.status_code == 200):
+        #     print(json.loads(response.text))
+        #     print(Debug.delimiter())
+
+            return json.loads(response.text)
+
+        print('response.status_code = ', response.status_code)
+
+        return response.status_code
+
+
+    except Exception as e:
+        print('error: ', e)
+
+# categories = getCategories()
+#
+# print('categories ***************************** ', categories)
+# print(Debug.delimiter())
+
+def getRecords(contract_id, category_name):
+    try:
+        data_request = {
+            "contract_id": contract_id,
+            "api_key": APP_KEY,
+            "category_name": category_name
+        }
+
+        response = requests.post(MAIN_HOST + '/api/agents/records/get', json=data_request)
+
+        # print('response', response)
+
+        if (response.status_code == 200):
+            # print(json.loads(response.text))
+
+            return json.loads(response.text)
+
+        print('response.status_code = ', response.status_code)
+
+        return response.status_code
+
+
+    except Exception as e:
+        print('error: ', e)
 
 
 def add_record(contract_id, category_name, value, record_time=None):
@@ -282,9 +425,11 @@ def warning(contract_id, param, param_value, param_value_2=''):
 
 
 def sender():
-    deadline = 1
+    # deadline = 1
 
     while True:
+        # print('START sender')
+        # print('')
         query_str = "SELECT * FROM measurements WHERE show = true"
         records = DB.select(query_str)
         measurements = records
@@ -299,6 +444,10 @@ def sender():
             show = measurement[8]
             date_str = measurement[9].strftime("%Y-%m-%d %H:%M:%S")
             last_push = measurement[9].timestamp()
+
+            # print('id', id)
+            # print('contract_id', contract_id)
+            # print('name', name)
 
             if (show == False):
                 continue
@@ -330,6 +479,10 @@ def sender():
                             diff_current_control = current_time - control_time
 
                             if diff_current_control > 0:
+                                # print('control_time', control_time)
+                                # print('push_time', push_time)
+                                # print(Debug.delimiter())
+
                                 if control_time > push_time:
                                     print('Запись измерения в messages', name)
 
@@ -403,8 +556,8 @@ def sender():
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-                                                    print('33 hours_array[i] >= pattern', hours_array[0], pattern,
-                                                          action_deadline)
+                                                    # print('33 hours_array[i] >= pattern', hours_array[0], pattern,
+                                                    #       action_deadline)
                                                     # break
 
                                     # print('action_deadline', action_deadline)
@@ -433,8 +586,6 @@ def sender():
 
                                     data_update_deadline = int(time.time()) - (4 * 60 * 60)
 
-                                    # print('data_update_deadline', data_update_deadline)
-
                                     data_update = {
                                         "contract_id": contract_id,
                                         "api_key": APP_KEY,
@@ -447,61 +598,25 @@ def sender():
                                         # print('post request')
                                         # print('MAIN_HOST + query', MAIN_HOST + query)
                                         # print('data', data)
-                                        response = requests.post(MAIN_HOST + query, json=data_update)
-                                        print('response ' + MAIN_HOST + query, response.status_code)
+                                        # response = requests.post(MAIN_HOST + query, json=data_update)
+                                        # print('response ' + MAIN_HOST + query, response.status_code)
 
                                     except Exception as e:
                                         print('error requests.post', e)
 
-                                    print('data_update', data_update)
-                                    print(Debug.delimiter())
+                                    # print('data_update', data_update)
+                                    # print(Debug.delimiter())
 
                                     query_str = "UPDATE measurements set last_push = '" + \
                                                 str(datetime.datetime.fromtimestamp(
                                                     current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
 
-                                    print('query_str', query_str)
+                                    # print('query_str', query_str)
 
                                     DB.query(query_str)
-                                    print('data test', data)
+                                    print('data measurements', data)
                                     post_request(data)
-
-            # if mode == 'weekly':
-            #     for item in timetable:
-            #         days_week = item['days_week']
-            #
-            #         for day_hour in days_week:
-            #             date = datetime.date.fromtimestamp(time.time())
-            #             day_week = date.today().isoweekday()
-            #             day_week__ = int(day_hour['day'])
-            #
-            #             if day_week__ == day_week:
-            #                 a = day_hour['hour']
-            #                 b = datetime.datetime(date.year, date.month, date.day, int(a), 0, 0)
-            #
-            #                 control_time = b.timestamp()
-            #                 current_time = time.time()
-            #                 push_time = last_push
-            #                 diff_current_control = current_time - control_time
-            #
-            #                 if diff_current_control > 0:
-            #                     if control_time > push_time:
-            #                         data = {
-            #                             "contract_id": contract_id,
-            #                             "api_key": APP_KEY,
-            #                             "message": {
-            #                                 "text": MESS_MEASUREMENT[name]['text'],
-            #                                 "action_link": "frame/" + name,
-            #                                 "action_name": MESS_MEASUREMENT[name]['action_name'],
-            #                                 "action_onetime": True,
-            #                                 "only_doctor": False,
-            #                                 "only_patient": True,
-            #                             }
-            #                         }
-            #
-            #                         measurement['last_push'] = current_time
-            #                         post_request(data)
 
         query_str = "SELECT * FROM medicines WHERE show = true"
 
@@ -632,7 +747,7 @@ def sender():
                                     # if (action_deadline > 0):
                                     #     deadline = action_deadline
 
-                                    print('action_deadline', action_deadline)
+                                    # print('action_deadline', action_deadline)
 
                                     data_deadline = int(time.time()) + (action_deadline * 60 * 60)
 
@@ -674,17 +789,17 @@ def sender():
                                         # print('MAIN_HOST + query', MAIN_HOST + query)
                                         # print('data', data)
 
-                                        print('data_update', type(data_update), data_update)
-                                        print(Debug.delimiter())
+                                        # print('data_update', type(data_update), data_update)
+                                        # print(Debug.delimiter())
 
                                         # data_update = json.dumps(data_update)
 
-                                        print('data_update dumps', type(data_update), data_update)
-                                        print(Debug.delimiter())
+                                        # print('data_update dumps', type(data_update), data_update)
+                                        # print(Debug.delimiter())
 
                                         response = requests.post(MAIN_HOST + query, json=data_update)
-                                        print('response | medicine: ', MAIN_HOST + query, response.status_code)
-                                        print(Debug.delimiter())
+                                        # print('response | medicine: ', MAIN_HOST + query, response.status_code)
+                                        # print(Debug.delimiter())
 
                                         # if (response.status_code == 200):
                                         #     print('requests.post', response.text)
@@ -699,11 +814,19 @@ def sender():
                                                     current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
 
-                                    print('query_str medicines', query_str)
+                                    # print('query_str medicines', query_str)
+                                    # print(Debug.delimiter())
 
                                     DB.query(query_str)
 
+                                    print('data medicines', data)
+                                    # print(Debug.delimiter())
+
                                     post_request(data)
+
+        # print('')
+        # print('END Sender')
+        # print(Debug.delimiter())
 
         time.sleep(20)
 
@@ -770,6 +893,38 @@ def csv_reader__():
     return 'csv_reader()'
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    title = "Page not found: 404"
+    error_text = title
+    return render_template('404.html', title=title, error_text=error_text), 404
+
+
+@app.errorhandler(500)
+def server_error(error):
+    title = "Server error: 500"
+    error_text = title
+    return render_template('500.html', title=title, error_text=error_text), 500
+
+
+@app.route('/graph-test', methods=['GET'])
+def graph_test():
+    contract_id = quard()
+
+    proc = Process(target=zzz, args=(contract_id,))
+    proc.start()
+    print('proc', proc)
+    proc. join()
+    proc.close()
+    print('proc close', proc)
+
+    # zzz(2)
+
+    print('graph_test()')
+
+    return 'graph_test()'
+
+
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = quard()
@@ -807,11 +962,45 @@ def graph():
         query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
         records = DB.select(query_str)
 
-        for row in records:
-            name = row[2]
-            params = row[6]
+        medical_record_categories = getCategories()
 
-            if (name == 'systolic_pressure'):
+        for item in medical_record_categories:
+            category = item['name']
+
+            try:
+                CategoryParamsObj = CategoryParams.query.filter_by(category=category).first()
+                # print('CategoryParamsObj = ', CategoryParamsObj.category)
+
+                params = CategoryParamsObj.params
+                # timetable = CategoryParamsObj.timetable
+            except Exception as e:
+                print('ERROR CONNECTION CategoryParamsObj', e)
+
+            if (category == 'spo2'):
+                try:
+                    constants['max_spo2'] = params['max']
+                    constants['min_spo2'] = params['min']
+                except Exception as e:
+                    constants['max_spo2'] = MAX_SPO2_DEFAULT
+                    constants['min_spo2'] = MIN_SPO2_DEFAULT
+
+            if (category == 'glukose'):
+                try:
+                    constants['max_glukose'] = params['max']
+                    constants['min_glukose'] = params['min']
+                except Exception as e:
+                    constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
+                    constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
+
+            if (category == 'pain_assessment'):
+                try:
+                    constants['max_pain'] = params['max']
+                    constants['min_pain'] = params['min']
+                except Exception as e:
+                    constants['max_pain'] = MAX_PAIN_DEFAULT
+                    constants['min_pain'] = MIN_PAIN_DEFAULT
+
+            if (category == 'systolic_pressure' or category == 'diastolic_pressure' or category == 'pulse'):
                 try:
                     constants['max_systolic'] = params['max_systolic']
                     constants['min_systolic'] = params['min_systolic']
@@ -827,7 +1016,7 @@ def graph():
                     constants['max_pulse'] = MAX_PULSE_DEFAULT
                     constants['min_pulse'] = MIN_PULSE_DEFAULT
 
-            if (name == 'weight'):
+            if (category == 'weight'):
                 try:
                     constants['max_weight'] = params['max']
                     constants['min_weight'] = params['min']
@@ -835,7 +1024,15 @@ def graph():
                     constants['max_weight'] = MAX_WEIGHT_DEFAULT
                     constants['min_weight'] = MIN_WEIGHT_DEFAULT
 
-            if (name == 'shin_volume_left'):
+            if (category == 'waist_circumference'):
+                try:
+                    constants['max_waist'] = params['max']
+                    constants['min_waist'] = params['min']
+                except Exception as e:
+                    constants['max_waist'] = MAX_WAIST_DEFAULT
+                    constants['min_waist'] = MIN_WAIST_DEFAULT
+
+            if (category == 'leg_circumference_left' or category == 'leg_circumference_right'):
                 try:
                     constants['max_shin_left'] = params['max']
                     constants['min_shin_left'] = params['min']
@@ -847,7 +1044,7 @@ def graph():
                     constants['max_shin_right'] = MAX_SHIN_DEFAULT
                     constants['min_shin_right'] = MIN_SHIN_DEFAULT
 
-            if (name == 'temperature'):
+            if (category == 'temperature'):
                 try:
                     constants['max_temperature'] = params['max']
                     constants['min_temperature'] = params['min']
@@ -855,37 +1052,90 @@ def graph():
                     constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
-            if (name == 'glukose'):
-                try:
-                    constants['max_glukose'] = params['max']
-                    constants['min_glukose'] = params['min']
-                except Exception as e:
-                    constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
-                    constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
+            # print(category , type(category), type('temperature'))
+            # print('---')
 
-            if (name == 'pain_assessment'):
-                try:
-                    constants['max_pain'] = params['max']
-                    constants['min_pain'] = params['min']
-                except Exception as e:
-                    constants['max_pain'] = MAX_PAIN_DEFAULT
-                    constants['min_pain'] = MIN_PAIN_DEFAULT
+        print('constants', constants)
 
-            if (name == 'spo2'):
-                try:
-                    constants['max_spo2'] = params['max']
-                    constants['min_spo2'] = params['min']
-                except Exception as e:
-                    constants['max_spo2'] = MAX_SPO2_DEFAULT
-                    constants['min_spo2'] = MIN_SPO2_DEFAULT
-
-            if (name == 'waist'):
-                try:
-                    constants['max_waist'] = params['max']
-                    constants['min_waist'] = params['min']
-                except Exception as e:
-                    constants['max_waist'] = MAX_WAIST_DEFAULT
-                    constants['min_waist'] = MIN_WAIST_DEFAULT
+        # for row in records:
+        #     name = row[2]
+        #     params = row[6]
+        #
+        #     if (name == 'systolic_pressure'):
+        #         try:
+        #             constants['max_systolic'] = params['max_systolic']
+        #             constants['min_systolic'] = params['min_systolic']
+        #             constants['max_diastolic'] = params['max_diastolic']
+        #             constants['min_diastolic'] = params['min_diastolic']
+        #             constants['max_pulse'] = params['max_pulse']
+        #             constants['min_pulse'] = params['min_pulse']
+        #         except:
+        #             constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
+        #             constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
+        #             constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
+        #             constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
+        #             constants['max_pulse'] = MAX_PULSE_DEFAULT
+        #             constants['min_pulse'] = MIN_PULSE_DEFAULT
+        #
+        #     if (name == 'weight'):
+        #         try:
+        #             constants['max_weight'] = params['max']
+        #             constants['min_weight'] = params['min']
+        #         except Exception as e:
+        #             constants['max_weight'] = MAX_WEIGHT_DEFAULT
+        #             constants['min_weight'] = MIN_WEIGHT_DEFAULT
+        #
+        #     if (name == 'shin_volume_left'):
+        #         try:
+        #             constants['max_shin_left'] = params['max']
+        #             constants['min_shin_left'] = params['min']
+        #             constants['max_shin_right'] = params['max']
+        #             constants['min_shin_right'] = params['min']
+        #         except Exception as e:
+        #             constants['max_shin_left'] = MAX_SHIN_DEFAULT
+        #             constants['min_shin_left'] = MIN_SHIN_DEFAULT
+        #             constants['max_shin_right'] = MAX_SHIN_DEFAULT
+        #             constants['min_shin_right'] = MIN_SHIN_DEFAULT
+        #
+        #     if (name == 'temperature'):
+        #         try:
+        #             constants['max_temperature'] = params['max']
+        #             constants['min_temperature'] = params['min']
+        #         except Exception as e:
+        #             constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
+        #             constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
+        #
+        #     if (name == 'glukose'):
+        #         try:
+        #             constants['max_glukose'] = params['max']
+        #             constants['min_glukose'] = params['min']
+        #         except Exception as e:
+        #             constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
+        #             constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
+        #
+        #     if (name == 'pain_assessment'):
+        #         try:
+        #             constants['max_pain'] = params['max']
+        #             constants['min_pain'] = params['min']
+        #         except Exception as e:
+        #             constants['max_pain'] = MAX_PAIN_DEFAULT
+        #             constants['min_pain'] = MIN_PAIN_DEFAULT
+        #
+        #     if (name == 'spo2'):
+        #         try:
+        #             constants['max_spo2'] = params['max']
+        #             constants['min_spo2'] = params['min']
+        #         except Exception as e:
+        #             constants['max_spo2'] = MAX_SPO2_DEFAULT
+        #             constants['min_spo2'] = MIN_SPO2_DEFAULT
+        #
+        #     if (name == 'waist'):
+        #         try:
+        #             constants['max_waist'] = params['max']
+        #             constants['min_waist'] = params['min']
+        #         except Exception as e:
+        #             constants['max_waist'] = MAX_WAIST_DEFAULT
+        #             constants['min_waist'] = MIN_WAIST_DEFAULT
 
         query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
             contract_id) + Aux.quote() + " and name = 'systolic_pressure') ORDER BY time ASC"
@@ -1059,9 +1309,20 @@ def graph():
             print('error try except sys month', e)
         # END QUERIES SYS WEEK
 
+        response = getRecords(contract_id, 'systolic_pressure')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         systolic_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "sys_max_value": int(sys_max_value),
             "sys_min_value": int(sys_min_value),
             "sys_avg_value": int(sys_avg_value),
@@ -1077,8 +1338,8 @@ def graph():
             "sys_avg_month": int(sys_avg_month),
             "sys_slice_normal_month": int(sys_slice_normal_month),
             "sys_slice_critical_month": int(sys_slice_critical_month),
-            "comments": comments,
-            "name": "Верхнее давление"
+            "comments": '',
+            "name": category['description']
         }
 
         systolic = systolic_dic
@@ -1260,9 +1521,20 @@ def graph():
             print('error try except sys month', e)
         # END QUERIES DIA WEEK
 
+        response = getRecords(contract_id, 'diastolic_pressure')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         diastolic_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "dia_max_value": int(dia_max_value),
             "dia_min_value": int(dia_min_value),
             "dia_avg_value": int(dia_avg_value),
@@ -1278,7 +1550,7 @@ def graph():
             "dia_avg_week": int(dia_avg_week),
             "dia_slice_normal_week": int(dia_slice_normal_week),
             "dia_slice_critical_week": int(dia_slice_critical_week),
-            "name": "Нижнее давление"
+            "name": category['description']
         }
 
         diastolic = diastolic_dic
@@ -1302,10 +1574,21 @@ def graph():
             array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
             array_y.append(value_)
 
+        response = getRecords(contract_id, 'pulse')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         pulse_dic = {
-            "x": array_x,
-            "y": array_y,
-            "name": "Пульс"
+            "x": x,
+            "y": y,
+            "name": category['description']
         }
 
         pulse = pulse_dic
@@ -1395,12 +1678,25 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'pain_assessment')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         pain_assessment_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Оценка боли"
+            "name": category['description']
         }
+
+        # print('pain_assessment_dic', pain_assessment_dic)
 
         # ********************************************* weight
 
@@ -1427,11 +1723,22 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'weight')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         weight_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Вес"
+            "name": category['description']
         }
 
         weight_series = weight_dic
@@ -1461,11 +1768,22 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'temperature')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         temperature_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Температура"
+            "name": category['description']
         }
 
         temperature_series = temperature_dic
@@ -1495,11 +1813,22 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'glukose')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         glukose_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Глюкоза"
+            "name": category['description']
         }
 
         glukose_series = glukose_dic
@@ -1529,11 +1858,22 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'spo2')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         spo2_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Мониторинг насыщения крови кислородом"
+            "name": category['description']
         }
 
         spo2_series = spo2_dic
@@ -1563,12 +1903,28 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'waist_circumference')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        print('values', values)
+        print('-----------------------')
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         waist_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Объем талии"
+            "name": category['description']
         }
+
+        print(' waist_dic *************************************',  waist_dic)
 
         waist_series = waist_dic
 
@@ -1596,18 +1952,25 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'leg_circumference_left')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         shin_left_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Измерение объема голени на левой ноге"
+            "name": category['description']
         }
 
         shin_left = shin_left_dic
-
-        print('shin_left', shin_left)
-
-        # shin_right_dic
 
         param_name = 'shin_volume_right'
 
@@ -1631,16 +1994,25 @@ def graph():
             else:
                 comments.append(row[6])
 
+        response = getRecords(contract_id, 'leg_circumference_right')
+        x = []
+        y = []
+        category = response['category']
+        values = response['values']
+
+        for value in values:
+            date = datetime.datetime.fromtimestamp(value['timestamp'])
+            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            y.append(value['value'])
+
         shin_right_dic = {
-            "x": array_x,
-            "y": array_y,
+            "x": x,
+            "y": y,
             "comments": comments,
-            "name": "Измерение объема голени на правой ноге"
+            "name": category['description']
         }
 
         shin_right = shin_right_dic
-
-        print('shin_right', shin_right)
 
         return render_template('graph.html',
                                constants=constants,
@@ -1672,7 +2044,7 @@ def settings():
 
     try:
         contract_id = quard()
-        print('contract_id', contract_id)
+        # print('contract_id', contract_id)
     except Exception as e:
         print('UNKNOWN ERROR')
         return 'UNKNOWN ERROR'
@@ -1816,7 +2188,7 @@ def settings():
     medicines = medicines_new
     measurements = measurements_main
 
-    print('measurements', measurements)
+    # print('measurements', measurements)
 
     return render_template('settings.html',
                            medicines_data=json.dumps(medicines),
@@ -1849,6 +2221,8 @@ def action_pull(pull):
 
     auth = quard()
 
+    constants = {}
+
     if (auth == 'ERROR_KEY'):
         print('/frame ERROR_KEY')
         return ERROR_KEY
@@ -1858,16 +2232,12 @@ def action_pull(pull):
         return ERROR_CONTRACT
 
     if (pull == 'shin'):
-        constants = {}
-
         constants['shin_max'] = MAX_SHIN
         constants['shint_min'] = MIN_SHIN
 
         return render_template('shin.html', tmpl=pull, constants=constants)
 
     if (pull == 'pressure'):
-        constants = {}
-
         constants['sys_max'] = MAX_SYSTOLIC
         constants['sys_min'] = MIN_SYSTOLIC
         constants['dia_max'] = MAX_DIASTOLIC
@@ -1877,16 +2247,48 @@ def action_pull(pull):
 
         return render_template('pressure.html', tmpl=pull, constants=constants)
 
+    if (pull == 'weight'):
+        constants['weight_max'] = MAX_WEIGHT
+        constants['weight_min'] = MIN_WEIGHT
+
+        return render_template('measurement.html', tmpl=pull, constants=constants)
+
+        # return render_template('pressure.html', tmpl=pull, constants=constants)
+
+    if (pull == 'temperature'):
+        constants['temperature_max'] = MAX_TEMPERATURE
+        constants['temperature_min'] = MIN_TEMPERATURE
+
+        return render_template('measurement.html', tmpl=pull, constants=constants)
+
+        # return render_template('temperature.html', tmpl=pull, constants=constants)
+
+    if (pull == 'glukose'):
+        constants['glukose_max'] = MAX_GLUKOSE
+        constants['glukose_min'] = MIN_GLUKOSE
+
+        return render_template('measurement.html', tmpl=pull, constants=constants)
+
+        # return render_template('glukose.html', tmpl=pull, constants=constants)
+
     if (pull == 'pain_assessment'):
-        return render_template('pain_assessment.html', tmpl=pull)
+        constants['pain_assessment_max'] = MAX_ASSESSMENT
+        constants['ain_assessment_min'] = MIN_ASSESSMENT
+
+        return render_template('pain_assessment.html', tmpl=pull, constants=constants)
 
     if (pull == 'spo2'):
-        return render_template('spo2.html', tmpl=pull)
+        constants['spo2_max'] = MAX_SPO2
+        constants['spo2_min'] = MIN_SPO2
+        return render_template('spo2.html', tmpl=pull, constants=constants)
 
     if (pull == 'waist'):
-        return render_template('waist.html', tmpl=pull)
+        constants['waist_max'] = MAX_WAIST
+        constants['waist_min'] = MIN_WAIST
 
-    return render_template('measurement.html', tmpl=pull)
+        return render_template('waist.html', tmpl=pull, constants=constants)
+
+    return render_template('measurement.html', tmpl=pull, constants=constants)
 
 
 # POST ROUTES
@@ -1897,7 +2299,7 @@ def status():
 
     try:
         data = request.json
-        print('status() | data', data)
+        # print('status() | data', data)
     except Exception as e:
         print('error status()', e)
         return 'error status'
@@ -1920,7 +2322,7 @@ def status():
         "tracked_contracts": tracked_contracts
     }
 
-    print('answer', answer)
+    # print('answer', answer)
 
     return json.dumps(answer)
 
@@ -1951,8 +2353,8 @@ def setting_save():
             params['max_pulse'] = measurement['max_pulse']
             params['min_pulse'] = measurement['min_pulse']
         else:
-            print('measurement', measurement)
-            print(Debug.delimiter())
+            # print('measurement', measurement)
+            # print(Debug.delimiter())
 
             params['max'] = measurement['max']
             params['min'] = measurement['min']
@@ -2100,62 +2502,84 @@ def setting_save():
 
     return "ok"
 
-
-@app.route('/init', methods=['POST', 'GET'])
+@app.route('/init', methods=['POST'])
 def init():
     new_contract = True
 
     try:
+        # print('request', request)
+
         data = request.json
 
-        print('data', data)
+        # print('data', data)
 
         if (data == None):
-            print('None')
+            print('None data /init')
             return 'None'
 
-        if data['api_key'] != APP_KEY:
+        if ('api_key' not in data):
+            print('key api_key not exists')
+            return 'key api_key not exists'
+
+        if (APP_KEY != data['api_key']):
             print('invalid key')
             return 'invalid key'
 
+        if ('contract_id' not in data):
+            print('key contract_id not exists')
+            return 'key contract_id not exists'
+
         contract_id = data['contract_id']
 
-        print('contract_id', contract_id)
-
-        query_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
-
-        records = DB.select(query_str)
-
+        actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         id = 0
 
-        for row in records:
-            id = row[1]
+        for actual_bot in actual_bots:
+            id = actual_bot.id
 
         if id > 0:
             new_contract = False
-            query_str = "UPDATE actual_bots SET actual = true WHERE contract_id = " + Aux.quote() + str(
-                contract_id) + Aux.quote()
 
-            result = DB.query(query_str)
+            try:
+                db.session.query(ActualBots).update({"actual": True})
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('db.session.rollback()', e)
+                raise
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+        # new_contract = True
 
         if (new_contract == True):
-            query_str = "INSERT INTO actual_bots VALUES(nextval('actual_bots$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "true ," + \
-                        "(select * from now()), (select * from now()))"
+            try:
+                actual_bots = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
+                print('actual_bots', actual_bots)
+                db.session.add(actual_bots)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('db.session.add(actual_bots)', e)
+                raise
 
-            result = DB.query(query_str)
-
-            if (result != 'SUCCESS_QUERY'):
-                print('ERROR')
-                return result
+            # res = db.query("SELECT * FROM users")
+            #
+            # print('res', res)
+            #
+            # try:
+            #     users = Users(2, 'max', 'max@m.ru')
+            #     print('users', users)
+            #     db.session.add(users)
+            #     db.session.commit()
+            # except Exception as e:
+            #     db.session.rollback()
+            #     print('db.session.add(users)', e)
+            #     raise
 
             # Варианты параметра preset следующие:
             # heartfailure - измерение веса, давления, обхвата талии и голени раз в день;
             # stenocardia или fibrillation - измерение веса, давления раз в день.
+
+            # return 'test'
 
             preset = None
 
@@ -2174,7 +2598,7 @@ def init():
             #  *************************************************************** SYS
 
             try:
-                max_systolic = preset_params['max_systolic']
+                max_systolic = (preset_params['max_systolic'])
             except Exception as e:
                 max_systolic = MAX_SYSTOLIC_DEFAULT
 
@@ -2214,8 +2638,8 @@ def init():
 
             params = json.dumps(params)
 
-            print('params', params)
-            print(Debug.delimiter())
+            # print('params', params)
+            # print(Debug.delimiter())
 
             timetable = {
                 "days_month": [
@@ -2239,7 +2663,7 @@ def init():
 
             timetable = json.dumps(timetable)
 
-            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
+            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
                             Aux.quote() + str(contract_id) + Aux.quote() + "," + \
                             "'systolic_pressure'," + \
@@ -2267,7 +2691,8 @@ def init():
                     }
                 }
 
-                # print('data preset pressure', data)
+                print('data preset pressure', data)
+
                 delayed(1, post_request, [data])
             else:
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2399,11 +2824,11 @@ def init():
 
             params = json.dumps(params)
 
-            print('params weight', params)
+            # print('params weight', params)
 
             preset_on = (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation')
 
-            print('preset_on', preset_on)
+            # print('preset_on', preset_on)
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
                 query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
@@ -2449,7 +2874,7 @@ def init():
                             "false," + \
                             "(select * from now()),(select * from now()),(select * from now()))"
 
-            print('query_str', query_str)
+            # print('query_str', query_str)
 
             result = DB.query(query_str)
 
@@ -2666,7 +3091,7 @@ def init():
             # *************************************************************** NEXT MEASUREMENT
 
     except Exception as e:
-        print('error init()', e)
+        print('ERROR INIT', e)
         return 'ERROR INIT'
 
     return 'ok'
@@ -2691,7 +3116,7 @@ def remove():
         id = 0
 
         for row in records:
-            print('id', id)
+            # print('id', id)
             id = row[1]
 
         if id > 0:
@@ -2774,39 +3199,39 @@ def action_pull_save(pull):
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
 
-        # insert shin_left
-        query_str = "select id from measurements where contract_id = " + str(
-            contract_id) + " and name = 'shin_volume_left'"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
-
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            shin_left) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-            comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # # insert shin_left
+        # query_str = "select id from measurements where contract_id = " + str(
+        #     contract_id) + " and name = 'shin_volume_left'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     id = row[0]
+        #
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     shin_left) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+        #     comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
 
         # insert shin_right
-        query_str = "select id from measurements where contract_id = " + str(
-            contract_id) + " and name = 'shin_volume_right'"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
-
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-            comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # query_str = "select id from measurements where contract_id = " + str(
+        #     contract_id) + " and name = 'shin_volume_right'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     id = row[0]
+        #
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+        #     comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
 
@@ -2837,7 +3262,10 @@ def action_pull_save(pull):
             print('int(pulse)', e)
 
         if (systolic < MIN_SYSTOLIC or systolic > MAX_SYSTOLIC):
-            return ERROR_OUTSIDE_SYSTOLIC
+            flash(ERROR_OUTSIDE_SYSTOLIC_TEXT)
+            return action_pull(pull)
+
+            # return ERROR_OUTSIDE_SYSTOLIC
 
         if (diastolic < MIN_DIASTOLIC or diastolic > MAX_DIASTOLIC):
             return ERROR_OUTSIDE_DIASTOLIC
@@ -2880,48 +3308,48 @@ def action_pull_save(pull):
         for row in records:
             id = row[0]
 
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            systolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-            comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     systolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+        #     comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         # add_record(contract_id, 'systolic_pressure', systolic, int(time.time()))
 
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
 
-        query_str = "select id from measurements where contract_id = " + str(
-            contract_id) + " and name = 'diastolic_pressure'"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
-
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            diastolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-            comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # query_str = "select id from measurements where contract_id = " + str(
+        #     contract_id) + " and name = 'diastolic_pressure'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     id = row[0]
+        #
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     diastolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+        #     comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         # add_record(contract_id, 'diastolic_pressure', diastolic, int(time.time()))
 
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
 
-        query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'pulse'"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
-
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            pulse_) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'pulse'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     id = row[0]
+        #
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     pulse_) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         # add_record(contract_id, 'pulse', pulse_, int(time.time()))
 
@@ -2951,11 +3379,15 @@ def action_pull_save(pull):
         min = float(min)
         param_value = float(param_value)
 
-        if (param == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
-            return ERROR_OUTSIDE_SPO2
+        if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
+            param_value_int = int(param_value)
+            flash(ERROR_OUTSIDE_SPO2_TEXT, category=param_value_int)
+            return action_pull(pull)
 
         if (param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST)):
-            return ERROR_OUTSIDE_WAIST
+            param_value_int = int(param_value)
+            flash(ERROR_OUTSIDE_WAIST_TEXT, category=param_value_int)
+            return action_pull(pull)
 
         if (param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT)):
             return ERROR_OUTSIDE_WEIGHT
@@ -2981,20 +3413,20 @@ def action_pull_save(pull):
             # Сигналим врачу
             delayed(1, warning, [contract_id, param, param_value])
 
-        query_str = "select id from measurements where contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
-
-        query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-            id) + ",(select * from now())," + str(
-            param_value) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-            comments) + Aux.quote() + ")"
-
-        DB.query(query_str)
+        # query_str = "select id from measurements where contract_id = " + Aux.quote() + str(
+        #     contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     id = row[0]
+        #
+        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
+        #     id) + ",(select * from now())," + str(
+        #     param_value) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
+        #     comments) + Aux.quote() + ")"
+        #
+        # DB.query(query_str)
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
 

@@ -10,12 +10,12 @@ MAX_WEIGHT = 150
 MIN_WEIGHT = 15
 MAX_TEMPERATURE = 42
 MIN_TEMPERATURE = 35
-MAX_SYSTOLIC = 300
-MIN_SYSTOLIC = 40
-MAX_DIASTOLIC = 150
-MIN_DIASTOLIC = 15
-MAX_PULSE = 200
-MIN_PULSE = 10
+MAX_SYSTOLIC = 180
+MIN_SYSTOLIC = 80
+MAX_DIASTOLIC = 120
+MIN_DIASTOLIC = 50
+MAX_PULSE = 120
+MIN_PULSE = 40
 MAX_GLUKOSE = 30
 MIN_GLUKOSE = 1
 MAX_SHIN = 50
@@ -26,17 +26,17 @@ MIN_PAIN = 0
 MAX_SHIN_DEFAULT = 35
 MIN_SHIN_DEFAULT = 10
 
-MAX_WEIGHT_DEFAULT = 150
-MIN_WEIGHT_DEFAULT = 45
+MAX_WEIGHT_DEFAULT = 250
+MIN_WEIGHT_DEFAULT = 0
 
-MAX_SYSTOLIC_DEFAULT = 140
-MIN_SYSTOLIC_DEFAULT = 90
+MAX_SYSTOLIC_DEFAULT = 180
+MIN_SYSTOLIC_DEFAULT = 80
 
-MAX_DIASTOLIC_DEFAULT = 100
-MIN_DIASTOLIC_DEFAULT = 30
+MAX_DIASTOLIC_DEFAULT = 120
+MIN_DIASTOLIC_DEFAULT = 50
 
-MAX_PULSE_DEFAULT = 80
-MIN_PULSE_DEFAULT = 50
+MAX_PULSE_DEFAULT = 120
+MIN_PULSE_DEFAULT = 40
 
 MAX_TEMPERATURE_DEFAULT = 37
 MIN_TEMPERATURE_DEFAULT = 36
@@ -53,19 +53,40 @@ MIN_SPO2_DEFAULT = 93
 MAX_WAIST_DEFAULT = 150
 MIN_WAIST_DEFAULT = 30
 
+MAX_ASSESSMENT = 10
+MIN_ASSESSMENT = 0
+
 ERROR_KEY = open_tag + "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой." + close_tag
 ERROR_CONTRACT = open_tag + "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой." + close_tag
 ERROR_FORM = open_tag + "<strong>Ошибки при заполнении формы.<br></strong> Пожалуйста, проверьте, что все поля заполнены." + close_tag + backhistory
 
-ERROR_OUTSIDE_TEMPERATURE = open_tag + "Допустимый диапазон температуры " + str(MIN_TEMPERATURE) + "-" + str(MAX_TEMPERATURE) + " градуса по Цельсию." + close_tag + backhistory
-ERROR_OUTSIDE_SYSTOLIC = open_tag + "Допустимый диапазон верхнего давления " + str(MIN_SYSTOLIC) + "-" + str(MAX_SYSTOLIC) + " мм рт ст." + close_tag + backhistory
-ERROR_OUTSIDE_DIASTOLIC = open_tag + "Допустимый диапазон нижнего давления " + str(MIN_DIASTOLIC) + "-" + str(MAX_DIASTOLIC) + " мм рт ст." + close_tag + backhistory
-ERROR_OUTSIDE_PULSE = open_tag + "Допустимый диапазон пульса " + str(MIN_PULSE) + "-" + str(MAX_PULSE) + " ударов в минуту." + close_tag + backhistory
-ERROR_OUTSIDE_WEIGHT = open_tag + "Допустимый диапазон измерений веса " + str(MIN_WEIGHT) + "-" + str(MAX_WEIGHT) + " кг." + close_tag + backhistory
-ERROR_OUTSIDE_GLUKOSE = open_tag + "Допустимый диапазон показаний глюкозы " + str(MIN_GLUKOSE) + "-" + str(MAX_GLUKOSE) + " моль/л." + close_tag + backhistory
-ERROR_OUTSIDE_SPO2 = open_tag + "Допустимый уровень насыщения крови кислородом не менее " + str(MIN_SPO2) + "%." + close_tag + backhistory
-ERROR_OUTSIDE_WAIST = open_tag + "Допустимый обхват талии " + str(MIN_WAIST) + "-" + str(MAX_WAIST) + " см." + close_tag + backhistory
-ERROR_OUTSIDE_SHIN = open_tag + "Допустимый диапазон измерения обхвата голени " + str(MIN_SHIN) + "-" + str(MAX_SHIN) + " см." + close_tag + backhistory
+ERROR_OUTSIDE_TEMPERATURE_TEXT = "Допустимый диапазон температуры " + str(MIN_TEMPERATURE) + "-" + str(MAX_TEMPERATURE) + " градуса по Цельсию."
+ERROR_OUTSIDE_TEMPERATURE = open_tag + ERROR_OUTSIDE_TEMPERATURE_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_SYSTOLIC_TEXT = "Допустимый диапазон верхнего давления " + str(MIN_SYSTOLIC) + "-" + str(MAX_SYSTOLIC) + " мм рт ст."
+ERROR_OUTSIDE_SYSTOLIC = open_tag + ERROR_OUTSIDE_SYSTOLIC_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_DIASTOLIC_TEXT = open_tag + "Допустимый диапазон нижнего давления " + str(MIN_DIASTOLIC) + "-" + str(MAX_DIASTOLIC) + " мм рт ст." + close_tag + backhistory
+ERROR_OUTSIDE_DIASTOLIC = open_tag + ERROR_OUTSIDE_DIASTOLIC_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_PULSE_TEXT = "Допустимый диапазон пульса " + str(MIN_PULSE) + "-" + str(MAX_PULSE) + " ударов в минуту."
+ERROR_OUTSIDE_PULSE = open_tag + ERROR_OUTSIDE_PULSE_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_WEIGHT_TEXT = "Допустимый диапазон измерений веса " + str(MIN_WEIGHT) + "-" + str(MAX_WEIGHT) + " кг."
+ERROR_OUTSIDE_WEIGHT = open_tag + ERROR_OUTSIDE_WEIGHT_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_GLUKOSE_TEXT = "Допустимый диапазон показаний глюкозы " + str(MIN_GLUKOSE) + "-" + str(MAX_GLUKOSE) + " моль/л."
+ERROR_OUTSIDE_GLUKOSE = open_tag + ERROR_OUTSIDE_GLUKOSE_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_SPO2_TEXT = "Допустимый уровень насыщения не менее " + str(MIN_SPO2) + "% и не более 100%."
+ERROR_OUTSIDE_SPO2 = open_tag + ERROR_OUTSIDE_SPO2_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_WAIST_TEXT = "Допустимый обхват талии " + str(MIN_WAIST) + "-" + str(MAX_WAIST) + " см."
+ERROR_OUTSIDE_WAIST = open_tag + ERROR_OUTSIDE_WAIST_TEXT + close_tag + backhistory
+
+ERROR_OUTSIDE_SHIN_TEXT = "Допустимый диапазон измерения обхвата голени " + str(MIN_SHIN) + "-" + str(MAX_SHIN) + " см."
+ERROR_OUTSIDE_SHIN = open_tag + ERROR_OUTSIDE_SHIN_TEXT + close_tag + backhistory
+
 ERRORS = {'ERROR_KEY': ERROR_KEY, 'ERROR_CONTRACT': ERROR_CONTRACT, 'ERROR_FORM': ERROR_FORM}
 
 

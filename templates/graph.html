@@ -335,6 +335,10 @@
 		</ul>
 	</nav>
 
+    {% for msg in get_flashed_messages() %}
+    <div class="flash">{{msg}}</div>
+    {% endfor %}
+
     <div>
 {#        <button id="all_graph" class="btn btn-success">Все графики</button>#}
 {#        <button id="pressure_graph" class="btn">График измерения давления</button>#}
@@ -838,7 +842,7 @@
             }
         }
 
-        imageWidth = 9;
+        imageWidth = 6;
 
         function createModel(...args) {
             let model = new Interpolations(...args)
