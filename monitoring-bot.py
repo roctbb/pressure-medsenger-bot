@@ -1984,7 +1984,7 @@ def setting_save():
                 contract.show = show
                 db.session.commit()
 
-                print(name, mode, params_new, timetable_new, show)
+                print('name', name, mode, params_new, timetable_new, show)
                 print(Debug.delimiter())
 
                 # print('yes', contract.category)
