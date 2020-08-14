@@ -176,6 +176,7 @@ class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
     id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer)
     category = db.Column(db.String(25))
     mode = db.Column(db.String(10))
     params = db.Column(db.JSON)
@@ -183,14 +184,14 @@ class CategoryParams(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
-    def __init__(self, id, category, mode, params, timetable, created_at, updated_at):
-        self.id = id
-        self.category = category
-        self.mode = mode
-        self.params = params
-        self.timetable = timetable
-        self.created_at = created_at
-        self.updated_at = updated_at
+    # def __init__(self, id, contract_id, category, mode, params, timetable, created_at, updated_at):
+    #     self.id = id
+    #     self.category = category
+    #     self.mode = mode
+    #     self.params = params
+    #     self.timetable = timetable
+    #     self.created_at = created_at
+    #     self.updated_at = updated_at
 
     # def __repr__(self):
     #     return "\nCategoryParams: ('%s','%s', '%s')\n---------------------------\n" % (self.category, self.params, self.timetable)
@@ -2509,11 +2510,7 @@ def init():
     new_contract = True
 
     try:
-        # print('request', request)
-
         data = request.json
-
-        # print('data', data)
 
         if (data == None):
             print('None data /init')
@@ -2541,6 +2538,7 @@ def init():
 
         if id > 0:
             new_contract = False
+            print('if id > 0')
 
             try:
                 db.session.query(ActualBots).update({"actual": True})
@@ -2550,7 +2548,7 @@ def init():
                 print('db.session.rollback()', e)
                 raise
 
-        # new_contract = True
+        print('new_contract = ', new_contract)
 
         if (new_contract == True):
             try:
@@ -2563,41 +2561,21 @@ def init():
                 print('db.session.add(actual_bots)', e)
                 raise
 
-            # res = db.query("SELECT * FROM users")
-            #
-            # print('res', res)
-            #
-            # try:
-            #     users = Users(2, 'max', 'max@m.ru')
-            #     print('users', users)
-            #     db.session.add(users)
-            #     db.session.commit()
-            # except Exception as e:
-            #     db.session.rollback()
-            #     print('db.session.add(users)', e)
-            #     raise
-
-            # Варианты параметра preset следующие:
-            # heartfailure - измерение веса, давления, обхвата талии и голени раз в день;
-            # stenocardia или fibrillation - измерение веса, давления раз в день.
-
-            # return 'test'
-
             preset = None
 
             if data['preset']:
                 preset = data['preset']
 
-            print('preset', preset)
+            print('preset = ', preset)
 
             preset_params = []
 
             if data['params']:
                 preset_params = data['params']
 
-            print('preset_params', preset_params)
+            print('preset_params = ', preset_params)
 
-            #  *************************************************************** SYS
+            #  *************************************************************** systolic
 
             try:
                 max_systolic = (preset_params['max_systolic'])
@@ -2607,7 +2585,7 @@ def init():
             try:
                 min_systolic = preset_params['min_systolic']
             except Exception as e:
-                max_systolic = MIN_SYSTOLIC_DEFAULT
+                min_systolic = MIN_SYSTOLIC_DEFAULT
 
             try:
                 max_diastolic = preset_params['max_diastolic']
@@ -2629,20 +2607,7 @@ def init():
             except Exception as e:
                 min_pulse = MIN_PULSE_DEFAULT
 
-            params = {
-                "max_systolic": max_systolic,
-                "min_systolic": min_systolic,
-                "max_diastolic": max_diastolic,
-                "min_diastolic": min_diastolic,
-                "max_pulse": max_pulse,
-                "min_pulse": min_pulse
-            }
-
-            params = json.dumps(params)
-
-            # print('params', params)
-            # print(Debug.delimiter())
-
+            params = {}
             timetable = {
                 "days_month": [
                     {
@@ -2662,20 +2627,17 @@ def init():
                     }
                 ]
             }
-
-            timetable = json.dumps(timetable)
+            mode = 'daily'
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'systolic_pressure'," + \
-                            "'верхнее давление'," + \
-                            "'daily'," + \
-                            "'мм рт ст'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "true," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                params = {
+                    "max_systolic": max_systolic,
+                    "min_systolic": min_systolic,
+                    "max_diastolic": max_diastolic,
+                    "min_diastolic": min_diastolic,
+                    "max_pulse": max_pulse,
+                    "min_pulse": min_pulse
+                }
 
                 name = 'pressure'
 
@@ -2693,160 +2655,114 @@ def init():
                     }
                 }
 
-                print('data preset pressure', data)
-
                 delayed(1, post_request, [data])
             else:
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'systolic_pressure'," + \
-                            "'верхнее давление'," + \
-                            "'daily'," + \
-                            "'мм рт ст'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "false," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                params = {}
 
-            result = DB.query(query_str)
+            try:
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category='sistolic_pressure',
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+                db.session.add(category_params)
 
-            # *************************************************************** DIA
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category='diastolic_pressure',
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            params = {}
-            params = json.dumps(params)
+                db.session.add(category_params)
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'diastolic_pressure'," + \
-                        "'нижнее давление'," + \
-                        "'daily'," + \
-                        "'мм рт ст'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category='pulse',
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            result = DB.query(query_str)
+                db.session.add(category_params)
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add pressure in category_params >> )', e)
+                raise
 
-            # *************************************************************** PULSE
-
-            params = {}
-            params = json.dumps(params)
-
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'pulse'," + \
-                        "'пульс'," + \
-                        "'daily'," + \
-                        "'уд в мин'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
-
-            result = DB.query(query_str)
-
-            if (result != 'SUCCESS_QUERY'):
-                return result
-
-            # *************************************************************** TEMPERATURE
+            # *************************************************************** temperature
 
             params = {
                 "max": MAX_TEMPERATURE_DEFAULT,
                 "min": MIN_TEMPERATURE_DEFAULT
             }
 
-            params = json.dumps(params)
+            try:
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category='temperature',
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'temperature'," + \
-                        "'температура'," + \
-                        "'daily'," + \
-                        "'град'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+                db.session.add(category_params)
 
-            result = DB.query(query_str)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
-
-            # *************************************************************** GLUKOSE
-
-            params = {
-                "max": MAX_GLUKOSE_DEFAULT,
-                "min": MIN_GLUKOSE_DEFAULT
-            }
-
-            params = json.dumps(params)
-
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'glukose'," + \
-                        "'глюкоза'," + \
-                        "'daily'," + \
-                        "'моль/л'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
-
-            result = DB.query(query_str)
-
-            if (result != 'SUCCESS_QUERY'):
-                return result
-
-            # *************************************************************** WEIGHT
-
-            # print('preset_params', preset_params)
+            # *************************************************************** glukose
 
             try:
-                max_weight = preset_params['max_weight']
+                name = 'glukose'
+
+                params = {
+                    "max": MAX_GLUKOSE_DEFAULT,
+                    "min": MIN_GLUKOSE_DEFAULT
+                }
+
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
+
+                db.session.add(category_params)
+
+                db.session.commit()
             except Exception as e:
-                max_weight = MAX_WEIGHT_DEFAULT
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
 
-            try:
-                min_weight = preset_params['min_weight']
-            except Exception as e:
-                min_weight = MIN_WEIGHT_DEFAULT
-
-            params = {
-                "max": max_weight,
-                "min": min_weight
-            }
-
-            params = json.dumps(params)
-
-            # print('params weight', params)
-
-            preset_on = (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation')
-
-            # print('preset_on', preset_on)
+            name = 'weight'
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'weight'," + \
-                            "'вес'," + \
-                            "'daily'," + \
-                            "'кг'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "true," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                try:
+                    max_weight = preset_params['max_weight']
+                except Exception as e:
+                    max_weight = MAX_WEIGHT_DEFAULT
 
-                # query_str = "INSERT INTO measurements (id, contract_id, name, alias, mode, unit, params, timetable, show, last_push, created_at, updated_at) " + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s), " + "(nextval('measurements$id$seq'), " + Aux.quote() + str(contract_id) + Aux.quote() + ", " + "'weight', " + "'вес'," + "'daily'," + "'кг'," + Aux.quote() + params + Aux.quote() + "," + Aux.quote() + timetable + Aux.quote() + "," + "true," + "(select * from now()),(select * from now()),(select * from now()))"
+                try:
+                    min_weight = preset_params['min_weight']
+                except Exception as e:
+                    min_weight = MIN_WEIGHT_DEFAULT
 
-                name = 'weight'
+                params = {
+                    "max": max_weight,
+                    "min": min_weight
+                }
 
                 data = {
                     "contract_id": contract_id,
@@ -2862,164 +2778,136 @@ def init():
                     }
                 }
 
-                # print('data preset weight', data)
                 delayed(1, post_request, [data])
             else:
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'weight'," + \
-                            "'вес'," + \
-                            "'daily'," + \
-                            "'кг'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "false," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
-
-            # print('query_str', query_str)
-
-            result = DB.query(query_str)
-
-            if (result != 'SUCCESS_QUERY'):
-                return result
-
-            # *************************************************************** WAIST
+                params = {}
 
             try:
-                max_waist = preset_params['max_waist']
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
+
+                db.session.add(category_params)
+                db.session.commit()
             except Exception as e:
-                max_waist = MAX_WAIST_DEFAULT
+                db.session.rollback()
+                print('ERROR add weight in category_params >> )', e)
+                raise
 
-            try:
-                min_waist = preset_params['min_waist']
-            except Exception as e:
-                min_waist = MIN_WAIST_DEFAULT
+            # *************************************************************** waist_circumference
 
-            params = {
-                "max": max_waist,
-                "min": min_waist
-            }
-
-            params = json.dumps(params)
+            name = 'waist_circumference'
 
             if (preset == 'heartfailure'):
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'waist'," + \
-                            "'обхват талии для сердечно-сосудистых пациентов'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "true," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                try:
+                    max_waist = preset_params['max_waist']
+                except Exception as e:
+                    max_waist = MAX_WAIST_DEFAULT
 
-                name = 'waist'
+                try:
+                    min_waist = preset_params['min_waist']
+                except Exception as e:
+                    min_waist = MIN_WAIST_DEFAULT
+
+                params = {
+                    "max": max_waist,
+                    "min": min_waist
+                }
 
                 data = {
                     "contract_id": contract_id,
                     "api_key": APP_KEY,
                     "message": {
-                        "text": MESS_MEASUREMENT[name]['text'],
-                        "action_link": "frame/" + name,
+                        "text": MESS_MEASUREMENT['waist']['text'],
+                        "action_link": "frame/" + "waist",
                         "action_deadline": time.time() + (60 * 60 * 24),
-                        "action_name": MESS_MEASUREMENT[name]['action_name'],
+                        "action_name": MESS_MEASUREMENT['waist']['action_name'],
                         "action_onetime": True,
                         "only_doctor": False,
                         "only_patient": True,
                     }
                 }
 
-                # print('data preset waist', data)
                 delayed(1, post_request, [data])
             else:
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'waist'," + \
-                            "'обхват талии для сердечно-сосудистых пациентов'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "false," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                params = {}
 
-            result = DB.query(query_str)
+            try:
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+                db.session.add(category_params)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add waist in category_params >> )', e)
+                raise
 
-            # *************************************************************** SPO2
+            # *************************************************************** spo2
 
-            params = {
-                "max": MAX_SPO2_DEFAULT,
-                "min": MIN_SPO2_DEFAULT
-            }
+            try:
+                name = 'spo2'
 
-            params = json.dumps(params)
+                params = {
+                    "max": MAX_SPO2_DEFAULT,
+                    "min": MIN_SPO2_DEFAULT
+                }
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'spo2'," + \
-                        "'мониторинг насыщения крови кислородом'," + \
-                        "'daily'," + \
-                        "'%'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            result = DB.query(query_str)
+                db.session.add(category_params)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+            # *************************************************************** pain_assessment
 
-            # *************************************************************** PAIN_ASSESSMENT
+            try:
+                name = 'pain_assessment'
 
-            params = {
-                "max": MAX_PAIN_DEFAULT,
-                "min": MIN_PAIN_DEFAULT
-            }
+                params = {
+                    "max": MAX_PAIN_DEFAULT,
+                    "min": MIN_PAIN_DEFAULT
+                }
 
-            params = json.dumps(params)
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                        Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                        "'pain_assessment'," + \
-                        "'оценка боли'," + \
-                        "'daily'," + \
-                        "'балл(а)(ов)'," + \
-                        Aux.quote() + params + Aux.quote() + "," + \
-                        Aux.quote() + timetable + Aux.quote() + "," + \
-                        "false," + \
-                        "(select * from now()),(select * from now()),(select * from now()))"
-
-            result = DB.query(query_str)
-
-            if (result != 'SUCCESS_QUERY'):
-                return result
-
-            # *************************************************************** SHIN_LEFT
+                db.session.add(category_params)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
 
             params = {
                 "max": MAX_SHIN_DEFAULT,
                 "min": MIN_SHIN_DEFAULT
             }
 
-            params = json.dumps(params)
-
             if (preset == 'heartfailure'):
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'shin_volume_left'," + \
-                            "'измерение обхвата голени левой'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "true," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
-
                 name = 'shin'
 
                 data = {
@@ -3036,61 +2924,53 @@ def init():
                     }
                 }
 
-                # print('data preset shin', data)
                 delayed(1, post_request, [data])
             else:
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'shin_volume_left'," + \
-                            "'измерение обхвата голени левой'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable + Aux.quote() + "," + \
-                            "false," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+                params = {}
 
-            result = DB.query(query_str)
+            # *************************************************************** leg_circumference_left
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+            try:
+                name = 'leg_circumference_left'
 
-            # *************************************************************** SHIN_RIGHT
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            timetable_empty = '{}'
+                db.session.add(category_params)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
 
-            params = {}
-            params = json.dumps(params)
+            # *************************************************************** leg_circumference_right
 
-            if (preset == 'heartfailure'):
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'shin_volume_right'," + \
-                            "'измерение обхвата голени правой'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable_empty + Aux.quote() + "," + \
-                            "true," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
-            else:
-                query_str = "INSERT INTO measurements VALUES(nextval('measurements$id$seq')," + \
-                            Aux.quote() + str(contract_id) + Aux.quote() + "," + \
-                            "'shin_volume_right'," + \
-                            "'измерение обхвата голени правой'," + \
-                            "'daily'," + \
-                            "'см'," + \
-                            Aux.quote() + params + Aux.quote() + "," + \
-                            Aux.quote() + timetable_empty + Aux.quote() + "," + \
-                            "false," + \
-                            "(select * from now()),(select * from now()),(select * from now()))"
+            try:
+                params = {}
 
-            result = DB.query(query_str)
+                name = 'leg_circumference_right'
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+                category_params = CategoryParams(contract_id=contract_id,
+                                                 category=name,
+                                                 mode=mode,
+                                                 params=params,
+                                                 timetable=timetable,
+                                                 created_at=datetime.datetime.now(),
+                                                 updated_at=datetime.datetime.now())
 
-            # *************************************************************** NEXT MEASUREMENT
+                db.session.add(category_params)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print('ERROR add temperature in category_params >> )', e)
+                raise
+
+            # *************************************************************** next parameter
 
     except Exception as e:
         print('ERROR INIT', e)
