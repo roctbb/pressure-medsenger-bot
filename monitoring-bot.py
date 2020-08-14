@@ -10,8 +10,9 @@ from const import *
 import threading
 import psycopg2
 from multiprocessing import Process
-from flask_bootstrap import Bootstrap
+# from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import update
 
 
 class Profiler(object):
@@ -124,31 +125,16 @@ class DB:
                 conn.close()
 
 
-
 app = Flask(__name__)
 # app.config.from_object(__name__)
 
 db_uri = "postgres://{}:{}@{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-app.config.update(ENV='developer')
+# app.config.update(ENV='developer')
 # app.config.update(DEBUG=True)
 app.config.update(SECRET_KEY='JKJH!Jhjhjhj456545_jgnbh~hfgbgb')
 
-# print('app.config', app.config)
-
 db = SQLAlchemy(app)
-
-class Users(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80))
-    email = db.Column(db.String(120))
-
-    def __init__(self, id, username, email):
-        self.id = id
-        self.username = username
-        self.email = email
 
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
@@ -166,12 +152,6 @@ class ActualBots(db.Model):
     #     self.created_at = created_at
     #     self.updated_at = updated_at
 
-    # def __repr__(self):
-    #     return "\nActualBots: ('%s','%s')\n---------------------------\n" % (self.contract_id, self.actual)
-
-# for actual_bot in actual_bots:
-#     print('actual_bot', actual_bot)
-
 class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
@@ -183,37 +163,13 @@ class CategoryParams(db.Model):
     timetable = db.Column(db.JSON)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-
-    # def __init__(self, id, contract_id, category, mode, params, timetable, created_at, updated_at):
-    #     self.id = id
-    #     self.category = category
-    #     self.mode = mode
-    #     self.params = params
-    #     self.timetable = timetable
-    #     self.created_at = created_at
-    #     self.updated_at = updated_at
+    last_push = db.Column(db.DateTime)
 
     # def __repr__(self):
     #     return "\nCategoryParams: ('%s','%s', '%s')\n---------------------------\n" % (self.category, self.params, self.timetable)
 
-# category_params = CategoryParams.query.all()
-# print(category_params)
-# CategoryParamsObj = CategoryParams.query.filter_by(category='systolic_pressure').first()
-# print(CategoryParamsObj)
-# params = CategoryParamsObj.params
-# timetable = CategoryParamsObj.timetable
-# print('=================')
 
-# print('CategoryParamsObj', CategoryParamsObj)
-# print('')
-# print('params', params['max'])
-# print('')
-# print('timetable', timetable)
-# print('')
-# print('db', db)
-# print(Debug.delimiter())
-
-bootstrap = Bootstrap(app)
+# bootstrap = Bootstrap(app)
 
 # data = {}
 
@@ -225,12 +181,7 @@ def getCategories():
 
         response = requests.post(MAIN_HOST + '/api/agents/records/categories', json=data_request)
 
-        # print('response', response)
-
         if (response.status_code == 200):
-        #     print(json.loads(response.text))
-        #     print(Debug.delimiter())
-
             return json.loads(response.text)
 
         print('response.status_code = ', response.status_code)
@@ -240,11 +191,6 @@ def getCategories():
 
     except Exception as e:
         print('error: ', e)
-
-# categories = getCategories()
-#
-# print('categories ***************************** ', categories)
-# print(Debug.delimiter())
 
 def getRecords(contract_id, category_name):
     try:
@@ -256,8 +202,6 @@ def getRecords(contract_id, category_name):
 
         response = requests.post(MAIN_HOST + '/api/agents/records/get', json=data_request)
 
-        # print('response', response)
-
         if (response.status_code == 200):
             # print(json.loads(response.text))
 
@@ -266,7 +210,6 @@ def getRecords(contract_id, category_name):
         print('response.status_code = ', response.status_code)
 
         return response.status_code
-
 
     except Exception as e:
         print('error: ', e)
@@ -284,8 +227,6 @@ def add_record(contract_id, category_name, value, record_time=None):
         data['time'] = record_time
 
     try:
-        # print('data', data)
-        # print('call add_record()', MAIN_HOST + '/api/agents/records/add')
         requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
 
     except Exception as e:
@@ -297,7 +238,6 @@ def dump(data, label):
 
 
 def delayed(delay, f, args):
-    # print('args', args)
     timer = threading.Timer(delay, f, args=args)
     timer.start()
 
@@ -337,8 +277,6 @@ def check_str(val):
 
 def post_request(data, query='/api/agents/message'):
     try:
-        # print('post_request()')
-        # print('MAIN', MAIN_HOST + query)
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request()', e)
@@ -497,6 +435,12 @@ def sender():
                                         name = 'shin'
 
                                     if (name == 'shin_volume_right'):
+                                        name = 'shin'
+
+                                    if (name == 'leg_circumference_left'):
+                                        name = 'shin'
+
+                                    if (name == 'leg_circumference_right'):
                                         name = 'shin'
 
                                     len_hours_array = len(hours_array)
@@ -919,8 +863,6 @@ def graph_test():
     proc.close()
     print('proc close', proc)
 
-    # zzz(2)
-
     print('graph_test()')
 
     return 'graph_test()'
@@ -960,9 +902,6 @@ def graph():
     if (True):
         constants = {}
 
-        query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
-        records = DB.select(query_str)
-
         medical_record_categories = getCategories()
 
         for item in medical_record_categories:
@@ -970,12 +909,27 @@ def graph():
 
             try:
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category).first()
-                # print('CategoryParamsObj = ', CategoryParamsObj.category)
 
                 params = CategoryParamsObj.params
                 # timetable = CategoryParamsObj.timetable
             except Exception as e:
                 print('ERROR CONNECTION CategoryParamsObj', e)
+
+            if (category == 'systolic_pressure' or category == 'diastolic_pressure' or category == 'pulse'):
+                try:
+                    constants['max_systolic'] = params['max_systolic']
+                    constants['min_systolic'] = params['min_systolic']
+                    constants['max_diastolic'] = params['max_diastolic']
+                    constants['min_diastolic'] = params['min_diastolic']
+                    constants['max_pulse'] = params['max_pulse']
+                    constants['min_pulse'] = params['min_pulse']
+                except:
+                    constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
+                    constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
+                    constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
+                    constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
+                    constants['max_pulse'] = MAX_PULSE_DEFAULT
+                    constants['min_pulse'] = MIN_PULSE_DEFAULT
 
             if (category == 'spo2'):
                 try:
@@ -1000,22 +954,6 @@ def graph():
                 except Exception as e:
                     constants['max_pain'] = MAX_PAIN_DEFAULT
                     constants['min_pain'] = MIN_PAIN_DEFAULT
-
-            if (category == 'systolic_pressure' or category == 'diastolic_pressure' or category == 'pulse'):
-                try:
-                    constants['max_systolic'] = params['max_systolic']
-                    constants['min_systolic'] = params['min_systolic']
-                    constants['max_diastolic'] = params['max_diastolic']
-                    constants['min_diastolic'] = params['min_diastolic']
-                    constants['max_pulse'] = params['max_pulse']
-                    constants['min_pulse'] = params['min_pulse']
-                except:
-                    constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
-                    constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
-                    constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
-                    constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
-                    constants['max_pulse'] = MAX_PULSE_DEFAULT
-                    constants['min_pulse'] = MIN_PULSE_DEFAULT
 
             if (category == 'weight'):
                 try:
@@ -1138,177 +1076,7 @@ def graph():
         #             constants['max_waist'] = MAX_WAIST_DEFAULT
         #             constants['min_waist'] = MIN_WAIST_DEFAULT
 
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = 'systolic_pressure') ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
-
-        # START SYS STAT
-
-        # stat max
-
-        query_str = "SELECT m.id, max(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        sys_max_value = 0
-
-        for row in records:
-            sys_max_value = row[1]
-
-        # stat min
-
-        query_str = "SELECT m.id, min(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        sys_min_value = 0
-
-        for row in records:
-            sys_min_value = row[1]
-
-        # stat avg
-
-        query_str = "SELECT m.id, avg(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        sys_avg_value = 0
-
-        for row in records:
-            sys_avg_value = row[1]
-
-        # sys_common_count
-
-        query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        # print('query_str', query_str)
-
-        records = DB.select(query_str)
-
-        sys_common_count = 0
-
-        for row in records:
-            sys_common_count = row[1]
-
-        query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(
-            constants['max_systolic']) + Aux.quote() + " and m.name = 'systolic_pressure' GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        sys_norm_count = 0
-        sys_slice_normal = 0
-        sys_slice_critical = 0
-
-        for row in records:
-            sys_norm_count = row[1]
-
-        try:
-            sys_slice_normal = (sys_norm_count * 100) // sys_common_count
-            sys_slice_critical = 100 - sys_slice_normal
-        except Exception as e:
-            print('error try except', e)
-
-        # QUERIES SYS WEEK
-        fromTable = "FROM measurements m "
-        name = "systolic_pressure"
-        paramName = Aux.quote() + name + Aux.quote()
-        innerJoin = " INNER JOIN measurements_results mr ON m.id = mr.measurements_id "
-        where = " where m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.time > (now() - interval '7 days') and m.name = " + paramName
-        query_str = "SELECT m.id, max(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_max_week = 0
-        for row in records:
-            sys_max_week = row[1]
-        query_str = "SELECT m.id, min(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_min_week = 0
-        for row in records:
-            sys_min_week = row[1]
-        query_str = "SELECT m.id, avg(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_avg_week = 0
-        for row in records:
-            sys_avg_week = row[1]
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_common_count_week = 0
-        for row in records:
-            sys_common_count_week = row[1]
-            # print('sys_common_count_week', sys_common_count_week)
-        andWhere = " and mr.value < " + Aux.quote() + str(constants['max_systolic']) + Aux.quote()
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + andWhere + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_normal_count_week = 0
-        sys_slice_normal_week = 0
-        sys_slice_critical_week = 0
-        for row in records:
-            sys_normal_count_week = row[1]
-        try:
-            sys_slice_normal_week = (sys_normal_count_week * 100) // sys_common_count_week
-            sys_slice_critical_week = 100 - sys_slice_normal_week
-        except Exception as e:
-            print('error try except sys_slice_normal_week', e)
-        # END QUERIES SYS WEEK
-
-        # QUERIES SYS MONTH
-        fromTable = "FROM measurements m "
-        name = "systolic_pressure"
-        paramName = Aux.quote() + name + Aux.quote()
-        innerJoin = " INNER JOIN measurements_results mr ON m.id = mr.measurements_id "
-        where = " where m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.time > (now() - interval '30 days') and m.name = " + paramName
-        query_str = "SELECT m.id, max(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_max_month = 0
-        for row in records:
-            sys_max_month = row[1]
-        query_str = "SELECT m.id, min(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_min_month = 0
-        for row in records:
-            sys_min_month = row[1]
-        query_str = "SELECT m.id, avg(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_avg_month = 0
-        for row in records:
-            sys_avg_month = row[1]
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_common_count_month = 0
-        for row in records:
-            sys_common_count_month = row[1]
-        andWhere = " and mr.value < " + Aux.quote() + str(constants['max_systolic']) + Aux.quote()
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + andWhere + " GROUP BY m.id"
-        records = DB.select(query_str)
-        sys_normal_count_month = 0
-        sys_slice_normal_month = 0
-        sys_slice_critical_month = 0
-        for row in records:
-            sys_normal_count_month = row[1]
-        try:
-            sys_slice_normal_month = (sys_normal_count_month * 100) // sys_common_count_month
-            sys_slice_critical_month = 100 - sys_slice_normal_month
-        except Exception as e:
-            print('error try except sys month', e)
-        # END QUERIES SYS WEEK
+        # systolic
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
@@ -1347,182 +1115,7 @@ def graph():
 
         systolic = systolic_dic
 
-        # START DIA DATA
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'diastolic_pressure')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-        # START DIA STAT
-
-        # stat max
-
-        name = "diastolic_pressure"
-
-        query_str = "SELECT m.id, max(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = " + Aux.quote() + str(name) + Aux.quote() + " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        dia_max_value = 0
-
-        for row in records:
-            dia_max_value = row[1]
-
-        # stat min
-
-        query_str = "SELECT m.id, min(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = " + Aux.quote() + str(name) + Aux.quote() + " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        dia_min_value = 0
-
-        for row in records:
-            dia_min_value = row[1]
-
-        # stat avg
-
-        query_str = "SELECT m.id, avg(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = " + Aux.quote() + str(name) + Aux.quote() + " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        dia_avg_value = 0
-
-        for row in records:
-            dia_avg_value = row[1]
-
-        # dia_common_count
-
-        query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and m.name = " + Aux.quote() + str(name) + Aux.quote() + " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        dia_common_count = 0
-
-        for row in records:
-            dia_common_count = row[1]
-
-        query_str = "SELECT m.id, count(mr.value) FROM measurements m INNER JOIN measurements_results mr ON m.id = mr.measurements_id WHERE m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.value < " + Aux.quote() + str(
-            constants['max_diastolic']) + Aux.quote() + " and m.name = " + Aux.quote() + str(
-            name) + Aux.quote() + " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        dia_norm_count = 0
-        dia_slice_normal = 0
-        dia_slice_critical = 0
-
-        for row in records:
-            dia_norm_count = row[1]
-
-        try:
-            dia_slice_normal = (dia_norm_count * 100) // dia_common_count
-            dia_slice_critical = 100 - dia_slice_normal
-        except Exception as e:
-            print('error try except dia', e)
-
-        # END DIA STAT
-
-        # QUERIES DIA MONTH
-        fromTable = "FROM measurements m "
-        name = "diastolic_pressure"
-        paramName = Aux.quote() + name + Aux.quote()
-        innerJoin = " INNER JOIN measurements_results mr ON m.id = mr.measurements_id "
-        where = " where m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.time > (now() - interval '30 days') and m.name = " + paramName
-        query_str = "SELECT m.id, max(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_max_month = 0
-        for row in records:
-            dia_max_month = row[1]
-        query_str = "SELECT m.id, min(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_min_month = 0
-        for row in records:
-            dia_min_month = row[1]
-        query_str = "SELECT m.id, avg(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_avg_month = 0
-        for row in records:
-            dia_avg_month = row[1]
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_common_count_month = 0
-        for row in records:
-            dia_common_count_month = row[1]
-        andWhere = " and mr.value < " + Aux.quote() + str(constants['max_diastolic']) + Aux.quote()
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + andWhere + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_normal_count_month = 0
-        dia_slice_normal_month = 0
-        dia_slice_critical_month = 0
-        for row in records:
-            dia_normal_count_month = row[1]
-        try:
-            dia_slice_normal_month = (dia_normal_count_month * 100) // dia_common_count_month
-            dia_slice_critical_month = 100 - dia_slice_normal_month
-        except Exception as e:
-            print('error try except sys month', e)
-        # END QUERIES DIA MONTH
-
-        # QUERIES DIA WEEK
-        fromTable = "FROM measurements m "
-        name = "diastolic_pressure"
-        paramName = Aux.quote() + name + Aux.quote()
-        innerJoin = " INNER JOIN measurements_results mr ON m.id = mr.measurements_id "
-        where = " where m.contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and mr.time > (now() - interval '7 days') and m.name = " + paramName
-        query_str = "SELECT m.id, max(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_max_week = 0
-        for row in records:
-            dia_max_week = row[1]
-        query_str = "SELECT m.id, min(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_min_week = 0
-        for row in records:
-            dia_min_week = row[1]
-        query_str = "SELECT m.id, avg(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_avg_week = 0
-        for row in records:
-            dia_avg_week = row[1]
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_common_count_week = 0
-        for row in records:
-            dia_common_count_week = row[1]
-        andWhere = " and mr.value < " + Aux.quote() + str(constants['max_diastolic']) + Aux.quote()
-        query_str = "SELECT m.id, count(mr.value) " + fromTable + innerJoin + where + andWhere + " GROUP BY m.id"
-        records = DB.select(query_str)
-        dia_normal_count_week = 0
-        dia_slice_normal_week = 0
-        dia_slice_critical_week = 0
-        for row in records:
-            dia_normal_count_week = row[1]
-        try:
-            dia_slice_normal_week = (dia_normal_count_week * 100) // dia_common_count_week
-            dia_slice_critical_week = 100 - dia_slice_normal_week
-        except Exception as e:
-            print('error try except sys month', e)
-        # END QUERIES DIA WEEK
+        # diastolic
 
         response = getRecords(contract_id, 'diastolic_pressure')
         x = []
@@ -1538,44 +1131,12 @@ def graph():
         diastolic_dic = {
             "x": x,
             "y": y,
-            # "dia_max_value": int(dia_max_value),
-            # "dia_min_value": int(dia_min_value),
-            # "dia_avg_value": int(dia_avg_value),
-            # "dia_slice_normal": int(dia_slice_normal),
-            # "dia_slice_critical": int(dia_slice_critical),
-            # "dia_max_month": int(dia_max_month),
-            # "dia_min_month": int(dia_min_month),
-            # "dia_avg_month": int(dia_avg_month),
-            # "dia_slice_normal_month": int(dia_slice_normal_month),
-            # "dia_slice_critical_month": int(dia_slice_critical_month),
-            # "dia_max_week": int(dia_max_week),
-            # "dia_min_week": int(dia_min_week),
-            # "dia_avg_week": int(dia_avg_week),
-            # "dia_slice_normal_week": int(dia_slice_normal_week),
-            # "dia_slice_critical_week": int(dia_slice_critical_week),
             "name": category['description']
         }
 
         diastolic = diastolic_dic
 
-        # START PULSE DATA
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'pulse')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
+        # pulse
 
         response = getRecords(contract_id, 'pulse')
         x = []
@@ -1595,6 +1156,8 @@ def graph():
         }
 
         pulse = pulse_dic
+
+        # medicines
 
         query_str = "select * from medicines m inner join medicines_results mr on m.id = mr.medicines_id " + \
                     " WHERE contract_id = " + \
@@ -1656,30 +1219,7 @@ def graph():
 
         medicines_trace_data = medicines_data
 
-        # ********************************************* pain_assessment
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'pain_assessment')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # pain_assessment
 
         response = getRecords(contract_id, 'pain_assessment')
         x = []
@@ -1699,32 +1239,7 @@ def graph():
             "name": category['description']
         }
 
-        # print('pain_assessment_dic', pain_assessment_dic)
-
-        # ********************************************* weight
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'weight')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # weight
 
         response = getRecords(contract_id, 'weight')
         x = []
@@ -1746,30 +1261,7 @@ def graph():
 
         weight_series = weight_dic
 
-        # ********************************************* temperature
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'temperature')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # temperature
 
         response = getRecords(contract_id, 'temperature')
         x = []
@@ -1793,29 +1285,6 @@ def graph():
 
         # ********************************************* glukose
 
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'glukose')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
-
         response = getRecords(contract_id, 'glukose')
         x = []
         y = []
@@ -1836,30 +1305,7 @@ def graph():
 
         glukose_series = glukose_dic
 
-        # ********************************************* SPO2
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'spo2')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # spo2
 
         response = getRecords(contract_id, 'spo2')
         x = []
@@ -1881,39 +1327,13 @@ def graph():
 
         spo2_series = spo2_dic
 
-        # ********************************************* WAIST
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = " \
-                    "(SELECT id FROM measurements WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " and name = 'waist')" + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # waist_circumference
 
         response = getRecords(contract_id, 'waist_circumference')
         x = []
         y = []
         category = response['category']
         values = response['values']
-
-        print('values', values)
-        print('-----------------------')
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
@@ -1927,33 +1347,9 @@ def graph():
             "name": category['description']
         }
 
-        print(' waist_dic *************************************',  waist_dic)
-
         waist_series = waist_dic
 
-        # shin_left_dic
-
-        param_name = 'shin_volume_left'
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = 'shin_volume_left') ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # leg_circumference_left
 
         response = getRecords(contract_id, 'leg_circumference_left')
         x = []
@@ -1975,27 +1371,7 @@ def graph():
 
         shin_left = shin_left_dic
 
-        param_name = 'shin_volume_right'
-
-        query_str = "SELECT * FROM measurements_results WHERE measurements_id = (SELECT id FROM measurements WHERE contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = 'shin_volume_right') ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        comments = []
-
-        for row in records:
-            date_ = row[2]
-            value_ = row[3]
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-            array_y.append(value_)
-
-            if (row[6] == None):
-                comments.append('')
-            else:
-                comments.append(row[6])
+        # leg_circumference_right
 
         response = getRecords(contract_id, 'leg_circumference_right')
         x = []
@@ -2061,6 +1437,158 @@ def settings():
     query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
 
     records = DB.select(query_str)
+
+    records__ = CategoryParams.query.filter_by(contract_id=contract_id).all()
+    # print('records__', records__)
+
+    categories = getCategories()
+
+    print('categories', categories)
+
+    categories_description = {}
+    categories_unit = {}
+
+    for category in categories:
+        name = category['name']
+        unit = category['unit']
+        description = category['description']
+        categories_description[name] = description
+        categories_unit[name] = unit
+
+        # categories_array[key] = value
+        # print('category', category['name'])
+
+    print('categories_description', categories_description)
+    print('categories_unit', categories_unit)
+
+    measurements = []
+    pressure = {}
+    shin = {}
+
+    for row in records__:
+        # print('row', row.id, row.category, row.mode, row.params, row.timetable)
+        # print('------------------------')
+
+        timetable_from = row.timetable
+
+        timetable = []
+        measurement_new = {}
+        id = row.id
+        name = row.category
+        # alias = row[3]
+        mode = row.mode
+        unit = ''
+        params = row.params
+        timetable.append(timetable_from)
+        # show = row[8]
+        last_push = row.last_push
+
+        if (name == 'leg_circumference_left'):
+            shin['id'] = id
+            shin['name'] = 'shin'
+
+            if name in categories_description:
+                print('categories_description', categories_description[name])
+                shin['alias'] = categories_description[name]
+            else:
+                shin['alias'] = 'измерение окружности голени'
+
+            if name in categories_unit:
+                print('categories_unit', categories_unit[name])
+                shin['unit'] = categories_unit[name]
+            else:
+                shin['unit'] = ''
+
+            shin['mode'] = mode
+            shin['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+            shin['unit'] = ''
+            shin['timetable'] = timetable
+            shin['show'] = True
+
+            try:
+                shin['max'] = params['max']
+                shin['min'] = params['min']
+            except Exception as e:
+                shin['max'] = MAX_SHIN
+                shin['min'] = MIN_SHIN
+
+            measurements.append(shin)
+
+        if (name == 'systolic_pressure'):
+            pressure['id'] = id
+            pressure['name'] = 'pressure'
+
+            if name in categories_description:
+                print('categories_description', categories_description[name])
+                pressure['alias'] = categories_description[name]
+            else:
+                pressure['alias'] = 'измерение давления'
+
+            if name in categories_unit:
+                print('categories_unit', categories_unit[name])
+                pressure['unit'] = categories_unit[name]
+            else:
+                pressure['unit'] = ''
+
+            pressure['mode'] = mode
+            pressure['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+            pressure['unit'] = ''
+            pressure['timetable'] = timetable
+            pressure['show'] = True
+
+            try:
+                pressure['max_systolic'] = params['max_systolic']
+                pressure['min_systolic'] = params['min_systolic']
+                pressure['max_diastolic'] = params['max_diastolic']
+                pressure['min_diastolic'] = params['min_diastolic']
+                pressure['max_pulse'] = params['max_pulse']
+                pressure['min_pulse'] = params['min_pulse']
+            except Exception as e:
+                pressure['max_systolic'] = MAX_SYSTOLIC_DEFAULT
+                pressure['min_systolic'] = MIN_SYSTOLIC_DEFAULT
+                pressure['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
+                pressure['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
+                pressure['max_pulse'] = MAX_PULSE_DEFAULT
+                pressure['min_pulse'] = MIN_PULSE_DEFAULT
+
+            measurements.append(pressure)
+
+        out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left', 'leg_circumference_right']
+
+        if (name not in out_list):
+            measurement_new['id'] = id
+            measurement_new['name'] = name
+
+            if name in categories_description:
+                print('_description', categories_description[name])
+                measurement_new['alias'] = categories_description[name]
+            else:
+                measurement_new['alias'] = '--'
+
+            if name in categories_unit:
+                print('_unit', categories_unit[name])
+                measurement_new['unit'] = categories_unit[name]
+            else:
+                measurement_new['unit'] = '-'
+
+            measurement_new['mode'] = mode
+            measurement_new['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+            measurement_new['unit'] = ''
+            measurement_new['show'] = True
+            measurement_new['timetable'] = timetable
+
+            try:
+                measurement_new['max'] = params['max']
+                measurement_new['min'] = params['min']
+            except Exception as e:
+                measurement_new['max'] = 0
+                measurement_new['min'] = 0
+                # print('ERROR_KEY')
+
+            measurements.append(measurement_new)
+
+    # print('measurements', measurements)
+    # print(Debug.delimiter())
 
     measurements_main = []
     pressure = {}
@@ -2142,6 +1670,10 @@ def settings():
 
     measurements_main.append(pressure)
 
+    # print('measurements', measurements)
+    # print(Debug.delimiter())
+    # print('measurements_main', measurements_main)
+
     query_str = "SELECT m.name, m.dosage, m.amount, m.id, m.timetable, m.show, m.last_push, m.created_at, m.mode FROM medicines m  WHERE contract_id = " + Aux.quote() + str(
         contract_id) + Aux.quote()
     records = DB.select(query_str)
@@ -2189,7 +1721,7 @@ def settings():
     # Конец Формирование данных
 
     medicines = medicines_new
-    measurements = measurements_main
+    # measurements = measurements_main
 
     # print('measurements', measurements)
 
@@ -2343,6 +1875,12 @@ def setting_save():
         print('ERROR_JSON_LOADS', e)
         return 'ERROR_JSON_LOADS'
 
+    medical_record_categories = getCategories()
+
+    for item in medical_record_categories:
+        category = item['name']
+
+
     for measurement in data['measurements_data']:
         params = {}
         id = measurement['id']
@@ -2361,6 +1899,10 @@ def setting_save():
 
             params['max'] = measurement['max']
             params['min'] = measurement['min']
+
+        params_new = params
+
+        # print('params_new', params_new)
 
         params = json.dumps(params)
         mode = measurement['mode']
@@ -2421,6 +1963,37 @@ def setting_save():
                     " WHERE id = " + Aux.quote() + str(id) + Aux.quote()
 
         DB.query(query_str)
+
+        # print('name', name, mode, params_new, timetable_new, show)
+
+        try:
+            if (name == 'pressure'):
+                name = 'systolic_pressure'
+
+            if (name == 'shin'):
+                name = 'leg_circumference_left'
+
+            # contract_id = str(data['contract_id'])
+            query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
+
+            if query.count() != 0:
+                contract = query.first()
+                contract.mode = mode
+                contract.params = params_new
+                contract.timetable = timetable_new
+                contract.show = show
+                db.session.commit()
+
+                print(name, mode, params_new, timetable_new, show)
+                print(Debug.delimiter())
+
+                # print('yes', contract.category)
+            else:
+                print('no')
+
+        except Exception as e:
+            print("error query", e)
+            raise
 
     for medicine in data['medicines_data']:
         name = medicine['name']
@@ -2541,11 +2114,20 @@ def init():
             print('if id > 0')
 
             try:
-                db.session.query(ActualBots).update({"actual": True})
-                db.session.commit()
+                # contract_id = str(data['contract_id'])
+                query = ActualBots.query.filter_by(contract_id=contract_id)
+
+                if query.count() != 0:
+                    contract = query.first()
+                    contract.actual = True
+                    db.session.commit()
+
+                    print("Activate contract {}".format(contract.id))
+                else:
+                    print('contract not found')
+
             except Exception as e:
-                db.session.rollback()
-                print('db.session.rollback()', e)
+                print("error update contract", e)
                 raise
 
         print('new_contract = ', new_contract)
@@ -2665,12 +2247,13 @@ def init():
 
             try:
                 category_params = CategoryParams(contract_id=contract_id,
-                                                 category='sistolic_pressure',
+                                                 category='systolic_pressure',
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
 
@@ -2680,7 +2263,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
 
@@ -2690,7 +2274,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push = datetime.datetime.now())
 
                 db.session.add(category_params)
 
@@ -2714,7 +2299,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
 
@@ -2740,7 +2326,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
 
@@ -2793,7 +2380,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2847,7 +2435,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2872,7 +2461,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2897,7 +2487,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2943,7 +2534,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2965,7 +2557,8 @@ def init():
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now())
+                                                 updated_at=datetime.datetime.now(),
+                                                 last_push=datetime.datetime.now())
 
                 db.session.add(category_params)
                 db.session.commit()
