@@ -2563,15 +2563,19 @@ def init():
 
             preset = None
 
-            if data['preset']:
+            if 'preset' in data:
                 preset = data['preset']
+            else:
+                preset = None
 
             print('preset = ', preset)
 
             preset_params = []
 
-            if data['params']:
+            if 'params' in data:
                 preset_params = data['params']
+            else:
+                preset_params = None
 
             print('preset_params = ', preset_params)
 
