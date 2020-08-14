@@ -139,7 +139,7 @@ db = SQLAlchemy(app)
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=False)
     contract_id = db.Column(db.Integer)
     actual = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
