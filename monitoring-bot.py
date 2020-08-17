@@ -2009,12 +2009,12 @@ def init():
         contract_id = data['contract_id']
 
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
-        id = 0
+        actual_contract = 0
 
         for actual_bot in actual_bots:
-            id = actual_bot.id
+            actual_contract = actual_bot.contract_id
 
-        if id > 0:
+        if actial_contract > 0:
             new_contract = False
             print('if id > 0')
 
