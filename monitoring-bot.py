@@ -48,8 +48,8 @@ class DB:
         try:
             return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
         except Exception as e:
-            print('ERROR_CONNECTION', e)
-            return 'ERROR_CONNECTION'
+            print('ERROR_CONNECTION DB', e)
+            return 'ERROR_CONNECTION DB'
 
     @staticmethod
     def fetchall(table):
@@ -139,8 +139,8 @@ db = SQLAlchemy(app)
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
-    id = db.Column(db.Integer, primary_key=True)
-    contract_id = db.Column(db.Integer)
+    # id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer, primary_key=True)
     actual = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
@@ -791,30 +791,15 @@ def quard():
         return 'ERROR_CONTRACT'
 
     try:
-        sql_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+        actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
 
-        conn = DB.connection()
-        cursor = conn.cursor()
-        cursor.execute(sql_str)
-        actual_bots = {}
-
-        for row in cursor:
-            actual_bots = {
-                "name": row[2],
-                "alias": row[3],
-                "mode": row[4]
-            }
-
-        cursor.close()
-        conn.close()
-
-        if len(actual_bots) == 0:
-            print('ERROR_CONTRACT_NOT_EXISTS')
-            return 'ERROR_CONTRACT_NOT_EXISTS'
+        for actual_bot in actual_bots:
+            print('actual_bot.contract_id', actual_bot.contract_id)
+            return actual_bot.contract_id
 
     except Exception as e:
-        print('ERROR_CONNECTION', e)
-        return 'ERROR_CONNECTION'
+        print('ERROR_CONNECTION QUARD', e)
+        return 'ERROR_CONNECTION QUARD'
 
     return contract_id
 
@@ -903,6 +888,8 @@ def graph():
         constants = {}
 
         medical_record_categories = getCategories()
+
+        # print('medical_record_categories', medical_record_categories)
 
         for item in medical_record_categories:
             category = item['name']
@@ -995,88 +982,6 @@ def graph():
             # print('---')
 
         print('constants', constants)
-
-        # for row in records:
-        #     name = row[2]
-        #     params = row[6]
-        #
-        #     if (name == 'systolic_pressure'):
-        #         try:
-        #             constants['max_systolic'] = params['max_systolic']
-        #             constants['min_systolic'] = params['min_systolic']
-        #             constants['max_diastolic'] = params['max_diastolic']
-        #             constants['min_diastolic'] = params['min_diastolic']
-        #             constants['max_pulse'] = params['max_pulse']
-        #             constants['min_pulse'] = params['min_pulse']
-        #         except:
-        #             constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
-        #             constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
-        #             constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
-        #             constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
-        #             constants['max_pulse'] = MAX_PULSE_DEFAULT
-        #             constants['min_pulse'] = MIN_PULSE_DEFAULT
-        #
-        #     if (name == 'weight'):
-        #         try:
-        #             constants['max_weight'] = params['max']
-        #             constants['min_weight'] = params['min']
-        #         except Exception as e:
-        #             constants['max_weight'] = MAX_WEIGHT_DEFAULT
-        #             constants['min_weight'] = MIN_WEIGHT_DEFAULT
-        #
-        #     if (name == 'shin_volume_left'):
-        #         try:
-        #             constants['max_shin_left'] = params['max']
-        #             constants['min_shin_left'] = params['min']
-        #             constants['max_shin_right'] = params['max']
-        #             constants['min_shin_right'] = params['min']
-        #         except Exception as e:
-        #             constants['max_shin_left'] = MAX_SHIN_DEFAULT
-        #             constants['min_shin_left'] = MIN_SHIN_DEFAULT
-        #             constants['max_shin_right'] = MAX_SHIN_DEFAULT
-        #             constants['min_shin_right'] = MIN_SHIN_DEFAULT
-        #
-        #     if (name == 'temperature'):
-        #         try:
-        #             constants['max_temperature'] = params['max']
-        #             constants['min_temperature'] = params['min']
-        #         except Exception as e:
-        #             constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
-        #             constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
-        #
-        #     if (name == 'glukose'):
-        #         try:
-        #             constants['max_glukose'] = params['max']
-        #             constants['min_glukose'] = params['min']
-        #         except Exception as e:
-        #             constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
-        #             constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
-        #
-        #     if (name == 'pain_assessment'):
-        #         try:
-        #             constants['max_pain'] = params['max']
-        #             constants['min_pain'] = params['min']
-        #         except Exception as e:
-        #             constants['max_pain'] = MAX_PAIN_DEFAULT
-        #             constants['min_pain'] = MIN_PAIN_DEFAULT
-        #
-        #     if (name == 'spo2'):
-        #         try:
-        #             constants['max_spo2'] = params['max']
-        #             constants['min_spo2'] = params['min']
-        #         except Exception as e:
-        #             constants['max_spo2'] = MAX_SPO2_DEFAULT
-        #             constants['min_spo2'] = MIN_SPO2_DEFAULT
-        #
-        #     if (name == 'waist'):
-        #         try:
-        #             constants['max_waist'] = params['max']
-        #             constants['min_waist'] = params['min']
-        #         except Exception as e:
-        #             constants['max_waist'] = MAX_WAIST_DEFAULT
-        #             constants['min_waist'] = MIN_WAIST_DEFAULT
-
-        # systolic
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
