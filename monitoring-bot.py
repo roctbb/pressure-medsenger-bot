@@ -2014,7 +2014,7 @@ def init():
         for actual_bot in actual_bots:
             actual_contract = actual_bot.contract_id
 
-        if actial_contract > 0:
+        if actual_contract > 0:
             new_contract = False
             print('if id > 0')
 
@@ -2027,7 +2027,7 @@ def init():
                     contract.actual = True
                     db.session.commit()
 
-                    print("Activate contract {}".format(contract.id))
+                    print("Activate contract")
                 else:
                     print('contract not found')
 
