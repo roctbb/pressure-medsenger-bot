@@ -895,7 +895,7 @@ def graph():
             category = item['name']
 
             try:
-                CategoryParamsObj = CategoryParams.query.filter_by(category=category).first()
+                CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
 
                 params = CategoryParamsObj.params
                 # timetable = CategoryParamsObj.timetable
@@ -1339,9 +1339,9 @@ def settings():
     if (contract_id == ERROR_CONTRACT):
         return ERROR_CONTRACT
 
-    query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
-
-    records = DB.select(query_str)
+    # query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+    #
+    # records = DB.select(query_str)
 
     records__ = CategoryParams.query.filter_by(contract_id=contract_id).all()
     # print('records__', records__)
@@ -1363,8 +1363,8 @@ def settings():
         # categories_array[key] = value
         # print('category', category['name'])
 
-    print('categories_description', categories_description)
-    print('categories_unit', categories_unit)
+    # print('categories_description', categories_description)
+    # print('categories_unit', categories_unit)
 
     measurements = []
     pressure = {}
@@ -1495,85 +1495,85 @@ def settings():
     # print('measurements', measurements)
     # print(Debug.delimiter())
 
-    measurements_main = []
-    pressure = {}
-    shin = {}
-
-    for row in records:
-        timetable = []
-        measurement_new = {}
-        id = row[0]
-        name = row[2]
-        alias = row[3]
-        mode = row[4]
-        unit = row[5]
-        params = row[6]
-        timetable.append(row[7])
-        show = row[8]
-        last_push = row[9]
-
-        if (name == 'shin_volume_left'):
-            shin['id'] = id
-            shin['name'] = 'shin'
-            shin['alias'] = 'измерение голени'
-            shin['mode'] = mode
-            shin['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-            shin['unit'] = unit
-            shin['timetable'] = timetable
-            shin['show'] = show
-
-            try:
-                shin['max'] = params['max']
-                shin['min'] = params['min']
-            except Exception as e:
-                shin['max'] = MAX_SHIN
-                shin['min'] = MIN_SHIN
-
-            measurements_main.append(shin)
-
-            continue
-
-        if (name == 'systolic_pressure'):
-            pressure['id'] = id
-            pressure['name'] = 'pressure'
-            pressure['alias'] = 'давление'
-            pressure['mode'] = mode
-            pressure['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-            pressure['unit'] = unit
-            pressure['timetable'] = timetable
-            pressure['show'] = show
-
-            pressure['max_systolic'] = params['max_systolic']
-            pressure['min_systolic'] = params['min_systolic']
-            pressure['max_diastolic'] = params['max_diastolic']
-            pressure['min_diastolic'] = params['min_diastolic']
-            pressure['max_pulse'] = params['max_pulse']
-            pressure['min_pulse'] = params['min_pulse']
-            continue
-
-        out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'shin_volume_left', 'shin_volume_right']
-
-        if (name not in out_list):
-            measurement_new['id'] = id
-            measurement_new['name'] = name
-            measurement_new['alias'] = alias
-            measurement_new['mode'] = mode
-            measurement_new['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-            measurement_new['unit'] = unit
-            measurement_new['show'] = show
-            measurement_new['timetable'] = timetable
-
-            try:
-                measurement_new['max'] = params['max']
-                measurement_new['min'] = params['min']
-            except Exception as e:
-                measurement_new['max'] = 0
-                measurement_new['min'] = 0
-                # print('ERROR_KEY')
-
-            measurements_main.append(measurement_new)
-
-    measurements_main.append(pressure)
+    # measurements_main = []
+    # pressure = {}
+    # shin = {}
+    #
+    # for row in records:
+    #     timetable = []
+    #     measurement_new = {}
+    #     id = row[0]
+    #     name = row[2]
+    #     alias = row[3]
+    #     mode = row[4]
+    #     unit = row[5]
+    #     params = row[6]
+    #     timetable.append(row[7])
+    #     show = row[8]
+    #     last_push = row[9]
+    #
+    #     if (name == 'shin_volume_left'):
+    #         shin['id'] = id
+    #         shin['name'] = 'shin'
+    #         shin['alias'] = 'измерение голени'
+    #         shin['mode'] = mode
+    #         shin['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+    #         shin['unit'] = unit
+    #         shin['timetable'] = timetable
+    #         shin['show'] = show
+    #
+    #         try:
+    #             shin['max'] = params['max']
+    #             shin['min'] = params['min']
+    #         except Exception as e:
+    #             shin['max'] = MAX_SHIN
+    #             shin['min'] = MIN_SHIN
+    #
+    #         measurements_main.append(shin)
+    #
+    #         continue
+    #
+    #     if (name == 'systolic_pressure'):
+    #         pressure['id'] = id
+    #         pressure['name'] = 'pressure'
+    #         pressure['alias'] = 'давление'
+    #         pressure['mode'] = mode
+    #         pressure['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+    #         pressure['unit'] = unit
+    #         pressure['timetable'] = timetable
+    #         pressure['show'] = show
+    #
+    #         pressure['max_systolic'] = params['max_systolic']
+    #         pressure['min_systolic'] = params['min_systolic']
+    #         pressure['max_diastolic'] = params['max_diastolic']
+    #         pressure['min_diastolic'] = params['min_diastolic']
+    #         pressure['max_pulse'] = params['max_pulse']
+    #         pressure['min_pulse'] = params['min_pulse']
+    #         continue
+    #
+    #     out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'shin_volume_left', 'shin_volume_right']
+    #
+    #     if (name not in out_list):
+    #         measurement_new['id'] = id
+    #         measurement_new['name'] = name
+    #         measurement_new['alias'] = alias
+    #         measurement_new['mode'] = mode
+    #         measurement_new['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
+    #         measurement_new['unit'] = unit
+    #         measurement_new['show'] = show
+    #         measurement_new['timetable'] = timetable
+    #
+    #         try:
+    #             measurement_new['max'] = params['max']
+    #             measurement_new['min'] = params['min']
+    #         except Exception as e:
+    #             measurement_new['max'] = 0
+    #             measurement_new['min'] = 0
+    #             # print('ERROR_KEY')
+    #
+    #         measurements_main.append(measurement_new)
+    #
+    # measurements_main.append(pressure)
 
     # print('measurements', measurements)
     # print(Debug.delimiter())
