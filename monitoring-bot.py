@@ -12,7 +12,7 @@ import psycopg2
 from multiprocessing import Process
 # from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import update
+from colorama import Fore, Back, Style
 
 
 class Profiler(object):
@@ -136,6 +136,32 @@ app.config.update(SECRET_KEY='JKJH!Jhjhjhj456545_jgnbh~hfgbgb')
 
 db = SQLAlchemy(app)
 
+def out_red(text):
+    print(Fore.RED + text)
+    print(Style.RESET_ALL)
+
+def out_red_light(text):
+    print(Fore.LIGHTRED_EX + text)
+    print(Style.RESET_ALL)
+def out_yellow(text):
+    print(Fore.YELLOW + text)
+    print(Style.RESET_ALL)
+def out_blue(text):
+    print(Fore.BLUE + text)
+    print(Style.RESET_ALL)
+def out_green(text):
+    print(Fore.GREEN + text)
+    print(Style.RESET_ALL)
+def out_green_light(text):
+    print(Fore.LIGHTGREEN_EX + text)
+    print(Style.RESET_ALL)
+def out_cyan_light(text):
+    print(Fore.LIGHTCYAN_EX + text)
+    print(Style.RESET_ALL)
+def out_magenta_light(text):
+    print(Fore.LIGHTMAGENTA_EX + text)
+    print(Style.RESET_ALL)
+
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
@@ -155,7 +181,7 @@ class ActualBots(db.Model):
 class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer)
     contract_id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(25), primary_key=True)
     mode = db.Column(db.String(10))
@@ -184,7 +210,7 @@ def getCategories():
         if (response.status_code == 200):
             return json.loads(response.text)
 
-        print('response.status_code = ', response.status_code)
+        # print('response.status_code = ', response.status_code)
 
         return response.status_code
 
@@ -893,6 +919,8 @@ def graph():
 
         for item in medical_record_categories:
             category = item['name']
+
+
 
             try:
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
@@ -1771,6 +1799,8 @@ def status():
 def setting_save():
     contract_id = quard()
 
+    # print('/settings | POST | contract_id >> ', contract_id)
+
     if contract_id in ERRORS:
         return contract_id
 
@@ -2489,19 +2519,39 @@ def remove():
         if (data == None):
             return 'None'
 
-        if data['api_key'] != APP_KEY:
+        if (data == None):
+            print('data = None')
+            return 'None'
+
+        if ('api_key' not in data):
+            print('key api_key not exists')
+            return 'key api_key not exists'
+
+        if (APP_KEY != data['api_key']):
+            print('invalid key')
             return 'invalid key'
+
+        if ('contract_id' not in data):
+            print('key contract_id not exists')
+            return 'key contract_id not exists'
 
         contract_id = data['contract_id']
 
-        query_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+        key = request.args.get('api_key', '')
 
-        records = DB.select(query_str)
+        out_magenta_light(data['api_key'])
+        print('key = ', key)
+
         id = 0
 
-        for row in records:
-            # print('id', id)
-            id = row[1]
+        # query_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
+
+        query = ActualBots.query.filter_by(contract_id=contract_id)
+
+        if query.count() != 0:
+            contract = query.first()
+            id = contract.contract_id
+            print('id = ', id)
 
         if id > 0:
             query_str = "UPDATE actual_bots SET actual = false WHERE contract_id = " + Aux.quote() + str(

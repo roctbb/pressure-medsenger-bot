@@ -1205,10 +1205,11 @@
 
             {#console.log('610 data', data)#}
 
-            // Create series
+            // Create series chart.xAxes.push(new am4charts.DateAxis());
             function createSeries(field, name, config, data) {
                 var series = chart.series.push(new am4charts__.LineSeries());
                 series.groupData = false;
+
                 series.dataFields.valueY = field;
                 series.dataFields.dateX = "date";
                 series.name = name;
