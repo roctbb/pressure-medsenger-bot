@@ -156,8 +156,8 @@ class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
     id = db.Column(db.Integer, primary_key=True)
-    contract_id = db.Column(db.Integer)
-    category = db.Column(db.String(25))
+    contract_id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(25), primary_key=True)
     mode = db.Column(db.String(10))
     params = db.Column(db.JSON)
     timetable = db.Column(db.JSON)
