@@ -390,11 +390,8 @@ def warning(contract_id, param, param_value, param_value_2=''):
 
 
 def sender():
-    # deadline = 1
-
     while True:
-        # print('START sender')
-        # print('')
+        # print('sender')
         query_str = "SELECT * FROM measurements WHERE show = true"
         records = DB.select(query_str)
         measurements = records
@@ -409,10 +406,6 @@ def sender():
             show = measurement[8]
             date_str = measurement[9].strftime("%Y-%m-%d %H:%M:%S")
             last_push = measurement[9].timestamp()
-
-            # print('id', id)
-            # print('contract_id', contract_id)
-            # print('name', name)
 
             if (show == False):
                 continue
@@ -444,10 +437,6 @@ def sender():
                             diff_current_control = current_time - control_time
 
                             if diff_current_control > 0:
-                                # print('control_time', control_time)
-                                # print('push_time', push_time)
-                                # print(Debug.delimiter())
-
                                 if control_time > push_time:
                                     print('Запись измерения в messages', name)
 
@@ -475,70 +464,43 @@ def sender():
                                     pattern = hour_value
 
                                     for i in range(len_hours_array):
-                                        # action_deadline = 0
-
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                # print('11 pattern < hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = 24
-                                                # print('12 pattern == hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                             if (pattern > hours_array[0]):
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                # print('13 pattern > hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(pattern)
-
-                                                # print('21 pattern < hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                # print('22 pattern > hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                         if (len_hours_array > 2):
-
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                # print('31 pattern <= hours_array[0]', hours_array[0], pattern,
-                                                #       action_deadline)
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                # print('32 pattern >= hours_array[len_hours_array-1]', hours_array[0],
-                                                #       pattern, action_deadline)
                                                 break
 
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-                                                    # print('33 hours_array[i] >= pattern', hours_array[0], pattern,
-                                                    #       action_deadline)
-                                                    # break
-
-                                    # print('action_deadline', action_deadline)
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
-
-                                    # print('name', name)
-                                    # print('int(time.time())', int(time.time()))
-                                    # print('data_deadline', data_deadline - 600)
 
                                     data = {
                                         "contract_id": contract_id,
@@ -574,9 +536,6 @@ def sender():
 
                                     except Exception as e:
                                         print('error requests.post', e)
-
-                                    # print('data_update', data_update)
-                                    # print(Debug.delimiter())
 
                                     query_str = "UPDATE measurements set last_push = '" + \
                                                 str(datetime.datetime.fromtimestamp(
@@ -795,11 +754,31 @@ def sender():
 
                                     post_request(data)
 
-        # print('')
-        # print('END Sender')
-        # print(Debug.delimiter())
-
         time.sleep(20)
+
+
+def quard_data_json():
+    data = request.json
+
+    if (data == None):
+        out_red_light('data None')
+        return 'None'
+
+    if ('api_key' not in data):
+        out_red_light('key api_key not exists')
+        return 'key api_key not exists'
+
+    if (APP_KEY != data['api_key']):
+        out_red_light('invalid key')
+        return 'invalid key'
+
+    if ('contract_id' not in data):
+        out_red_light('key contract_id not exists')
+        return 'key contract_id not exists'
+
+    contract_id = data['contract_id']
+
+    return contract_id
 
 
 def quard():
@@ -2018,25 +1997,7 @@ def init():
     new_contract = True
 
     try:
-        data = request.json
-
-        if (data == None):
-            print('None data /init')
-            return 'None'
-
-        if ('api_key' not in data):
-            print('key api_key not exists')
-            return 'key api_key not exists'
-
-        if (APP_KEY != data['api_key']):
-            print('invalid key')
-            return 'invalid key'
-
-        if ('contract_id' not in data):
-            print('key contract_id not exists')
-            return 'key contract_id not exists'
-
-        contract_id = data['contract_id']
+        contract_id = quard_data_json()
 
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
@@ -2510,48 +2471,16 @@ def init():
 
     return 'ok'
 
-
 @app.route('/remove', methods=['POST'])
 def remove():
     try:
-        data = request.json
-
-        if (data == None):
-            return 'None'
-
-        if (data == None):
-            print('data = None')
-            return 'None'
-
-        if ('api_key' not in data):
-            print('key api_key not exists')
-            return 'key api_key not exists'
-
-        if (APP_KEY != data['api_key']):
-            print('invalid key')
-            return 'invalid key'
-
-        if ('contract_id' not in data):
-            print('key contract_id not exists')
-            return 'key contract_id not exists'
-
-        contract_id = data['contract_id']
-
-        key = request.args.get('api_key', '')
-
-        out_magenta_light(data['api_key'])
-        print('key = ', key)
-
+        contract_id = quard_data_json()
         id = 0
-
-        # query_str = "SELECT * FROM actual_bots WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
-
         query = ActualBots.query.filter_by(contract_id=contract_id)
 
         if query.count() != 0:
             contract = query.first()
             id = contract.contract_id
-            print('id = ', id)
 
         if id > 0:
             query_str = "UPDATE actual_bots SET actual = false WHERE contract_id = " + Aux.quote() + str(
@@ -2563,7 +2492,7 @@ def remove():
                 return result
 
     except Exception as e:
-        print('error', e)
+        print('error >> ', e)
         return 'ERROR INIT'
 
     return 'ok'
@@ -2633,40 +2562,7 @@ def action_pull_save(pull):
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
 
-        # # insert shin_left
-        # query_str = "select id from measurements where contract_id = " + str(
-        #     contract_id) + " and name = 'shin_volume_left'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     id = row[0]
-        #
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     shin_left) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-        #     comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
-
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
-
-        # insert shin_right
-        # query_str = "select id from measurements where contract_id = " + str(
-        #     contract_id) + " and name = 'shin_volume_right'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     id = row[0]
-        #
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     shin_right) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-        #     comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
-
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
 
     elif (pull == 'pressure'):
@@ -2681,25 +2577,20 @@ def action_pull_save(pull):
             systolic = int(systolic)
         except Exception as e:
             systolic = 120
-            print('int(systolic)', e)
 
         try:
             diastolic = int(diastolic)
         except Exception as e:
             diastolic = 80
-            print('int(diastolic)', e)
 
         try:
             pulse_ = int(pulse_)
         except Exception as e:
             pulse_ = 60
-            print('int(pulse)', e)
 
         if (systolic < MIN_SYSTOLIC or systolic > MAX_SYSTOLIC):
             flash(ERROR_OUTSIDE_SYSTOLIC_TEXT)
             return action_pull(pull)
-
-            # return ERROR_OUTSIDE_SYSTOLIC
 
         if (diastolic < MIN_DIASTOLIC or diastolic > MAX_DIASTOLIC):
             return ERROR_OUTSIDE_DIASTOLIC
@@ -2742,51 +2633,8 @@ def action_pull_save(pull):
         for row in records:
             id = row[0]
 
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     systolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-        #     comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
-
-        # add_record(contract_id, 'systolic_pressure', systolic, int(time.time()))
-
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
-
-        # query_str = "select id from measurements where contract_id = " + str(
-        #     contract_id) + " and name = 'diastolic_pressure'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     id = row[0]
-        #
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     diastolic) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-        #     comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
-
-        # add_record(contract_id, 'diastolic_pressure', diastolic, int(time.time()))
-
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
-
-        # query_str = "select id from measurements where contract_id = " + str(contract_id) + " and name = 'pulse'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     id = row[0]
-        #
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     pulse_) + ",(select * from now()),(select * from now())," + Aux.quote() + str(comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
-
-        # add_record(contract_id, 'pulse', pulse_, int(time.time()))
-
         delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
 
     else:
@@ -2807,7 +2655,6 @@ def action_pull_save(pull):
         except Exception as e:
             max = 0
             min = 0
-            print("WARNING_FLOAT", e)
 
         max = float(max)
         min = float(min)
@@ -2846,21 +2693,6 @@ def action_pull_save(pull):
         if (param_value < min or param_value > max):
             # Сигналим врачу
             delayed(1, warning, [contract_id, param, param_value])
-
-        # query_str = "select id from measurements where contract_id = " + Aux.quote() + str(
-        #     contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     id = row[0]
-        #
-        # query_str = "INSERT INTO measurements_results VALUES(nextval('measurements_results$id$seq')," + str(
-        #     id) + ",(select * from now())," + str(
-        #     param_value) + ",(select * from now()),(select * from now())," + Aux.quote() + str(
-        #     comments) + Aux.quote() + ")"
-        #
-        # DB.query(query_str)
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
 
