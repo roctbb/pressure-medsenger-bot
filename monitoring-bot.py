@@ -894,12 +894,12 @@ def graph():
 
         medical_record_categories = getCategories()
 
-        # print('medical_record_categories', medical_record_categories)
+        print('medical_record_categories', medical_record_categories)
 
         for item in medical_record_categories:
             category = item['name']
 
-
+            out_cyan_light(category)
 
             try:
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
