@@ -19,7 +19,7 @@ class ActualBots(db.Model):
 class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
-    id = db.Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True)
     contract_id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(25), primary_key=True)
     mode = db.Column(db.String(10))
@@ -223,27 +223,8 @@ def sender():
             last_push = record[8].timestamp()
             show = record[9]
 
-            # print(contract_id, name, mode, params, timetable, last_push, show)
-            # print(Debug.delimiter())
-
-        # query = CategoryParams.query
-        #
-        # if (query.count() != 0):
-        #     category_params = query.all()
-        #
-        # for category_param in category_params:
-        #     contract_id = category_param.contract_id
-        #     name = category_param.category
-        #     mode = category_param.mode
-        #     params = category_param.params
-        #     timetable = category_param.timetable
-        #     show = category_param.show
-        #     last_push = category_param.last_push.timestamp()
-
             if (show == False):
                 continue
-
-            data = {}
 
             if mode == 'daily':
                 for item in timetable:
@@ -269,27 +250,6 @@ def sender():
                             push_time = last_push
                             diff_current_control = current_time - control_time
 
-                            # if (name == 'systolic_pressure'):
-                            #     out_magenta_light(name + ' | diff_current_control = current_time - control_time')
-                            #     out_blue('current_time = ' + str(datetime.datetime.fromtimestamp(current_time)))
-                            #
-                            #     if (diff_current_control > 0):
-                            #         if control_time > push_time:
-                            #             out_green('Запись измерения в messages@')
-                            #         else:
-                            #             print('control_time < push_time - не пишем в messages!')
-                            #
-                            #         out_red_light('diff_current_control = ' + str(diff_current_control))
-                            #         out_cyan_light('push_time = ' + str(datetime.datetime.fromtimestamp(push_time)))
-                            #         out_green_light('control_time = ' + str(datetime.datetime.fromtimestamp(control_time)))
-                            #     else:
-                            #         out_yellow('diff_current_control = ' + str(diff_current_control))
-                            #         out_yellow('push_time = ' + str(datetime.datetime.fromtimestamp(push_time)))
-                            #         out_yellow('control_time = ' + str(datetime.datetime.fromtimestamp(control_time)))
-                            #
-                            #     print(Debug.delimiter())
-
-
                             if diff_current_control > 0:
                                 if control_time > push_time:
                                     print('Запись измерения в messages')
@@ -303,41 +263,52 @@ def sender():
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
+                                                out_cyan_light('pattern < hours_array[0]')
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[0]):
+                                                out_cyan_light(pattern == hours_array[0])
                                                 action_deadline = 24
                                                 break
 
                                             if (pattern > hours_array[0]):
+                                                out_cyan_light('pattern > hours_array[0]')
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
+                                                out_cyan_light('pattern > hours_array[0]')
                                                 action_deadline = int(hours_array[1]) - int(pattern)
                                                 break
 
                                             if (pattern == hours_array[1]):
+                                                out_cyan_light('pattern == hours_array[1]')
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                         if (len_hours_array > 2):
                                             if (pattern == hours_array[0]):
+                                                out_cyan_light('pattern == hours_array[0]')
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
+                                                out_cyan_light('pattern == hours_array[len_hours_array - 1]')
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
+                                                    out_cyan_light('hours_array[i] == pattern')
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
+
+                                    print('action_deadline', action_deadline)
+                                    print(data_deadline)
 
                                     route_name = name
 
@@ -656,26 +627,26 @@ def quard():
     key = request.args.get('api_key', '')
 
     if key != APP_KEY:
-        print('WRONG_APP_KEY')
+        out_red_light('WRONG_APP_KEY')
         return 'WRONG_APP_KEY'
 
     try:
         contract_id = int(request.args.get('contract_id', ''))
-        print('quard() | contract_id', contract_id)
     except Exception as e:
-        print('ERROR_CONTRACT', e)
+        out_red_light('ERROR_CONTRACT')
+        print(e)
         return 'ERROR_CONTRACT'
 
     try:
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
 
         for actual_bot in actual_bots:
-            print('actual_bot.contract_id', actual_bot.contract_id)
             return actual_bot.contract_id
 
     except Exception as e:
-        print('ERROR_CONNECTION QUARD', e)
-        return 'ERROR_CONNECTION QUARD'
+        out_red_light('ERROR_QUARD')
+        print(e)
+        return 'ERROR QUARD'
 
     return contract_id
 
@@ -764,8 +735,6 @@ def graph():
         constants = {}
 
         medical_record_categories = getCategories()
-
-        print('medical_record_categories', medical_record_categories)
 
         for item in medical_record_categories:
             category = item['name']
@@ -1782,8 +1751,8 @@ def init():
 
             print('preset = ', preset)
 
-            if 'params' in data:
-                preset_params = data['params']
+            if 'preset_params' in data:
+                preset_params = data['preset_params']
             else:
                 preset_params = None
 
