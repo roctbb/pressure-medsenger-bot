@@ -1,166 +1,4 @@
-import datetime
-import time
-from threading import Thread
-from flask import Flask, request, render_template, flash, redirect, url_for
-import json
-import requests
-from config import *
-from database import *
-from const import *
-import threading
-import psycopg2
-from multiprocessing import Process
-# from flask_bootstrap import Bootstrap
-from flask_sqlalchemy import SQLAlchemy
-from colorama import Fore, Back, Style
-
-
-class Profiler(object):
-    def __enter__(self):
-        self._startTime = time.time()
-
-    def __exit__(self, type, value, traceback):
-        delta = time.time() - self._startTime
-
-        if delta > 1:
-            print("Elapsed time: {:.3f} sec".format(delta))
-
-
-class Debug:
-    @staticmethod
-    def delimiter():
-        return '-------------------------------------------------------------------------------'
-
-
-class Aux:
-    @staticmethod
-    def quote():
-        return "'"
-
-    @staticmethod
-    def doublequote():
-        return '"'
-
-
-class DB:
-    @staticmethod
-    def connection():
-        try:
-            return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
-        except Exception as e:
-            print('ERROR_CONNECTION DB', e)
-            return 'ERROR_CONNECTION DB'
-
-    @staticmethod
-    def fetchall(table):
-        try:
-            conn = DB.connection()
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM ' + table, ('ALA',))
-            records = cursor.fetchall()
-            cursor.close()
-            conn.close()
-            # print('SUCCESS_FETCHALL', table)
-            return records
-        except Exception as e:
-            print('ERROR_FETCHALL', e)
-            return 'ERROR_FETCHALL'
-
-    @staticmethod
-    def insert(table, values):
-        try:
-            conn = None
-            conn = DB.connection()
-            cursor = conn.cursor()
-            query_str = "INSERT INTO " + table + " VALUES(" + values + ")"
-            cursor.execute(query_str)
-            conn.commit()
-            cursor.close()
-            # print('SUCCESS_INSERT', table)
-            return 'SUCCESS_INSERT'
-        except (Exception, psycopg2.DatabaseError) as e:
-            print('ERROR_INSERT', e)
-            return 'ERROR_INSERT'
-        finally:
-            if conn is not None:
-                conn.close()
-
-    @staticmethod
-    def query(query_str):
-        try:
-            # print(query_str)
-            # print(Debug.delimiter())
-            conn = None
-            conn = DB.connection()
-            cursor = conn.cursor()
-            cursor.execute(query_str)
-            conn.commit()
-            cursor.close()
-
-            return 'SUCCESS_QUERY'
-        except (Exception, psycopg2.DatabaseError) as e:
-            print('ERROR_QUERY', e)
-            return 'ERROR_QUERY'
-        finally:
-            if conn is not None:
-                conn.close()
-
-    @staticmethod
-    def select(query_str):
-        try:
-            conn = None
-            conn = DB.connection()
-            cursor = conn.cursor()
-            cursor.execute(query_str)
-            records = cursor.fetchall()
-            conn.commit()
-            cursor.close()
-
-            return records
-        except (Exception, psycopg2.DatabaseError) as e:
-            print('ERROR_SELECT', e)
-            return 'ERROR_SELECT'
-        finally:
-            if conn is not None:
-                conn.close()
-
-
-app = Flask(__name__)
-# app.config.from_object(__name__)
-
-db_uri = "postgres://{}:{}@{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
-app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-# app.config.update(ENV='developer')
-# app.config.update(DEBUG=True)
-app.config.update(SECRET_KEY='JKJH!Jhjhjhj456545_jgnbh~hfgbgb')
-
-db = SQLAlchemy(app)
-
-def out_red(text):
-    print(Fore.RED + text)
-    print(Style.RESET_ALL)
-
-def out_red_light(text):
-    print(Fore.LIGHTRED_EX + text)
-    print(Style.RESET_ALL)
-def out_yellow(text):
-    print(Fore.YELLOW + text)
-    print(Style.RESET_ALL)
-def out_blue(text):
-    print(Fore.BLUE + text)
-    print(Style.RESET_ALL)
-def out_green(text):
-    print(Fore.GREEN + text)
-    print(Style.RESET_ALL)
-def out_green_light(text):
-    print(Fore.LIGHTGREEN_EX + text)
-    print(Style.RESET_ALL)
-def out_cyan_light(text):
-    print(Fore.LIGHTCYAN_EX + text)
-    print(Style.RESET_ALL)
-def out_magenta_light(text):
-    print(Fore.LIGHTMAGENTA_EX + text)
-    print(Style.RESET_ALL)
+from init import *
 
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
@@ -190,14 +28,27 @@ class CategoryParams(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     last_push = db.Column(db.DateTime)
+    show = db.Column(db.Boolean)
 
     # def __repr__(self):
     #     return "\nCategoryParams: ('%s','%s', '%s')\n---------------------------\n" % (self.category, self.params, self.timetable)
 
+# METHODS
 
-# bootstrap = Bootstrap(app)
+def getBotCategories():
+    try:
+        query = CategoryParams.query
 
-# data = {}
+        if query.count() != 0:
+            return query.all()
+
+        return 'EMPTY DATA'
+
+
+    except Exception as e:
+        print('ERROR CONNECTION', e)
+        return 'ERROR CONNECTION'
+
 
 def getCategories():
     try:
@@ -217,6 +68,7 @@ def getCategories():
 
     except Exception as e:
         print('error: ', e)
+
 
 def getRecords(contract_id, category_name):
     try:
@@ -259,48 +111,6 @@ def add_record(contract_id, category_name, value, record_time=None):
         print('error requests.post', e)
 
 
-def dump(data, label):
-    print('dump: ' + label + ' ', data)
-
-
-def delayed(delay, f, args):
-    timer = threading.Timer(delay, f, args=args)
-    timer.start()
-
-
-def check_float(number):
-    try:
-        float(number)
-        return True
-    except:
-        return False
-
-
-def check_digit(number):
-    try:
-        int(number)
-        return True
-    except:
-        return False
-
-
-def digit(val):
-    try:
-        return int(val)
-    except:
-        return False
-
-
-def check_str(val):
-    try:
-        str(str)
-        return True
-    except:
-        return False
-
-
-# ***************************************************
-
 def post_request(data, query='/api/agents/message'):
     try:
         return requests.post(MAIN_HOST + query, json=data)
@@ -324,8 +134,16 @@ def warning(contract_id, param, param_value, param_value_2=''):
     if (param == 'shin_volume_right'):
         param = 'shin'
 
-    if (param in AVAILABLE_MEASUREMENTS):
+    if (param == 'leg_circumference_left'):
+        param = 'shin'
 
+    if (param == 'leg_circumference_right'):
+        param = 'shin'
+
+    if (param == 'waist_circumference'):
+        param = 'waist'
+
+    if (param in AVAILABLE_MEASUREMENTS):
         if (param == 'pressure'):
             text_patient = MESS_PRESSURE_PATIENT.format(
                 param_value, param_value_2)
@@ -391,21 +209,36 @@ def warning(contract_id, param, param_value, param_value_2=''):
 
 def sender():
     while True:
-        # print('sender')
-        query_str = "SELECT * FROM measurements WHERE show = true"
-        records = DB.select(query_str)
-        measurements = records
+        # MEASUREMENTS
 
-        for measurement in measurements:
-            id = str(measurement[0])
-            contract_id = measurement[1]
-            name = measurement[2]
-            mode = measurement[4]
-            params = measurement[6]
-            timetable = measurement[7]
-            show = measurement[8]
-            date_str = measurement[9].strftime("%Y-%m-%d %H:%M:%S")
-            last_push = measurement[9].timestamp()
+        records = DB.select('SELECT * FROM category_params')
+
+        for record in records:
+            id = record[0]
+            contract_id = record[1]
+            name = record[2]
+            mode = record[3]
+            params = record[4]
+            timetable = record[5]
+            last_push = record[8].timestamp()
+            show = record[9]
+
+            # print(contract_id, name, mode, params, timetable, last_push, show)
+            # print(Debug.delimiter())
+
+        # query = CategoryParams.query
+        #
+        # if (query.count() != 0):
+        #     category_params = query.all()
+        #
+        # for category_param in category_params:
+        #     contract_id = category_param.contract_id
+        #     name = category_param.category
+        #     mode = category_param.mode
+        #     params = category_param.params
+        #     timetable = category_param.timetable
+        #     show = category_param.show
+        #     last_push = category_param.last_push.timestamp()
 
             if (show == False):
                 continue
@@ -436,27 +269,31 @@ def sender():
                             push_time = last_push
                             diff_current_control = current_time - control_time
 
+                            # if (name == 'systolic_pressure'):
+                            #     out_magenta_light(name + ' | diff_current_control = current_time - control_time')
+                            #     out_blue('current_time = ' + str(datetime.datetime.fromtimestamp(current_time)))
+                            #
+                            #     if (diff_current_control > 0):
+                            #         if control_time > push_time:
+                            #             out_green('Запись измерения в messages@')
+                            #         else:
+                            #             print('control_time < push_time - не пишем в messages!')
+                            #
+                            #         out_red_light('diff_current_control = ' + str(diff_current_control))
+                            #         out_cyan_light('push_time = ' + str(datetime.datetime.fromtimestamp(push_time)))
+                            #         out_green_light('control_time = ' + str(datetime.datetime.fromtimestamp(control_time)))
+                            #     else:
+                            #         out_yellow('diff_current_control = ' + str(diff_current_control))
+                            #         out_yellow('push_time = ' + str(datetime.datetime.fromtimestamp(push_time)))
+                            #         out_yellow('control_time = ' + str(datetime.datetime.fromtimestamp(control_time)))
+                            #
+                            #     print(Debug.delimiter())
+
+
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    print('Запись измерения в messages', name)
-
-                                    if (name == 'systolic_pressure'):
-                                        name = 'pressure'
-
-                                    if (name == 'diastolic_pressure'):
-                                        name = 'pressure'
-
-                                    if (name == 'shin_volume_left'):
-                                        name = 'shin'
-
-                                    if (name == 'shin_volume_right'):
-                                        name = 'shin'
-
-                                    if (name == 'leg_circumference_left'):
-                                        name = 'shin'
-
-                                    if (name == 'leg_circumference_right'):
-                                        name = 'shin'
+                                    print('Запись измерения в messages')
+                                    out_cyan_light(name)
 
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
@@ -502,14 +339,39 @@ def sender():
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
 
+                                    route_name = name
+
+                                    if (name == 'systolic_pressure'):
+                                        route_name = 'pressure'
+
+                                    if (name == 'diastolic_pressure'):
+                                        route_name = 'pressure'
+
+                                    if (name == 'shin_volume_left'):
+                                        route_name = 'shin'
+
+                                    if (name == 'shin_volume_right'):
+                                        route_name = 'shin'
+
+                                    if (name == 'leg_circumference_left'):
+                                        route_name = 'shin'
+
+                                    if (name == 'leg_circumference_right'):
+                                        route_name = 'shin'
+
+                                    if (name == 'waist_circumference'):
+                                        route_name = 'waist'
+
+                                    out_magenta_light(id)
+
                                     data = {
                                         "contract_id": contract_id,
                                         "api_key": APP_KEY,
                                         "message": {
-                                            "text": MESS_MEASUREMENT[name]['text'],
-                                            "action_link": "frame/" + name,
-                                            "action_deadline": data_deadline - 600,
-                                            "action_name": MESS_MEASUREMENT[name]['action_name'],
+                                            "text": MESS_MEASUREMENT[route_name]['text'],
+                                            "action_link": "frame/" + route_name,
+                                            "action_deadline": data_deadline - 300,
+                                            "action_name": MESS_MEASUREMENT[route_name]['action_name'],
                                             "action_onetime": True,
                                             "only_doctor": False,
                                             "only_patient": True,
@@ -517,36 +379,46 @@ def sender():
                                         "hour_value": hour_value
                                     }
 
-                                    data_update_deadline = int(time.time()) - (4 * 60 * 60)
+                                    # data_update_deadline = int(time.time()) - (4 * 60 * 60)
 
-                                    data_update = {
-                                        "contract_id": contract_id,
-                                        "api_key": APP_KEY,
-                                        "action_link": "frame/" + name,
-                                        "action_deadline": data_update_deadline
-                                    }
+                                    # data_update = {
+                                    #     "contract_id": contract_id,
+                                    #     "api_key": APP_KEY,
+                                    #     "action_link": "frame/" + name,
+                                    #     "action_deadline": data_update_deadline
+                                    # }
+
+                                    # try:
+                                    #     query = '/api/agents/correct_action_deadline'
+                                    #     print('post request')
+                                    #     print('MAIN_HOST + query', MAIN_HOST + query)
+                                    #     print('data', data)
+                                    #     response = requests.post(MAIN_HOST + query, json=data_update)
+                                    #     print('response ' + MAIN_HOST + query, response.status_code)
+                                    #
+                                    # except Exception as e:
+                                    #     print('error requests.post', e)
 
                                     try:
-                                        query = '/api/agents/correct_action_deadline'
-                                        # print('post request')
-                                        # print('MAIN_HOST + query', MAIN_HOST + query)
-                                        # print('data', data)
-                                        # response = requests.post(MAIN_HOST + query, json=data_update)
-                                        # print('response ' + MAIN_HOST + query, response.status_code)
+                                        query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
 
+                                        if query.count() != 0:
+                                            contract = query.first()
+                                            contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
+                                            print('contract.last_push', contract.last_push)
+                                            print('datetime.datetime.fromtimestamp(current_time)', datetime.datetime.fromtimestamp(current_time))
+                                            db.session.commit()
                                     except Exception as e:
-                                        print('error requests.post', e)
+                                        out_red_light('ERROR CONNECTION')
+                                        print(e)
 
-                                    query_str = "UPDATE measurements set last_push = '" + \
-                                                str(datetime.datetime.fromtimestamp(
-                                                    current_time).isoformat()) + Aux.quote() + \
-                                                " WHERE id = '" + str(id) + Aux.quote()
-
-                                    # print('query_str', query_str)
-
-                                    DB.query(query_str)
-                                    print('data measurements', data)
+                                    print('data = ', data)
+                                    print(Debug.delimiter())
                                     post_request(data)
+                                    time.sleep(1)
+                                    break
+
+        # MEDICINES
 
         query_str = "SELECT * FROM medicines WHERE show = true"
 
@@ -561,8 +433,8 @@ def sender():
             dosage = medicine[4]
             amount = medicine[5]
             timetable = medicine[6]
-            show = measurement[7]
-            date_str = medicine[8].strftime("%Y-%m-%d %H:%M:%S")
+            show = medicine[7]
+            # date_str = medicine[8].strftime("%Y-%m-%d %H:%M:%S")
             last_push = medicine[8].timestamp()
 
             if (show == False):
@@ -754,12 +626,11 @@ def sender():
 
                                     post_request(data)
 
+        # out_green_light('sender')
         time.sleep(20)
 
 
-def quard_data_json():
-    data = request.json
-
+def quard_data_json(data):
     if (data == None):
         out_red_light('data None')
         return 'None'
@@ -907,7 +778,8 @@ def graph():
                 params = CategoryParamsObj.params
                 # timetable = CategoryParamsObj.timetable
             except Exception as e:
-                print('ERROR CONNECTION CategoryParamsObj', e)
+                out_magenta_light('ERROR CONNECTION')
+                print(e)
 
             if (category == 'systolic_pressure' or category == 'diastolic_pressure' or category == 'pulse'):
                 try:
@@ -1350,13 +1222,8 @@ def settings():
     #
     # records = DB.select(query_str)
 
-    records__ = CategoryParams.query.filter_by(contract_id=contract_id).all()
-    # print('records__', records__)
-
+    category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
     categories = getCategories()
-
-    print('categories', categories)
-
     categories_description = {}
     categories_unit = {}
 
@@ -1367,55 +1234,43 @@ def settings():
         categories_description[name] = description
         categories_unit[name] = unit
 
-        # categories_array[key] = value
-        # print('category', category['name'])
-
-    # print('categories_description', categories_description)
-    # print('categories_unit', categories_unit)
+    # print(categories_unit)
+    # print(categories_description)
+    # print(Debug.delimiter())
 
     measurements = []
     pressure = {}
     shin = {}
 
-    for row in records__:
-        # print('row', row.id, row.category, row.mode, row.params, row.timetable)
-        # print('------------------------')
-
-        timetable_from = row.timetable
-
+    for category_param in category_params:
         timetable = []
         measurement_new = {}
-        id = row.id
-        name = row.category
-        # alias = row[3]
-        mode = row.mode
-        unit = ''
-        params = row.params
-        timetable.append(timetable_from)
-        # show = row[8]
-        last_push = row.last_push
+        name = category_param.category
+        alias = ''
+        mode = category_param.mode
+        unit = categories_unit[name]
+        params = category_param.params
+        timetable.append(category_param.timetable)
+        show = category_param.show
+        last_push = category_param.last_push
 
         if (name == 'leg_circumference_left'):
-            shin['id'] = id
             shin['name'] = 'shin'
 
             if name in categories_description:
-                print('categories_description', categories_description[name])
                 shin['alias'] = categories_description[name]
             else:
                 shin['alias'] = 'измерение окружности голени'
 
             if name in categories_unit:
-                print('categories_unit', categories_unit[name])
                 shin['unit'] = categories_unit[name]
             else:
-                shin['unit'] = ''
+                shin['unit'] = unit
 
             shin['mode'] = mode
             shin['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-            shin['unit'] = ''
             shin['timetable'] = timetable
-            shin['show'] = True
+            shin['show'] = show
 
             try:
                 shin['max'] = params['max']
@@ -1427,26 +1282,22 @@ def settings():
             measurements.append(shin)
 
         if (name == 'systolic_pressure'):
-            pressure['id'] = id
             pressure['name'] = 'pressure'
 
             if name in categories_description:
-                print('categories_description', categories_description[name])
                 pressure['alias'] = categories_description[name]
             else:
                 pressure['alias'] = 'измерение давления'
 
             if name in categories_unit:
-                print('categories_unit', categories_unit[name])
                 pressure['unit'] = categories_unit[name]
             else:
-                pressure['unit'] = ''
+                pressure['unit'] = unit
 
             pressure['mode'] = mode
             pressure['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-            pressure['unit'] = ''
             pressure['timetable'] = timetable
-            pressure['show'] = True
+            pressure['show'] = show
 
             try:
                 pressure['max_systolic'] = params['max_systolic']
@@ -1463,30 +1314,29 @@ def settings():
                 pressure['max_pulse'] = MAX_PULSE_DEFAULT
                 pressure['min_pulse'] = MIN_PULSE_DEFAULT
 
+            # print(pressure)
+
             measurements.append(pressure)
 
         out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left', 'leg_circumference_right']
 
         if (name not in out_list):
-            measurement_new['id'] = id
             measurement_new['name'] = name
 
             if name in categories_description:
-                print('_description', categories_description[name])
                 measurement_new['alias'] = categories_description[name]
             else:
-                measurement_new['alias'] = '--'
+                measurement_new['alias'] = ''
 
             if name in categories_unit:
-                print('_unit', categories_unit[name])
                 measurement_new['unit'] = categories_unit[name]
             else:
-                measurement_new['unit'] = '-'
+                measurement_new['unit'] = ''
 
             measurement_new['mode'] = mode
             measurement_new['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
             measurement_new['unit'] = ''
-            measurement_new['show'] = True
+            measurement_new['show'] = show
             measurement_new['timetable'] = timetable
 
             try:
@@ -1495,96 +1345,13 @@ def settings():
             except Exception as e:
                 measurement_new['max'] = 0
                 measurement_new['min'] = 0
-                # print('ERROR_KEY')
 
             measurements.append(measurement_new)
 
-    # print('measurements', measurements)
-    # print(Debug.delimiter())
+            # print('measurements', measurements, type(measurements))
+            # print(Debug.delimiter())
 
-    # measurements_main = []
-    # pressure = {}
-    # shin = {}
-    #
-    # for row in records:
-    #     timetable = []
-    #     measurement_new = {}
-    #     id = row[0]
-    #     name = row[2]
-    #     alias = row[3]
-    #     mode = row[4]
-    #     unit = row[5]
-    #     params = row[6]
-    #     timetable.append(row[7])
-    #     show = row[8]
-    #     last_push = row[9]
-    #
-    #     if (name == 'shin_volume_left'):
-    #         shin['id'] = id
-    #         shin['name'] = 'shin'
-    #         shin['alias'] = 'измерение голени'
-    #         shin['mode'] = mode
-    #         shin['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-    #         shin['unit'] = unit
-    #         shin['timetable'] = timetable
-    #         shin['show'] = show
-    #
-    #         try:
-    #             shin['max'] = params['max']
-    #             shin['min'] = params['min']
-    #         except Exception as e:
-    #             shin['max'] = MAX_SHIN
-    #             shin['min'] = MIN_SHIN
-    #
-    #         measurements_main.append(shin)
-    #
-    #         continue
-    #
-    #     if (name == 'systolic_pressure'):
-    #         pressure['id'] = id
-    #         pressure['name'] = 'pressure'
-    #         pressure['alias'] = 'давление'
-    #         pressure['mode'] = mode
-    #         pressure['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-    #         pressure['unit'] = unit
-    #         pressure['timetable'] = timetable
-    #         pressure['show'] = show
-    #
-    #         pressure['max_systolic'] = params['max_systolic']
-    #         pressure['min_systolic'] = params['min_systolic']
-    #         pressure['max_diastolic'] = params['max_diastolic']
-    #         pressure['min_diastolic'] = params['min_diastolic']
-    #         pressure['max_pulse'] = params['max_pulse']
-    #         pressure['min_pulse'] = params['min_pulse']
-    #         continue
-    #
-    #     out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'shin_volume_left', 'shin_volume_right']
-    #
-    #     if (name not in out_list):
-    #         measurement_new['id'] = id
-    #         measurement_new['name'] = name
-    #         measurement_new['alias'] = alias
-    #         measurement_new['mode'] = mode
-    #         measurement_new['last_push'] = last_push.strftime("%Y-%m-%d %H:%M:%S")
-    #         measurement_new['unit'] = unit
-    #         measurement_new['show'] = show
-    #         measurement_new['timetable'] = timetable
-    #
-    #         try:
-    #             measurement_new['max'] = params['max']
-    #             measurement_new['min'] = params['min']
-    #         except Exception as e:
-    #             measurement_new['max'] = 0
-    #             measurement_new['min'] = 0
-    #             # print('ERROR_KEY')
-    #
-    #         measurements_main.append(measurement_new)
-    #
-    # measurements_main.append(pressure)
-
-    # print('measurements', measurements)
-    # print(Debug.delimiter())
-    # print('measurements_main', measurements_main)
+    # MEDICINES
 
     query_str = "SELECT m.name, m.dosage, m.amount, m.id, m.timetable, m.show, m.last_push, m.created_at, m.mode FROM medicines m  WHERE contract_id = " + Aux.quote() + str(
         contract_id) + Aux.quote()
@@ -1633,9 +1400,6 @@ def settings():
     # Конец Формирование данных
 
     medicines = medicines_new
-    # measurements = measurements_main
-
-    # print('measurements', measurements)
 
     return render_template('settings.html',
                            medicines_data=json.dumps(medicines),
@@ -1742,11 +1506,10 @@ def action_pull(pull):
 
 @app.route('/status', methods=['POST'])
 def status():
-    print('status')
+    out_yellow('status')
 
     try:
         data = request.json
-        # print('status() | data', data)
     except Exception as e:
         print('error status()', e)
         return 'error status'
@@ -1778,8 +1541,6 @@ def status():
 def setting_save():
     contract_id = quard()
 
-    # print('/settings | POST | contract_id >> ', contract_id)
-
     if contract_id in ERRORS:
         return contract_id
 
@@ -1789,15 +1550,14 @@ def setting_save():
         print('ERROR_JSON_LOADS', e)
         return 'ERROR_JSON_LOADS'
 
-    medical_record_categories = getCategories()
-
-    for item in medical_record_categories:
-        category = item['name']
+    # medical_record_categories = getCategories()
+    #
+    # for item in medical_record_categories:
+    #     category = item['name']
 
 
     for measurement in data['measurements_data']:
         params = {}
-        id = measurement['id']
         name = measurement['name']
 
         if (name == 'pressure'):
@@ -1808,17 +1568,12 @@ def setting_save():
             params['max_pulse'] = measurement['max_pulse']
             params['min_pulse'] = measurement['min_pulse']
         else:
-            # print('measurement', measurement)
-            # print(Debug.delimiter())
-
             params['max'] = measurement['max']
             params['min'] = measurement['min']
 
-        params_new = params
+        # params_new = params
 
-        # print('params_new', params_new)
-
-        params = json.dumps(params)
+        # params = json.dumps(params)
         mode = measurement['mode']
         timetable = measurement['timetable'][0]
 
@@ -1864,21 +1619,7 @@ def setting_save():
             else:
                 timetable_new[item] = timetable[item]
 
-        timetable = timetable_new
-
-        timetable = json.dumps(timetable)
-        show = str(measurement['show'])
-
-        query_str = "UPDATE measurements set " + \
-                    " mode = " + Aux.quote() + mode + Aux.quote() + "," + \
-                    " params = " + Aux.quote() + params + Aux.quote() + "," + \
-                    " timetable = " + Aux.quote() + timetable + Aux.quote() + "," + \
-                    " show = " + Aux.quote() + show + Aux.quote() + \
-                    " WHERE id = " + Aux.quote() + str(id) + Aux.quote()
-
-        DB.query(query_str)
-
-        # print('name', name, mode, params_new, timetable_new, show)
+        show = measurement['show']
 
         try:
             if (name == 'pressure'):
@@ -1887,23 +1628,19 @@ def setting_save():
             if (name == 'shin'):
                 name = 'leg_circumference_left'
 
-            # contract_id = str(data['contract_id'])
             query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
 
             if query.count() != 0:
                 contract = query.first()
+
                 contract.mode = mode
-                contract.params = params_new
+                contract.params = params
                 contract.timetable = timetable_new
                 contract.show = show
+
                 db.session.commit()
-
-                print('name', name, mode, params_new, timetable_new, show)
-                print(Debug.delimiter())
-
-                # print('yes', contract.category)
             else:
-                print('no')
+                print('No records in category_params')
 
         except Exception as e:
             print("error query", e)
@@ -1916,7 +1653,6 @@ def setting_save():
         amount = medicine['amount']
         json__ = medicine['timetable'][0]
         timetable = json__
-        # timetable = json.dumps(json__)
         show = medicine['show']
 
         timetable_new = {}
@@ -1997,7 +1733,8 @@ def init():
     new_contract = True
 
     try:
-        contract_id = quard_data_json()
+        data = request.json
+        contract_id = quard_data_json(data)
 
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
@@ -2007,10 +1744,8 @@ def init():
 
         if actual_contract > 0:
             new_contract = False
-            print('if id > 0')
 
             try:
-                # contract_id = str(data['contract_id'])
                 query = ActualBots.query.filter_by(contract_id=contract_id)
 
                 if query.count() != 0:
@@ -2018,28 +1753,27 @@ def init():
                     contract.actual = True
                     db.session.commit()
 
-                    print("Activate contract")
+                    out_green_light("Activate contract")
                 else:
-                    print('contract not found')
+                    out_red_light('contract not found')
 
             except Exception as e:
-                print("error update contract", e)
+                out_magenta_light('ERROR CONNECTION')
+                print(e)
                 raise
 
-        print('new_contract = ', new_contract)
+        # print('new_contract = ', new_contract)
 
         if (new_contract == True):
             try:
                 actual_bots = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
-                print('actual_bots', actual_bots)
                 db.session.add(actual_bots)
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('db.session.add(actual_bots)', e)
+                out_cyan_light('ERROR CONNECTION')
+                print(e)
                 raise
-
-            preset = None
 
             if 'preset' in data:
                 preset = data['preset']
@@ -2047,8 +1781,6 @@ def init():
                 preset = None
 
             print('preset = ', preset)
-
-            preset_params = []
 
             if 'params' in data:
                 preset_params = data['params']
@@ -2466,7 +2198,8 @@ def init():
             # *************************************************************** next parameter
 
     except Exception as e:
-        print('ERROR INIT', e)
+        out_red_light('ERROR INIT')
+        print(e)
         return 'ERROR INIT'
 
     return 'ok'
@@ -2474,7 +2207,8 @@ def init():
 @app.route('/remove', methods=['POST'])
 def remove():
     try:
-        contract_id = quard_data_json()
+        data = request.json
+        contract_id = quard_data_json(data)
         id = 0
         query = ActualBots.query.filter_by(contract_id=contract_id)
 
@@ -2483,17 +2217,28 @@ def remove():
             id = contract.contract_id
 
         if id > 0:
-            query_str = "UPDATE actual_bots SET actual = false WHERE contract_id = " + Aux.quote() + str(
-                contract_id) + Aux.quote()
 
-            result = DB.query(query_str)
+            try:
+                query = ActualBots.query.filter_by(contract_id=contract_id)
 
-            if (result != 'SUCCESS_QUERY'):
-                return result
+                if query.count() != 0:
+                    contract = query.first()
+                    contract.actual = False
+                    db.session.commit()
+
+                    out_yellow("Deactivate contract")
+                else:
+                    out_red_light('contract not found')
+
+            except Exception as e:
+                out_red('ERROR CONNECTION')
+                print(e)
+                raise
 
     except Exception as e:
-        print('error >> ', e)
-        return 'ERROR INIT'
+        out_red_light('ERROR REMOVE')
+        print(e)
+        return 'ERROR REMOVE'
 
     return 'ok'
 
