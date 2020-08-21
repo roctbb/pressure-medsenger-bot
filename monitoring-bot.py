@@ -113,6 +113,7 @@ def add_record(contract_id, category_name, value, record_time=None):
 
 def post_request(data, query='/api/agents/message'):
     try:
+        print('data = ', data)
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request()', e)
@@ -232,6 +233,7 @@ def sender():
                         hours = timetable[item]
 
                         hours_array = []
+                        # hour_value = ''
 
                         for hour in hours:
                             hour_value = hour['value']
@@ -254,61 +256,77 @@ def sender():
                                 if control_time > push_time:
                                     print('Запись измерения в messages')
                                     out_cyan_light(name)
+                                    print('timetable[item]', timetable[item])
+                                    print('------------')
 
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
 
                                     pattern = hour_value
+                                    
+                                    debug_mess_out = ''
+
+                                    print('pattern = ', pattern)
+                                    print('len_hours_array = ', len_hours_array)
+                                    print('hours_array = ', hours_array)
 
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
+
+                                            print('pattern __ type = ', type(pattern))
+                                            print('hours_array __ type = ', type(hours_array[0]))
+
+
                                             if (pattern < hours_array[0]):
-                                                out_cyan_light('pattern < hours_array[0]')
+                                                # out_red_light('test')
+                                                debug_mess_out = 'pattern < hours_array[0]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[0]):
+                                                debug_mess_out = 'pattern == hours_array[0]'
                                                 out_cyan_light(pattern == hours_array[0])
                                                 action_deadline = 24
                                                 break
 
                                             if (pattern > hours_array[0]):
-                                                out_cyan_light('pattern > hours_array[0]')
+                                                debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
-                                                out_cyan_light('pattern > hours_array[0]')
+                                                debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(pattern)
                                                 break
 
                                             if (pattern == hours_array[1]):
-                                                out_cyan_light('pattern == hours_array[1]')
+                                                debug_mess_out = 'pattern == hours_array[1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                         if (len_hours_array > 2):
                                             if (pattern == hours_array[0]):
-                                                out_cyan_light('pattern == hours_array[0]')
+                                                debug_mess_out = 'pattern == hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
-                                                out_cyan_light('pattern == hours_array[len_hours_array - 1]')
+                                                debug_mess_out = 'pattern == hours_array[len_hours_array - 1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
-                                                    out_cyan_light('hours_array[i] == pattern')
+                                                    debug_mess_out = 'hours_array[i] == pattern'
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
+
+                                    print('debug_mess_out = ', debug_mess_out)
+                                    print('action_deadline = ', action_deadline)
+                                    print('time.time() = ', datetime.datetime.fromtimestamp(time.time()))
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
-
-                                    print('action_deadline', action_deadline)
-                                    print(data_deadline)
 
                                     route_name = name
 
@@ -335,6 +353,8 @@ def sender():
 
                                     out_magenta_light(id)
 
+                                    print('data_deadline = ', data_deadline)
+
                                     data = {
                                         "contract_id": contract_id,
                                         "api_key": APP_KEY,
@@ -349,6 +369,8 @@ def sender():
                                         },
                                         "hour_value": hour_value
                                     }
+
+                                    # print('data', data)
 
                                     # data_update_deadline = int(time.time()) - (4 * 60 * 60)
 
@@ -597,8 +619,8 @@ def sender():
 
                                     post_request(data)
 
-        # out_green_light('sender')
-        time.sleep(20)
+        out_green_light('sender')
+        time.sleep(10)
 
 
 def quard_data_json(data):
@@ -2254,24 +2276,37 @@ def action_pull_save(pull):
         if (shin_right < MIN_SHIN or shin_right > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
+        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+        #     contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     params = row[0]
 
-        records = DB.select(query_str)
-
-        for row in records:
-            params = row[0]
-
-        max_shin = params['max']
-        min_shin = params['min']
+        # max_shin = params['max']
+        # max_shin = params['max']
+        # min_shin = params['min']
 
         try:
-            max_shin = int(max_shin)
-            min_shin = int(min_shin)
+            query = CategoryParams.query.filter_by(contract_id=contract_id, category='leg_circumference_left')
+
+            if query.count() != 0:
+                contract = query.first()
+                params = contract.params
+        except Exception as e:
+            out_red_light('ERROR CONNECTION')
+            print(e)
+
+        print('leg_circumference_left', params['max'])
+
+        try:
+            max_shin = int(params['max'])
+            min_shin = int(params['min'])
         except Exception as e:
             max_shin = MAX_SHIN
             min_shin = MIN_SHIN
-            print("WARNING_NOT_INT", e)
+            out_yellow("WARNING_NOT_INT")
 
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
@@ -2312,13 +2347,25 @@ def action_pull_save(pull):
         if (pulse_ < MIN_PULSE or pulse_ > MAX_PULSE):
             return ERROR_OUTSIDE_PULSE
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
+        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+        #     contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     params = row[0]
 
-        records = DB.select(query_str)
+        try:
+            query = CategoryParams.query.filter_by(contract_id=contract_id, category='systolic_pressure')
 
-        for row in records:
-            params = row[0]
+            if query.count() != 0:
+                contract = query.first()
+                params = contract.params
+        except Exception as e:
+            out_red_light('ERROR CONNECTION')
+            print(e)
+
+        print('params[max_systolic', params['max_systolic'])
 
         try:
             max_systolic = int(params['max_systolic'])
@@ -2334,18 +2381,10 @@ def action_pull_save(pull):
             min_diastolic = MIN_DIASTOLIC_DEFAULT
             max_pulse = MAX_PULSE_DEFAULT
             min_pulse = MIN_PULSE_DEFAULT
-            print("WARNING_NOT_INT", e)
+            out_red_light("WARNING_NOT_INT")
 
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
-
-        query_str = "select id from measurements where contract_id = " + str(
-            contract_id) + " and name = 'systolic_pressure'"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            id = row[0]
 
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
@@ -2362,6 +2401,19 @@ def action_pull_save(pull):
 
         for row in records:
             params = row[0]
+
+        try:
+            query = CategoryParams.query.filter_by(contract_id=contract_id, category=pull)
+
+            if query.count() != 0:
+                contract = query.first()
+                params = contract.params
+                print('params = ', params)
+        except Exception as e:
+            out_red_light('ERROR CONNECTION')
+            print(e)
+
+        print('params[max]', params['max'])
 
         try:
             max = params['max']
