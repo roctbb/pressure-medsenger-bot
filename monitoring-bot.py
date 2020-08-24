@@ -776,7 +776,7 @@ def graph():
                 out_magenta_light('ERROR CONNECTION')
                 print(e)
 
-            if (category == 'systolic_pressure' or category == 'diastolic_pressure' or category == 'pulse'):
+            if (category == 'systolic_pressure'):
                 try:
                     constants['max_systolic'] = params['max_systolic']
                     constants['min_systolic'] = params['min_systolic']
