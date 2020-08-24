@@ -218,6 +218,10 @@ def sender():
             id = record[0]
             contract_id = record[1]
             name = record[2]
+
+            if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
+                continue
+
             mode = record[3]
             params = record[4]
             timetable = record[5]
@@ -333,14 +337,14 @@ def sender():
                                     if (name == 'systolic_pressure'):
                                         route_name = 'pressure'
 
-                                    if (name == 'diastolic_pressure'):
-                                        route_name = 'pressure'
+                                    # if (name == 'diastolic_pressure'):
+                                    #     route_name = 'pressure'
 
                                     if (name == 'shin_volume_left'):
                                         route_name = 'shin'
 
-                                    if (name == 'shin_volume_right'):
-                                        route_name = 'shin'
+                                    # if (name == 'shin_volume_right'):
+                                    #     route_name = 'shin'
 
                                     if (name == 'leg_circumference_left'):
                                         route_name = 'shin'
