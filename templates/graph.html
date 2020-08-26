@@ -1928,205 +1928,205 @@
 
     <!-- Chart donat -->
     <script>
-        {#let data = [];#}
-        let model_donat = {};
-
-        am4core.ready(function() {
-            // COMMON DONAT DIAGRAM SYS
-            model_donat['systolic'] = {{ systolic | safe }};
-            // Themes begin
+        {#let model_donat = {};#}
+        {##}
+        {#am4core.ready(function() {#}
+        {#    // COMMON DONAT DIAGRAM SYS#}
+        {#    model_donat['systolic'] = {{ systolic | safe }};#}
+        {#    // Themes begin#}
             {#am4core.useTheme(am4themes_dark);#}
-            am4core.useTheme(am4themes_animated);
-            // Themes end
-
-            // Create chart instance
-            var chart = am4core.create("sys-stat-donat", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-
-            let stat =  model_donat['systolic']
-
+        {#    am4core.useTheme(am4themes_animated);#}
+        {#    // Themes end#}
+        {##}
+        {#    // Create chart instance#}
+        {#    var chart = am4core.create("sys-stat-donat", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {##}
+        {#    let stat =  model_donat['systolic']#}
+        {##}
             {#console.log('stat', stat['sys_slice_normal'], stat['sys_slice_critical']);#}
-
-            // Add data
-            chart.data = [ {
-                "country": "Нормальное",
-                "amount": stat['sys_slice_normal'],
-            }, {
-              "country": "Высокое",
-              "amount": stat['sys_slice_critical'],
-            }
-            ];
-
-            // Set inner radius
-            chart.innerRadius = am4core.percent(50);
-
-            // Add and configure Series
-            var pieSeries = chart.series.push(new am4charts.PieSeries());
-
-            var colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-              return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-
-            // This creates initial animation
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-            // COMMON DONAT DIAGRAM DIA
-            chart = am4core.create("dia-stat-donat", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-            stat =  {{ diastolic | safe }};
-            chart.data = [
-                {
-                    "country": "Нормальное",
-                    "amount": stat['dia_slice_normal'],
-                }, {
-                    "country": "Высокое",
-                    "amount": stat['dia_slice_critical'],
-                }
-            ];
-            chart.innerRadius = am4core.percent(50);
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-            colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-              return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-            // MONTH DONAT DIAGRAM DIA
-            chart = am4core.create("dia-stat-month", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-            stat =  {{ diastolic | safe }};
-            chart.data = [
-                {
-                    "country": "Нормальное",
-                    "amount": stat['dia_slice_normal_month'],
-                }, {
-                    "country": "Высокое",
-                    "amount": stat['dia_slice_critical_month'],
-                }
-            ];
-            chart.innerRadius = am4core.percent(50);
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-            colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-              return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-            // WEEK DONAT DIAGRAM DIA
-            chart = am4core.create("dia-stat-week", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-            stat =  {{ diastolic | safe }};
-            chart.data = [
-                {
-                    "country": "Нормальное",
-                    "amount": stat['dia_slice_normal_week'],
-                }, {
-                    "country": "Высокое",
-                    "amount": stat['dia_slice_critical_week'],
-                }
-            ];
-            chart.innerRadius = am4core.percent(50);
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-            colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-              return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-            // WEEK DONAT DIAGRAM SYS 3
-            chart = am4core.create("sys-stat-week", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-            stat =  model_donat['systolic'];
-            chart.data = [
-                {
-                    "country": "Нормальное",
-                    "amount": stat['sys_slice_normal_week'],
-                }, {
-                    "country": "Высокое",
-                    "amount": stat['sys_slice_critical_week'],
-                }
-            ];
-            chart.innerRadius = am4core.percent(50);
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-            colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-                return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-            // MONTH DONAT DIAGRAM SYS 4
-            chart = am4core.create("sys-stat-month", am4charts.PieChart);
-            chart.language.locale = am4lang_ru_RU;
-            stat =  model_donat['systolic'];
-            chart.data = [
-                {
-                    "country": "Нормальное",
-                    "amount": stat['sys_slice_normal_month'],
-                }, {
-                    "country": "Высокое",
-                    "amount": stat['sys_slice_critical_month'],
-                }
-            ];
-            chart.innerRadius = am4core.percent(50);
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-            colorSet = new am4core.ColorSet();
-            colorSet.list = ["#009933", "#e62e00"].map(function(color) {
-                return new am4core.color(color);
-            });
-            pieSeries.colors = colorSet;
-            pieSeries.dataFields.value = "amount";
-            pieSeries.dataFields.category = "country";
-            pieSeries.slices.template.stroke = am4core.color("#fff");
-            pieSeries.slices.template.strokeWidth = 2;
-            pieSeries.slices.template.strokeOpacity = 1;
-            pieSeries.hiddenState.properties.opacity = 1;
-            pieSeries.hiddenState.properties.endAngle = -50;
-            pieSeries.hiddenState.properties.startAngle = -50;
-
-
-        }); // end am4core.ready()ready
+        {##}
+        {#    // Add data#}
+        {#    chart.data = [ {#}
+        {#        "country": "Нормальное",#}
+        {#        "amount": stat['sys_slice_normal'],#}
+        {#    }, {#}
+        {#      "country": "Высокое",#}
+        {#      "amount": stat['sys_slice_critical'],#}
+        {#    }#}
+        {#    ];#}
+        {##}
+        {#    // Set inner radius#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {##}
+        {#    // Add and configure Series#}
+        {#    var pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {##}
+        {#    var colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#      return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {##}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {##}
+        {#    // This creates initial animation#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {#    // COMMON DONAT DIAGRAM DIA#}
+        {#    chart = am4core.create("dia-stat-donat", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {#    stat =  {{ diastolic | safe }};#}
+        {#    chart.data = [#}
+        {#        {#}
+        {#            "country": "Нормальное",#}
+        {#            "amount": stat['dia_slice_normal'],#}
+        {#        }, {#}
+        {#            "country": "Высокое",#}
+        {#            "amount": stat['dia_slice_critical'],#}
+        {#        }#}
+        {#    ];#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {#    colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#      return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {#    // MONTH DONAT DIAGRAM DIA#}
+        {#    chart = am4core.create("dia-stat-month", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {#    stat =  {{ diastolic | safe }};#}
+        {#    chart.data = [#}
+        {#        {#}
+        {#            "country": "Нормальное",#}
+        {#            "amount": stat['dia_slice_normal_month'],#}
+        {#        }, {#}
+        {#            "country": "Высокое",#}
+        {#            "amount": stat['dia_slice_critical_month'],#}
+        {#        }#}
+        {#    ];#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {#    colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#      return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {#    // WEEK DONAT DIAGRAM DIA#}
+        {#    chart = am4core.create("dia-stat-week", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {#    stat =  {{ diastolic | safe }};#}
+        {#    chart.data = [#}
+        {#        {#}
+        {#            "country": "Нормальное",#}
+        {#            "amount": stat['dia_slice_normal_week'],#}
+        {#        }, {#}
+        {#            "country": "Высокое",#}
+        {#            "amount": stat['dia_slice_critical_week'],#}
+        {#        }#}
+        {#    ];#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {#    colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#      return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {#    // WEEK DONAT DIAGRAM SYS 3#}
+        {#    chart = am4core.create("sys-stat-week", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {#    stat =  model_donat['systolic'];#}
+        {#    chart.data = [#}
+        {#        {#}
+        {#            "country": "Нормальное",#}
+        {#            "amount": stat['sys_slice_normal_week'],#}
+        {#        }, {#}
+        {#            "country": "Высокое",#}
+        {#            "amount": stat['sys_slice_critical_week'],#}
+        {#        }#}
+        {#    ];#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {#    colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#        return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {#    // MONTH DONAT DIAGRAM SYS 4#}
+        {#    chart = am4core.create("sys-stat-month", am4charts.PieChart);#}
+        {#    chart.language.locale = am4lang_ru_RU;#}
+        {#    stat =  model_donat['systolic'];#}
+        {#    chart.data = [#}
+        {#        {#}
+        {#            "country": "Нормальное",#}
+        {#            "amount": stat['sys_slice_normal_month'],#}
+        {#        }, {#}
+        {#            "country": "Высокое",#}
+        {#            "amount": stat['sys_slice_critical_month'],#}
+        {#        }#}
+        {#    ];#}
+        {#    chart.innerRadius = am4core.percent(50);#}
+        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
+        {#    colorSet = new am4core.ColorSet();#}
+        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
+        {#        return new am4core.color(color);#}
+        {#    });#}
+        {#    pieSeries.colors = colorSet;#}
+        {#    pieSeries.dataFields.value = "amount";#}
+        {#    pieSeries.dataFields.category = "country";#}
+        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
+        {#    pieSeries.slices.template.strokeWidth = 2;#}
+        {#    pieSeries.slices.template.strokeOpacity = 1;#}
+        {#    pieSeries.hiddenState.properties.opacity = 1;#}
+        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
+        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
+        {##}
+        {##}
+        {#}); #}
+        // end am4core.ready()ready
     </script>
 
     <!-- Chart pressure -->

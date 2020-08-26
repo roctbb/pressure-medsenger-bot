@@ -2417,8 +2417,6 @@ def action_pull_save(pull):
             out_red_light('ERROR CONNECTION')
             print(e)
 
-        print('params[max]', params['max'])
-
         try:
             max = params['max']
             min = params['min']
