@@ -259,9 +259,10 @@ def sender():
                             if diff_current_control > 0:
                                 if control_time > push_time:
                                     print('Запись измерения в messages')
+                                    print('contract_id = ', contract_id)
+
                                     out_cyan_light(name)
-                                    print('timetable[item]', timetable[item])
-                                    print('------------')
+                                    # print('timetable[item]', timetable[item])
 
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
@@ -270,15 +271,15 @@ def sender():
                                     
                                     debug_mess_out = ''
 
-                                    print('pattern = ', pattern)
-                                    print('len_hours_array = ', len_hours_array)
-                                    print('hours_array = ', hours_array)
+                                    # print('pattern = ', pattern)
+                                    # print('len_hours_array = ', len_hours_array)
+                                    # print('hours_array = ', hours_array)
 
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
 
-                                            print('pattern __ type = ', type(pattern))
-                                            print('hours_array __ type = ', type(hours_array[0]))
+                                            # print('pattern __ type = ', type(pattern))
+                                            # print('hours_array __ type = ', type(hours_array[0]))
 
 
                                             if (pattern < hours_array[0]):
@@ -325,9 +326,9 @@ def sender():
                                                     debug_mess_out = 'hours_array[i] == pattern'
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
 
-                                    print('debug_mess_out = ', debug_mess_out)
-                                    print('action_deadline = ', action_deadline)
-                                    print('time.time() = ', datetime.datetime.fromtimestamp(time.time()))
+                                    # print('debug_mess_out = ', debug_mess_out)
+                                    # print('action_deadline = ', action_deadline)
+                                    # print('time.time() = ', datetime.datetime.fromtimestamp(time.time()))
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
@@ -357,7 +358,7 @@ def sender():
 
                                     out_magenta_light(id)
 
-                                    print('data_deadline = ', data_deadline)
+                                    # print('data_deadline = ', data_deadline)
 
                                     data = {
                                         "contract_id": contract_id,
