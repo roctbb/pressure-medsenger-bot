@@ -624,8 +624,8 @@ def sender():
 
                                     post_request(data)
 
-        out_green_light('sender')
-        time.sleep(10)
+        # out_green_light('sender')
+        time.sleep(20)
 
 
 def quard_data_json(data):
