@@ -1803,7 +1803,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=True)
 
                 db.session.add(category_params)
 
@@ -1931,7 +1932,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=True)
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -1986,7 +1988,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=True)
 
                 db.session.add(category_params)
                 db.session.commit()
