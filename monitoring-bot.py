@@ -2055,7 +2055,29 @@ def init():
                 "min": MIN_SHIN_DEFAULT
             }
 
+            # *************************************************************** leg_circumference_left
+
             if (preset == 'heartfailure'):
+                try:
+                    name = 'leg_circumference_left'
+
+                    category_params = CategoryParams(contract_id=contract_id,
+                                                     category=name,
+                                                     mode=mode,
+                                                     params=params,
+                                                     timetable=timetable,
+                                                     created_at=datetime.datetime.now(),
+                                                     updated_at=datetime.datetime.now(),
+                                                     last_push=datetime.datetime.now(),
+                                                     show=True)
+
+                    db.session.add(category_params)
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    print('ERROR add temperature in category_params >> )', e)
+                    raise
+
                 name = 'shin'
 
                 data = {
@@ -2073,29 +2095,7 @@ def init():
                 }
 
                 delayed(1, post_request, [data])
-            else:
-                params = {}
 
-            # *************************************************************** leg_circumference_left
-
-            try:
-                name = 'leg_circumference_left'
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
-                raise
 
             # *************************************************************** leg_circumference_right
 
