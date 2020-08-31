@@ -644,11 +644,43 @@ def actions():
 
     if data['api_key'] != APP_KEY:
         return 'invalid key'
-    answer = [{
-        "link": "frame/pressure",
-        "type": "both",
-        "name": "Измерить давление"
-    }]
+    answer = [
+        {
+            "link": "frame/pressure",
+            "type": "patient",
+            "name": "Измерить давление"
+        },
+        {
+            "link": "frame/weight",
+            "type": "both",
+            "name": "Измерить вес"
+        },
+        {
+            "link": "frame/temperature",
+            "type": "patient",
+            "name": "Измерить температуру"
+        },
+        {
+            "link": "frame/shin",
+            "type": "patient",
+            "name": "Измерить обхват голени"
+        },
+        {
+            "link": "frame/glukose",
+            "type": "patient",
+            "name": "Измерить глюкозу"
+        },
+        {
+            "link": "frame/waist",
+            "type": "patient",
+            "name": "Измерить окружность талии"
+        },
+        {
+             "link": "frame/spo2",
+             "type": "patient",
+             "name": "Измерить уровень насыщения крови"
+        }
+    ]
 
     print('answer = ', answer)
 
