@@ -1714,7 +1714,7 @@ def init():
             #  *************************************************************** systolic
 
             try:
-                max_systolic = (preset_params['max_systolic'])
+                max_systolic = preset_params['max_systolic']
             except Exception as e:
                 max_systolic = MAX_SYSTOLIC_DEFAULT
 
@@ -1774,26 +1774,95 @@ def init():
                     "max_pulse": max_pulse,
                     "min_pulse": min_pulse
                 }
-
-                name = 'pressure'
-
-                data = {
-                    "contract_id": contract_id,
-                    "api_key": APP_KEY,
-                    "message": {
-                        "text": MESS_MEASUREMENT[name]['text'],
-                        "action_link": "frame/" + name,
-                        "action_deadline": time.time() + (60 * 60 * 24),
-                        "action_name": MESS_MEASUREMENT[name]['action_name'],
-                        "action_onetime": True,
-                        "only_doctor": False,
-                        "only_patient": True,
-                    }
-                }
-
-                delayed(1, post_request, [data])
             else:
-                params = {}
+                if (preset_params == None):
+                    params = {
+                        "max_systolic": MAX_SYSTOLIC_DEFAULT,
+                        "min_systolic": MIN_SYSTOLIC_DEFAULT,
+                        "max_diastolic": MAX_DIASTOLIC_DEFAULT,
+                        "min_diastolic": MIN_DIASTOLIC_DEFAULT,
+                        "max_pulse": MAX_PULSE,
+                        "min_pulse": MIN_PULSE
+                    }
+                else:
+                    try:
+                        current_systolic = preset_params['current_systolic']
+                    except Exception as e:
+                        current_systolic = 0
+
+                    if (current_systolic > 0):
+                        try:
+                            max_systolic = current_systolic + (current_systolic // 3)
+                        except Exception as e:
+                            max_systolic = MAX_SYSTOLIC_DEFAULT
+
+                        try:
+                            min_systolic = current_systolic - (current_systolic // 3)
+                        except Exception as e:
+                            min_systolic = MIN_SYSTOLIC_DEFAULT
+
+                    #
+
+                    try:
+                        current_diastolic = preset_params['current_diastolic']
+                    except Exception as e:
+                        current_diastolic = 0
+
+                    if (current_diastolic > 0):
+                        try:
+                            max_diastolic = current_diastolic + (current_diastolic // 3)
+                        except Exception as e:
+                            max_diastolic = MAX_DIASTOLIC_DEFAULT
+
+                        try:
+                            min_diastolic = current_diastolic - (current_diastolic // 3)
+                        except Exception as e:
+                            min_diastolic = MIN_DIASTOLIC_DEFAULT
+
+                    #
+
+                    try:
+                        current_pulse = preset_params['current_pulse']
+                    except Exception as e:
+                        current_pulse = 0
+
+                    if (current_pulse > 0):
+                        try:
+                            max_pulse = current_pulse + (current_pulse // 3)
+                        except Exception as e:
+                            max_pulse = MAX_PULSE_DEFAULT
+
+                        try:
+                            min_pulse = current_pulse - (current_pulse // 3)
+                        except Exception as e:
+                            min_pulse = MIN_PULSE_DEFAULT
+
+                    params = {
+                        "max_systolic": max_systolic,
+                        "min_systolic": min_systolic,
+                        "max_diastolic": max_diastolic,
+                        "min_diastolic": min_diastolic,
+                        "max_pulse": max_pulse,
+                        "min_pulse": min_pulse
+                    }
+
+            name = 'pressure'
+
+            data = {
+                "contract_id": contract_id,
+                "api_key": APP_KEY,
+                "message": {
+                    "text": MESS_MEASUREMENT[name]['text'],
+                    "action_link": "frame/" + name,
+                    "action_deadline": time.time() + (60 * 60 * 24),
+                    "action_name": MESS_MEASUREMENT[name]['action_name'],
+                    "action_onetime": True,
+                    "only_doctor": False,
+                    "only_patient": True,
+                }
+            }
+
+            delayed(1, post_request, [data])
 
             try:
                 category_params = CategoryParams(contract_id=contract_id,
