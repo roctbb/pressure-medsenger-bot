@@ -1656,12 +1656,16 @@ def setting_save():
 def init():
     new_contract = True
 
+    print('init')
+
     try:
         data = request.json
         contract_id = quard_data_json(data)
 
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
+
+        print(actual_bots)
 
         for actual_bot in actual_bots:
             actual_contract = actual_bot.contract_id
