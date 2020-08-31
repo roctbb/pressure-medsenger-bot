@@ -638,6 +638,23 @@ def server_error(error):
 #     return 'graph_test()'
 
 
+@app.route('/actions', methods=['POST'])
+def actions():
+    data = request.json
+
+    if data['api_key'] != APP_KEY:
+        return 'invalid key'
+    answer = [{
+        "link": "/test",
+        "type": "both",
+        "name": "test"
+    }]
+
+    print('answer = ', answer)
+
+    return json.dumps(answer)
+
+
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = quard()
