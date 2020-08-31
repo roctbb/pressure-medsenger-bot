@@ -2212,8 +2212,6 @@ def action_pull_save(pull):
             out_red_light('ERROR CONNECTION')
             print(e)
 
-        print('leg_circumference_left', params['max'])
-
         try:
             max_shin = int(params['max'])
             min_shin = int(params['min'])
