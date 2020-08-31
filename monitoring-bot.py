@@ -645,9 +645,9 @@ def actions():
     if data['api_key'] != APP_KEY:
         return 'invalid key'
     answer = [{
-        "link": "/test",
+        "link": "/pressure",
         "type": "both",
-        "name": "test"
+        "name": "Измерить давление"
     }]
 
     print('answer = ', answer)
