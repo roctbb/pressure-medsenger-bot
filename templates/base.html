@@ -19,6 +19,17 @@
 
     {% block style %}
     <style>
+        .success {
+            color: #28a745;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .max-width-500 {
+            max-width: 500px !important;
+        }
         .fs12 {
             font-size: 12px;
         }
@@ -39,6 +50,10 @@
 
         .w100 {
             width: 100% !important;
+        }
+
+        .w25 {
+            width: 25%;
         }
 
         .mt15 {
@@ -101,7 +116,7 @@
         const get = getElement
 
         const log = (data) => {
-            console.log('console.log >> ', data)
+            console.warn('log >> ', data)
         }
 
         const app = new Vue({
@@ -138,11 +153,11 @@
             console.log('focus_el', focus_el)
         }
 
-        /*
-        focus_el.addEventListener('DOMContentLoaded', (event) => {
-            console.log('DOMContentLoaded');
-        })
-        */
+
+        {#focus_el.addEventListener('DOMContentLoaded', (event) => {#}
+        {#    console.log('DOMContentLoaded');#}
+        {#})#}
+
 
         const Aux = {
             'show': function(el) {

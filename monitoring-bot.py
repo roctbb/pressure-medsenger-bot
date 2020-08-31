@@ -3,7 +3,6 @@ from init import *
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
-    # id = db.Column(db.Integer, primary_key=True)
     contract_id = db.Column(db.Integer, primary_key=True)
     actual = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
@@ -61,8 +60,6 @@ def getCategories():
         if (response.status_code == 200):
             return json.loads(response.text)
 
-        # print('response.status_code = ', response.status_code)
-
         return response.status_code
 
 
@@ -81,8 +78,6 @@ def getRecords(contract_id, category_name):
         response = requests.post(MAIN_HOST + '/api/agents/records/get', json=data_request)
 
         if (response.status_code == 200):
-            # print(json.loads(response.text))
-
             return json.loads(response.text)
 
         print('response.status_code = ', response.status_code)
@@ -269,7 +264,7 @@ def sender():
 
                                     pattern = hour_value
                                     
-                                    debug_mess_out = ''
+                                    # debug_mess_out = ''
 
                                     # print('pattern = ', pattern)
                                     # print('len_hours_array = ', len_hours_array)
@@ -277,58 +272,48 @@ def sender():
 
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
-
-                                            # print('pattern __ type = ', type(pattern))
-                                            # print('hours_array __ type = ', type(hours_array[0]))
-
-
                                             if (pattern < hours_array[0]):
-                                                # out_red_light('test')
-                                                debug_mess_out = 'pattern < hours_array[0]'
+                                                # debug_mess_out = 'pattern < hours_array[0]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[0]):
-                                                debug_mess_out = 'pattern == hours_array[0]'
+                                                # debug_mess_out = 'pattern == hours_array[0]'
                                                 out_cyan_light(pattern == hours_array[0])
                                                 action_deadline = 24
                                                 break
 
                                             if (pattern > hours_array[0]):
-                                                debug_mess_out = 'pattern > hours_array[0]'
+                                                # debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
-                                                debug_mess_out = 'pattern > hours_array[0]'
+                                                # debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(pattern)
                                                 break
 
                                             if (pattern == hours_array[1]):
-                                                debug_mess_out = 'pattern == hours_array[1]'
+                                                # debug_mess_out = 'pattern == hours_array[1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                         if (len_hours_array > 2):
                                             if (pattern == hours_array[0]):
-                                                debug_mess_out = 'pattern == hours_array[0]'
+                                                # debug_mess_out = 'pattern == hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
-                                                debug_mess_out = 'pattern == hours_array[len_hours_array - 1]'
+                                                # debug_mess_out = 'pattern == hours_array[len_hours_array - 1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
-                                                    debug_mess_out = 'hours_array[i] == pattern'
+                                                    # debug_mess_out = 'hours_array[i] == pattern'
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-
-                                    # print('debug_mess_out = ', debug_mess_out)
-                                    # print('action_deadline = ', action_deadline)
-                                    # print('time.time() = ', datetime.datetime.fromtimestamp(time.time()))
 
                                     action_deadline = action_deadline * 60 * 60
                                     data_deadline = int(time.time()) + action_deadline
@@ -338,14 +323,8 @@ def sender():
                                     if (name == 'systolic_pressure'):
                                         route_name = 'pressure'
 
-                                    # if (name == 'diastolic_pressure'):
-                                    #     route_name = 'pressure'
-
                                     if (name == 'shin_volume_left'):
                                         route_name = 'shin'
-
-                                    # if (name == 'shin_volume_right'):
-                                    #     route_name = 'shin'
 
                                     if (name == 'leg_circumference_left'):
                                         route_name = 'shin'
@@ -357,8 +336,6 @@ def sender():
                                         route_name = 'waist'
 
                                     out_magenta_light(id)
-
-                                    # print('data_deadline = ', data_deadline)
 
                                     data = {
                                         "contract_id": contract_id,
@@ -403,8 +380,8 @@ def sender():
                                         if query.count() != 0:
                                             contract = query.first()
                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
-                                            print('contract.last_push', contract.last_push)
-                                            print('datetime.datetime.fromtimestamp(current_time)', datetime.datetime.fromtimestamp(current_time))
+                                            # print('contract.last_push', contract.last_push)
+                                            # print('datetime.datetime.fromtimestamp(current_time)', datetime.datetime.fromtimestamp(current_time))
                                             db.session.commit()
                                     except Exception as e:
                                         out_red_light('ERROR CONNECTION')
@@ -458,7 +435,6 @@ def sender():
                             if (hour_value == 24):
                                 hour_value = 0
 
-                            # hours_array.append(hour_value)
                             medicine_date = datetime.datetime(date.year, date.month, date.day, int(hour_value), 0, 0)
 
                             control_time = medicine_date.timestamp()
@@ -476,78 +452,41 @@ def sender():
                                     pattern = hour_value
 
                                     for i in range(len_hours_array):
-                                        # action_deadline = 0
-
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('111 pattern < hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = 24
-                                                print('112 pattern == hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
 
                                             if (pattern > hours_array[0]):
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                print('113 pattern > hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(pattern)
-                                                print('221 pattern < hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
 
                                             if (pattern == hours_array[1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('222 pattern > hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
-
-                                            # if (pattern > hours_array[0] and pattern < hours_array[1]):
-                                            #     action_deadline = hours_array[0] - pattern
-                                            #     print('23 pattern < hours_array[0]', action_deadline)
-                                            #     break
 
                                         if (len_hours_array > 2):
 
                                             if (pattern == hours_array[0]):
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                print('331 pattern <= hours_array[0]', hours_array[0], pattern,
-                                                      action_deadline)
                                                 break
-
-                                            # if (pattern == hours_array[0]):
-                                            #     action_deadline = hours_array[0] - pattern
-                                            #     print('31 pattern <= hours_array[0]', hours_array[0], pattern,
-                                            #           action_deadline)
-                                            #     break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                print('332 pattern >= hours_array[len_hours_array-1]', hours_array[0],
-                                                      pattern, action_deadline)
                                                 break
 
                                             if (i > 0):
-                                                # true_hour = hours_array[i]
-
                                                 if (hours_array[i] == pattern):
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-                                                    print('333 hours_array[i] >= pattern', hours_array[0], pattern,
-                                                          action_deadline)
-                                                    # break
-
-                                    # if (action_deadline > 0):
-                                    #     deadline = action_deadline
-
-                                    # print('action_deadline', action_deadline)
 
                                     data_deadline = int(time.time()) + (action_deadline * 60 * 60)
 
@@ -565,14 +504,7 @@ def sender():
                                         }
                                     }
 
-                                    # print('name medicine', name)
-                                    # print('data_deadline medicine', data_deadline - 600)
-                                    # print('int(time.time()) medicine', int(time.time()))
-                                    # print(Debug.delimiter())
-
                                     data_update_deadline = int(time.time()) - (4 * 60 * 60)
-
-                                    # print('data_update_deadline | medicine', data_update_deadline)
 
                                     data_update = {
                                         "contract_id": contract_id,
@@ -581,28 +513,10 @@ def sender():
                                         "action_deadline": data_update_deadline
                                     }
 
-                                    # print('data_update', data_update)
-
                                     try:
                                         query = '/api/agents/correct_action_deadline'
-                                        # print('post request')
-                                        # print('MAIN_HOST + query', MAIN_HOST + query)
-                                        # print('data', data)
-
-                                        # print('data_update', type(data_update), data_update)
-                                        # print(Debug.delimiter())
-
-                                        # data_update = json.dumps(data_update)
-
-                                        # print('data_update dumps', type(data_update), data_update)
-                                        # print(Debug.delimiter())
 
                                         response = requests.post(MAIN_HOST + query, json=data_update)
-                                        # print('response | medicine: ', MAIN_HOST + query, response.status_code)
-                                        # print(Debug.delimiter())
-
-                                        # if (response.status_code == 200):
-                                        #     print('requests.post', response.text)
                                     except Exception as e:
                                         print('error requests.post', e)
 
@@ -613,9 +527,6 @@ def sender():
                                                 str(datetime.datetime.fromtimestamp(
                                                     current_time).isoformat()) + Aux.quote() + \
                                                 " WHERE id = '" + str(id) + Aux.quote()
-
-                                    # print('query_str medicines', query_str)
-                                    # print(Debug.delimiter())
 
                                     DB.query(query_str)
 
@@ -711,27 +622,27 @@ def server_error(error):
     return render_template('500.html', title=title, error_text=error_text), 500
 
 
-@app.route('/graph-test', methods=['GET'])
-def graph_test():
-    contract_id = quard()
-
-    proc = Process(target=zzz, args=(contract_id,))
-    proc.start()
-    print('proc', proc)
-    proc. join()
-    proc.close()
-    print('proc close', proc)
-
-    print('graph_test()')
-
-    return 'graph_test()'
+# @app.route('/graph-test', methods=['GET'])
+# def graph_test():
+#     contract_id = quard()
+#
+#     proc = Process(target=zzz, args=(contract_id,))
+#     proc.start()
+#     print('proc', proc)
+#     proc. join()
+#     proc.close()
+#     print('proc close', proc)
+#
+#     print('graph_test()')
+#
+#     return 'graph_test()'
 
 
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = quard()
 
-    print('graph()')
+    print('/graph')
 
     constants = {}
     systolic = []
@@ -749,7 +660,6 @@ def graph():
     medicines_trace_times = []
     medicines_trace_data = {}
     medicines_times_ = []
-    time_placeholder = "%Y-%m-%d %H:%M:%S"
     dosage = []
     amount = []
 
@@ -853,10 +763,7 @@ def graph():
                     constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
-            # print(category , type(category), type('temperature'))
-            # print('---')
-
-        print('constants', constants)
+        print('constants = ', contract_id, constants)
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
@@ -1199,8 +1106,6 @@ def graph():
 
 @app.route('/settings', methods=['GET'])
 def settings():
-    print('settings')
-
     try:
         contract_id = quard()
         # print('contract_id', contract_id)
@@ -1214,10 +1119,6 @@ def settings():
     if (contract_id == ERROR_CONTRACT):
         return ERROR_CONTRACT
 
-    # query_str = "SELECT * FROM measurements WHERE contract_id = " + Aux.quote() + str(contract_id) + Aux.quote()
-    #
-    # records = DB.select(query_str)
-
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
     categories = getCategories()
     categories_description = {}
@@ -1229,10 +1130,6 @@ def settings():
         description = category['description']
         categories_description[name] = description
         categories_unit[name] = unit
-
-    # print(categories_unit)
-    # print(categories_description)
-    # print(Debug.delimiter())
 
     measurements = []
     pressure = {}
@@ -1310,8 +1207,6 @@ def settings():
                 pressure['max_pulse'] = MAX_PULSE_DEFAULT
                 pressure['min_pulse'] = MIN_PULSE_DEFAULT
 
-            # print(pressure)
-
             measurements.append(pressure)
 
         out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left', 'leg_circumference_right']
@@ -1343,9 +1238,6 @@ def settings():
                 measurement_new['min'] = 0
 
             measurements.append(measurement_new)
-
-            # print('measurements', measurements, type(measurements))
-            # print(Debug.delimiter())
 
     # MEDICINES
 
@@ -1421,22 +1313,69 @@ def medicine_done(uid):
 
     return MESS_THANKS
 
+@app.route('/medicines', methods=['GET'])
+def medicines():
+    contract_id = quard()
+
+    query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(contract_id) + Aux.quote() + ' AND show = true'
+
+    print('query_str = ', query_str)
+
+    records = DB.select(query_str)
+
+    medicine_data = {}
+
+    for row in records:
+        id = row[0]
+        name = row[1]
+
+        medicine_data[name] = {
+            'id': id,
+            'action_link': 'http://localhost:8000/api/client/agents/' + str(contract_id) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
+        }
+
+        print(row[0], row[1])
+
+    print('medicine_data = ', medicine_data)
+    print(Debug.delimiter())
+
+    return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
+
+@app.route('/medicine/add', methods=['POST'])
+def medicine_done_post():
+    result = quard_data_json()
+
+    return result
+
+    # if result in ERRORS:
+    #     return result
+    #
+    # query_str = "INSERT INTO medicines_results VALUES(nextval('medicines_results$id$seq')," + \
+    #             Aux.quote() + str(uid) + Aux.quote() + \
+    #             ",(select * from now()), (select * from now()), (select * from now()))"
+    #
+    # result = DB.query(query_str)
+    #
+    # if (result != 'SUCCESS_QUERY'):
+    #     return result
+    #
+    # return MESS_THANKS
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
     print('pull', pull)
 
-    auth = quard()
+    quard()
 
     constants = {}
 
-    if (auth == 'ERROR_KEY'):
-        print('/frame ERROR_KEY')
-        return ERROR_KEY
-
-    if (auth == 'ERROR_CONTRACT'):
-        print('/frame ERROR_CONTRACT')
-        return ERROR_CONTRACT
+    # if (auth == 'ERROR_KEY'):
+    #     print('/frame ERROR_KEY')
+    #     return ERROR_KEY
+    #
+    # if (auth == 'ERROR_CONTRACT'):
+    #     print('/frame ERROR_CONTRACT')
+    #     return ERROR_CONTRACT
 
     if (pull == 'shin'):
         constants['shin_max'] = MAX_SHIN
@@ -1460,7 +1399,7 @@ def action_pull(pull):
 
         return render_template('measurement.html', tmpl=pull, constants=constants)
 
-        # return render_template('pressure.html', tmpl=pull, constants=constants)
+        # return render_template('weight.html', tmpl=pull, constants=constants)
 
     if (pull == 'temperature'):
         constants['temperature_max'] = MAX_TEMPERATURE
@@ -1528,8 +1467,6 @@ def status():
         "tracked_contracts": tracked_contracts
     }
 
-    # print('answer', answer)
-
     return json.dumps(answer)
 
 
@@ -1546,12 +1483,6 @@ def setting_save():
         print('ERROR_JSON_LOADS', e)
         return 'ERROR_JSON_LOADS'
 
-    # medical_record_categories = getCategories()
-    #
-    # for item in medical_record_categories:
-    #     category = item['name']
-
-
     for measurement in data['measurements_data']:
         params = {}
         name = measurement['name']
@@ -1567,9 +1498,6 @@ def setting_save():
             params['max'] = measurement['max']
             params['min'] = measurement['min']
 
-        # params_new = params
-
-        # params = json.dumps(params)
         mode = measurement['mode']
         timetable = measurement['timetable'][0]
 
@@ -1757,8 +1685,6 @@ def init():
                 out_magenta_light('ERROR CONNECTION')
                 print(e)
                 raise
-
-        # print('new_contract = ', new_contract)
 
         if (new_contract == True):
             try:
@@ -2213,7 +2139,6 @@ def remove():
             id = contract.contract_id
 
         if id > 0:
-
             try:
                 query = ActualBots.query.filter_by(contract_id=contract_id)
 
@@ -2247,11 +2172,9 @@ def action_pull_save(pull):
     contract_id = quard()
 
     if (contract_id in ERRORS):
-        # print('contract_id', contract_id)
         return contract_id
 
     if (pull in AVAILABLE_MEASUREMENTS):
-        # print('pull in AVAILABLE_MEASUREMENTS', pull)
         param = pull
         param_value = request.form.get(param, '')
         comments = request.form.get('comments', '')
@@ -2267,31 +2190,17 @@ def action_pull_save(pull):
             shin_left = int(shin_left)
         except Exception as e:
             shin_left = MAX_SHIN_DEFAULT
-            print('Exception int(shin_left)', e)
 
         try:
             shin_right = int(shin_right)
         except Exception as e:
             shin_right = MAX_SHIN_DEFAULT
-            print('Exception int(shin_right)', e)
 
         if (shin_left < MIN_SHIN or shin_left > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
 
         if (shin_right < MIN_SHIN or shin_right > MAX_SHIN):
             return ERROR_OUTSIDE_SHIN
-
-        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-        #     contract_id) + Aux.quote() + " and name = 'shin_volume_left'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     params = row[0]
-
-        # max_shin = params['max']
-        # max_shin = params['max']
-        # min_shin = params['min']
 
         try:
             query = CategoryParams.query.filter_by(contract_id=contract_id, category='leg_circumference_left')
@@ -2352,14 +2261,6 @@ def action_pull_save(pull):
         if (pulse_ < MIN_PULSE or pulse_ > MAX_PULSE):
             return ERROR_OUTSIDE_PULSE
 
-        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-        #     contract_id) + Aux.quote() + " and name = 'systolic_pressure'"
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     params = row[0]
-
         try:
             query = CategoryParams.query.filter_by(contract_id=contract_id, category='systolic_pressure')
 
@@ -2370,22 +2271,17 @@ def action_pull_save(pull):
             out_red_light('ERROR CONNECTION')
             print(e)
 
-        print('params[max_systolic', params['max_systolic'])
-
         try:
             max_systolic = int(params['max_systolic'])
             min_systolic = int(params['min_systolic'])
             max_diastolic = int(params['max_diastolic'])
             min_diastolic = int(params['min_diastolic'])
-            max_pulse = int(params['max_pulse'])
-            min_pulse = int(params['min_pulse'])
         except Exception as e:
             max_systolic = MAX_SYSTOLIC_DEFAULT
             min_systolic = MIN_SYSTOLIC_DEFAULT
             max_diastolic = MAX_DIASTOLIC_DEFAULT
             min_diastolic = MIN_DIASTOLIC_DEFAULT
-            max_pulse = MAX_PULSE_DEFAULT
-            min_pulse = MIN_PULSE_DEFAULT
+
             out_red_light("WARNING_NOT_INT")
 
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
@@ -2464,8 +2360,6 @@ def action_pull_save(pull):
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
-
-    # print('action_pull_save(pull)', pull)
 
     return MESS_THANKS
 

@@ -2,10 +2,15 @@
 
 {% block title %}Измерение давления{% endblock %}
 
+{% block style %}
+    {{ super() }}
+
+{% endblock %}
+
 {% block body %}
 <body onload="setFocus('systolic')">
     <div id="app">
-        <div class="container mt15">
+        <div class="container mt15 max-width-250">
             <h4>Какое у вас давление?</h4>
 
             {% for msg in get_flashed_messages() %}
