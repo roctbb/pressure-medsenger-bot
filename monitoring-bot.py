@@ -1670,6 +1670,8 @@ def init():
         for actual_bot in actual_bots:
             actual_contract = actual_bot.contract_id
 
+        print(actual_contract)
+
         if actual_contract > 0:
             new_contract = False
 
