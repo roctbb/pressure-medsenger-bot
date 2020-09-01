@@ -257,61 +257,46 @@ def sender():
                                     print('contract_id = ', contract_id)
 
                                     out_cyan_light(name)
-                                    # print('timetable[item]', timetable[item])
 
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
 
                                     pattern = hour_value
-                                    
-                                    # debug_mess_out = ''
-
-                                    # print('pattern = ', pattern)
-                                    # print('len_hours_array = ', len_hours_array)
-                                    # print('hours_array = ', hours_array)
 
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
-                                                # debug_mess_out = 'pattern < hours_array[0]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[0]):
-                                                # debug_mess_out = 'pattern == hours_array[0]'
                                                 action_deadline = 24
                                                 break
 
                                             if (pattern > hours_array[0]):
-                                                # debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
                                                 break
 
                                         if (len_hours_array == 2):
                                             if (pattern == hours_array[0]):
-                                                # debug_mess_out = 'pattern > hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(pattern)
                                                 break
 
                                             if (pattern == hours_array[1]):
-                                                # debug_mess_out = 'pattern == hours_array[1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                         if (len_hours_array > 2):
                                             if (pattern == hours_array[0]):
-                                                # debug_mess_out = 'pattern == hours_array[0]'
                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
                                                 break
 
                                             if (pattern == hours_array[len_hours_array - 1]):
-                                                # debug_mess_out = 'pattern == hours_array[len_hours_array - 1]'
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
                                                 break
 
                                             if (i > 0):
                                                 if (hours_array[i] == pattern):
-                                                    # debug_mess_out = 'hours_array[i] == pattern'
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
 
                                     action_deadline = action_deadline * 60 * 60
@@ -351,36 +336,12 @@ def sender():
                                         "hour_value": hour_value
                                     }
 
-                                    # print('data', data)
-
-                                    # data_update_deadline = int(time.time()) - (4 * 60 * 60)
-
-                                    # data_update = {
-                                    #     "contract_id": contract_id,
-                                    #     "api_key": APP_KEY,
-                                    #     "action_link": "frame/" + name,
-                                    #     "action_deadline": data_update_deadline
-                                    # }
-
-                                    # try:
-                                    #     query = '/api/agents/correct_action_deadline'
-                                    #     print('post request')
-                                    #     print('MAIN_HOST + query', MAIN_HOST + query)
-                                    #     print('data', data)
-                                    #     response = requests.post(MAIN_HOST + query, json=data_update)
-                                    #     print('response ' + MAIN_HOST + query, response.status_code)
-                                    #
-                                    # except Exception as e:
-                                    #     print('error requests.post', e)
-
                                     try:
                                         query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
 
                                         if query.count() != 0:
                                             contract = query.first()
                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
-                                            # print('contract.last_push', contract.last_push)
-                                            # print('datetime.datetime.fromtimestamp(current_time)', datetime.datetime.fromtimestamp(current_time))
                                             db.session.commit()
                                     except Exception as e:
                                         out_red_light('ERROR CONNECTION')
@@ -406,6 +367,8 @@ def sender():
 
                                             break
 
+                                    print('no_message', no_message)
+
                                     if (no_message == False):
                                         print('data = ', data)
                                         print(Debug.delimiter())
@@ -430,14 +393,10 @@ def sender():
             amount = medicine[5]
             timetable = medicine[6]
             show = medicine[7]
-            # date_str = medicine[8].strftime("%Y-%m-%d %H:%M:%S")
             last_push = medicine[8].timestamp()
 
             if (show == False):
                 continue
-
-            # hours_array = []
-            # data = {}
 
             if mode == 'daily':
                 for item in timetable:
@@ -541,9 +500,6 @@ def sender():
                                     except Exception as e:
                                         print('error requests.post', e)
 
-                                    # print('data_update medicine', data_update)
-                                    # print(Debug.delimiter())
-
                                     query_str = "UPDATE medicines set last_push = '" + \
                                                 str(datetime.datetime.fromtimestamp(
                                                     current_time).isoformat()) + Aux.quote() + \
@@ -552,11 +508,10 @@ def sender():
                                     DB.query(query_str)
 
                                     print('data medicines', data)
-                                    # print(Debug.delimiter())
+                                    print(Debug.delimiter())
 
                                     post_request(data)
 
-        # out_green_light('sender')
         time.sleep(20)
 
 
@@ -642,21 +597,6 @@ def server_error(error):
     error_text = title
     return render_template('500.html', title=title, error_text=error_text), 500
 
-
-# @app.route('/graph-test', methods=['GET'])
-# def graph_test():
-#     contract_id = quard()
-#
-#     proc = Process(target=zzz, args=(contract_id,))
-#     proc.start()
-#     print('proc', proc)
-#     proc. join()
-#     proc.close()
-#     print('proc close', proc)
-#
-#     print('graph_test()')
-#
-#     return 'graph_test()'
 
 
 @app.route('/actions', methods=['POST'])
@@ -752,7 +692,6 @@ def graph():
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
 
                 params = CategoryParamsObj.params
-                # timetable = CategoryParamsObj.timetable
             except Exception as e:
                 out_magenta_light('ERROR CONNECTION')
                 print(e)
@@ -1389,8 +1328,6 @@ def medicines():
 
     query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(contract_id) + Aux.quote() + ' AND show = true'
 
-    print('query_str = ', query_str)
-
     records = DB.select(query_str)
 
     medicine_data = {}
@@ -1403,11 +1340,6 @@ def medicines():
             'id': id,
             'action_link': 'http://localhost:8000/api/client/agents/' + str(contract_id) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
         }
-
-        print(row[0], row[1])
-
-    print('medicine_data = ', medicine_data)
-    print(Debug.delimiter())
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
 
@@ -1438,14 +1370,6 @@ def action_pull(pull):
     quard()
 
     constants = {}
-
-    # if (auth == 'ERROR_KEY'):
-    #     print('/frame ERROR_KEY')
-    #     return ERROR_KEY
-    #
-    # if (auth == 'ERROR_CONTRACT'):
-    #     print('/frame ERROR_CONTRACT')
-    #     return ERROR_CONTRACT
 
     if (pull == 'shin'):
         constants['shin_max'] = MAX_SHIN
@@ -1735,12 +1659,8 @@ def init():
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
 
-        print(actual_bots)
-
         for actual_bot in actual_bots:
             actual_contract = actual_bot.contract_id
-
-        print(actual_contract)
 
         if actual_contract > 0:
             new_contract = False
