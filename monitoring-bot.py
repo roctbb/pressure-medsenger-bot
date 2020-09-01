@@ -8,13 +8,6 @@ class ActualBots(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
-    # def __init__(self, id, contract_id, actual, created_at, updated_at):
-    #     self.id = id
-    #     self.contract_id = contract_id
-    #     self.actual = actual
-    #     self.created_at = created_at
-    #     self.updated_at = updated_at
-
 class CategoryParams(db.Model):
     __tablename__ = 'category_params'
 
@@ -28,9 +21,6 @@ class CategoryParams(db.Model):
     updated_at = db.Column(db.DateTime)
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
-
-    # def __repr__(self):
-    #     return "\nCategoryParams: ('%s','%s', '%s')\n---------------------------\n" % (self.category, self.params, self.timetable)
 
 # METHODS
 
@@ -358,11 +348,11 @@ def sender():
                                         for value in values:
                                             date = datetime.datetime.fromtimestamp(value['timestamp'])
                                             print('value = ', date)
-                                            delta = (time.time() - value['timestamp']) / 60
+                                            delta = (control_time - value['timestamp']) / 60
                                             print('delta = ', delta)
                                             print(Debug.delimiter())
 
-                                            if (delta < 30):
+                                            if (delta < 60):
                                                 no_message = True
 
                                             break
