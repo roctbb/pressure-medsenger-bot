@@ -643,8 +643,6 @@ def actions():
         }
     ]
 
-    print('answer = ', answer)
-
     return json.dumps(answer)
 
 
