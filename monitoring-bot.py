@@ -397,11 +397,11 @@ def sender():
                                         for value in values:
                                             date = datetime.datetime.fromtimestamp(value['timestamp'])
                                             print('value = ', date)
-                                            delta = (time.time() - value['timestamp']) / 360
+                                            delta = (time.time() - value['timestamp']) / 60
                                             print('delta = ', delta)
                                             print(Debug.delimiter())
 
-                                            if (delta < 3):
+                                            if (delta < 30):
                                                 no_message = True
 
                                             break
