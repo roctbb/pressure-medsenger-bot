@@ -279,7 +279,6 @@ def sender():
 
                                             if (pattern == hours_array[0]):
                                                 # debug_mess_out = 'pattern == hours_array[0]'
-                                                out_cyan_light(pattern == hours_array[0])
                                                 action_deadline = 24
                                                 break
 
@@ -387,9 +386,31 @@ def sender():
                                         out_red_light('ERROR CONNECTION')
                                         print(e)
 
-                                    print('data = ', data)
-                                    print(Debug.delimiter())
-                                    post_request(data)
+                                    no_message = False
+
+                                    res = getRecords(contract_id, name)
+
+                                    if (res != 404):
+                                        out_yellow(name)
+                                        values = res['values']
+
+                                        for value in values:
+                                            date = datetime.datetime.fromtimestamp(value['timestamp'])
+                                            print('value = ', date)
+                                            delta = (time.time() - value['timestamp']) / 360
+                                            print('delta = ', delta)
+                                            print(Debug.delimiter())
+
+                                            if (delta < 3):
+                                                no_message = True
+
+                                            break
+
+                                    if (no_message == False):
+                                        print('data = ', data)
+                                        print(Debug.delimiter())
+                                        post_request(data)
+
                                     time.sleep(1)
                                     break
 
