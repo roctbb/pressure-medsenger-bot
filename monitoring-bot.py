@@ -612,37 +612,42 @@ def actions():
         {
             "link": "frame/pressure",
             "type": type,
-            "name": "Измерить давление"
+            "name": "Записать давление"
         },
         {
             "link": "frame/weight",
             "type": type,
-            "name": "Измерить вес"
+            "name": "Записать вес"
         },
         {
             "link": "frame/temperature",
             "type": type,
-            "name": "Измерить температуру"
+            "name": "Записать температуру"
         },
         {
             "link": "frame/shin",
             "type": type,
-            "name": "Измерить обхват голени"
+            "name": "Записать размер обхвата голени"
         },
         {
             "link": "frame/glukose",
             "type": type,
-            "name": "Измерить глюкозу"
+            "name": "Записать уровень глюкозы"
         },
         {
             "link": "frame/waist",
             "type": type,
-            "name": "Измерить окружность талии"
+            "name": "Записать окружность талии"
         },
         {
              "link": "frame/spo2",
              "type": type,
-             "name": "Измерить уровень насыщения крови"
+             "name": "Записать уровень насыщения крови"
+        },
+        {
+             "link": "frame/assessment",
+             "type": type,
+             "name": "Записать уровень болевых ощущений"
         }
     ]
 
