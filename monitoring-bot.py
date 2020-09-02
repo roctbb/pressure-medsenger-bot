@@ -1833,6 +1833,8 @@ def init():
             }
             mode = 'daily'
 
+            print('params', params)
+
             # if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
             #     params = {
             #         "max_systolic": max_systolic,
