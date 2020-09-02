@@ -1738,7 +1738,9 @@ def init():
             if 'params' in data:
                 preset_params = data['params']
 
-                if 'current_systolic' in preset:
+                print('preset_params = ', preset_params)
+
+                if 'current_systolic' in preset_params:
                     try:
                         current_systolic = preset_params['current_systolic']
                     except Exception as e:
@@ -1802,7 +1804,7 @@ def init():
             else:
                 preset_params = None
 
-            print('preset_params = ', preset_params)
+            # print('preset_params = ', preset_params)
 
             #  *************************************************************** systolic
 
