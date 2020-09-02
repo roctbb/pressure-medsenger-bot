@@ -1696,15 +1696,6 @@ def init():
 
             print('preset = ', preset)
 
-            if 'params' in data:
-                preset_params = data['params']
-            else:
-                preset_params = None
-
-            print('preset_params = ', preset_params)
-
-            #  *************************************************************** systolic
-
             try:
                 max_systolic = preset_params['max_systolic']
             except Exception as e:
@@ -1735,48 +1726,19 @@ def init():
             except Exception as e:
                 min_pulse = MIN_PULSE_DEFAULT
 
-            params = {}
-            timetable = {
-                "days_month": [
-                    {
-                        "day": 1,
-                        "hour": 10
-                    }
-                ],
-                "days_week": [
-                    {
-                        "day": 1,
-                        "hour": 10
-                    }
-                ],
-                "hours": [
-                    {
-                        "value": 10
-                    }
-                ]
+            params = {
+                "max_systolic": max_systolic,
+                "min_systolic": min_systolic,
+                "max_diastolic": max_diastolic,
+                "min_diastolic": min_diastolic,
+                "max_pulse": max_pulse,
+                "min_pulse": min_pulse
             }
-            mode = 'daily'
 
-            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
-                params = {
-                    "max_systolic": max_systolic,
-                    "min_systolic": min_systolic,
-                    "max_diastolic": max_diastolic,
-                    "min_diastolic": min_diastolic,
-                    "max_pulse": max_pulse,
-                    "min_pulse": min_pulse
-                }
-            else:
-                if (preset_params == None):
-                    params = {
-                        "max_systolic": MAX_SYSTOLIC_DEFAULT,
-                        "min_systolic": MIN_SYSTOLIC_DEFAULT,
-                        "max_diastolic": MAX_DIASTOLIC_DEFAULT,
-                        "min_diastolic": MIN_DIASTOLIC_DEFAULT,
-                        "max_pulse": MAX_PULSE,
-                        "min_pulse": MIN_PULSE
-                    }
-                else:
+            if 'params' in data:
+                preset_params = data['params']
+
+                if 'current_systolic' in preset:
                     try:
                         current_systolic = preset_params['current_systolic']
                     except Exception as e:
@@ -1837,6 +1799,53 @@ def init():
                         "max_pulse": max_pulse,
                         "min_pulse": min_pulse
                     }
+            else:
+                preset_params = None
+
+            print('preset_params = ', preset_params)
+
+            #  *************************************************************** systolic
+
+            timetable = {
+                "days_month": [
+                    {
+                        "day": 1,
+                        "hour": 10
+                    }
+                ],
+                "days_week": [
+                    {
+                        "day": 1,
+                        "hour": 10
+                    }
+                ],
+                "hours": [
+                    {
+                        "value": 10
+                    }
+                ]
+            }
+            mode = 'daily'
+
+            # if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
+            #     params = {
+            #         "max_systolic": max_systolic,
+            #         "min_systolic": min_systolic,
+            #         "max_diastolic": max_diastolic,
+            #         "min_diastolic": min_diastolic,
+            #         "max_pulse": max_pulse,
+            #         "min_pulse": min_pulse
+            #     }
+            # else:
+            #     if (preset_params == None):
+            #         params = {
+            #             "max_systolic": MAX_SYSTOLIC_DEFAULT,
+            #             "min_systolic": MIN_SYSTOLIC_DEFAULT,
+            #             "max_diastolic": MAX_DIASTOLIC_DEFAULT,
+            #             "min_diastolic": MIN_DIASTOLIC_DEFAULT,
+            #             "max_pulse": MAX_PULSE,
+            #             "min_pulse": MIN_PULSE
+            #         }
 
             name = 'pressure'
 
