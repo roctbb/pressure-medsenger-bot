@@ -1696,7 +1696,7 @@ def init():
 
             print('preset = ', preset)
 
-            if 'preset_params' in data:
+            if 'params' in data:
                 preset_params = data['preset_params']
             else:
                 preset_params = None
