@@ -1652,6 +1652,8 @@ def init():
         data = request.json
         contract_id = quard_data_json(data)
 
+        out_cyan_light(contract_id)
+
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
 
@@ -1677,6 +1679,8 @@ def init():
                 out_magenta_light('ERROR CONNECTION')
                 print(e)
                 raise
+
+        out_yellow(new_contract)
 
         if (new_contract == True):
             try:
