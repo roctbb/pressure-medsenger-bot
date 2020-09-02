@@ -2041,6 +2041,11 @@ def init():
             else:
                 params = {}
 
+            if (preset == 'heartfailure'):
+                show = True
+            else:
+                show = False
+
             try:
                 category_params = CategoryParams(contract_id=contract_id,
                                                  category=name,
@@ -2050,7 +2055,7 @@ def init():
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
                                                  last_push=datetime.datetime.now(),
-                                                 show=True)
+                                                 show=show)
 
                 db.session.add(category_params)
                 db.session.commit()
