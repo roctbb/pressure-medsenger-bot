@@ -599,8 +599,15 @@ def actions():
     except Exception as e:
         print('ERROR actions: ', e)
 
-    answer = []
     type = 'patient'
+
+    answer = [
+        {
+            'link': 'medicines',
+            'type': type,
+            'name': 'Прием лекарств'
+        }
+    ]
 
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
 

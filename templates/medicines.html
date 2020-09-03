@@ -12,7 +12,7 @@
 
             {% for item in medicine_data %}
                 <p>
-                    <a data="{{ medicine_data[item] }}" onclick="postMessage__({{ medicine_data[item] }})" id="{{ medicine_data[item]['id' ] }}" href="#" class="btn btn-success j">
+                    <a data="{{ medicine_data[item] }}" onclick="postMessage__({{ medicine_data[item] }})" id="{{ medicine_data[item]['id' ] }}" href="{{ medicine_data[item]['action_link'] }}" class="btn btn-success j">
                         Подтвердить прием: {{ item }}
                     </a>
                 </p>
