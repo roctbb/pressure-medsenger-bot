@@ -1340,7 +1340,7 @@ def medicines():
 
         medicine_data[name] = {
             'id': id,
-            'action_link': 'http://localhost:8000/api/client/agents/' + str(contract_id) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
+            'action_link': MAIN_HOST + '/api/client/agents/' + str(contract_id) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
