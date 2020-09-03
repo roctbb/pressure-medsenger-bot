@@ -634,7 +634,7 @@ def actions():
         if (name == 'waist_circumference'):
             name = 'waist'
 
-        if (show):
+        if (show == True):
             answer.append({
                 'link': 'frame/' + str(name),
                 'type': type,
@@ -645,49 +645,6 @@ def actions():
         # print('-------')
 
     print('answer = ', answer)
-
-    # answer = [
-    #     {
-    #         "link": "frame/pressure",
-    #         "type": type,
-    #         "name": "Записать давление"
-    #     },
-    #     {
-    #         "link": "frame/weight",
-    #         "type": type,
-    #         "name": "Записать вес"
-    #     },
-    #     {
-    #         "link": "frame/temperature",
-    #         "type": type,
-    #         "name": "Записать температуру"
-    #     },
-    #     {
-    #         "link": "frame/shin",
-    #         "type": type,
-    #         "name": "Записать размер обхвата голени"
-    #     },
-    #     {
-    #         "link": "frame/glukose",
-    #         "type": type,
-    #         "name": "Записать уровень глюкозы"
-    #     },
-    #     {
-    #         "link": "frame/waist",
-    #         "type": type,
-    #         "name": "Записать окружность талии"
-    #     },
-    #     {
-    #          "link": "frame/spo2",
-    #          "type": type,
-    #          "name": "Записать уровень насыщения крови"
-    #     },
-    #     {
-    #          "link": "frame/assessment",
-    #          "type": type,
-    #          "name": "Записать уровень болевых ощущений"
-    #     }
-    # ]
 
     return json.dumps(answer)
 
