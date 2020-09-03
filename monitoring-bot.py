@@ -605,7 +605,6 @@ def actions():
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
 
     continues_list = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
-    change_list = ['systolic_pressure', 'leg_circumference_left', 'waist_circumference']
 
     descriptions = {
         'pressure': 'Записать давление',
@@ -640,11 +639,6 @@ def actions():
                 'type': type,
                 'name': descriptions[name]
             })
-
-        # print(category_param.show)
-        # print('-------')
-
-    print('answer = ', answer)
 
     return json.dumps(answer)
 
