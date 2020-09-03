@@ -601,13 +601,23 @@ def actions():
 
     type = 'patient'
 
-    answer = [
-        {
-            'link': 'medicines',
-            'type': type,
-            'name': 'Прием лекарств'
-        }
-    ]
+    query_str = 'SELECT count(id) as cnt FROM medicines m WHERE contract_id = ' + str(contract_id) + ' AND show = true'
+
+    print('query_str = ', query_str)
+
+    records = DB.select(query_str)
+
+    cnt = 0
+
+    for row in records:
+        cnt = row[0]
+
+    print('cnt = ', cnt)
+
+    answer = []
+
+    if (cnt > 0):
+        answer.append({'link': 'medicines', 'type': type, 'name': 'Прием лекарств'})
 
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
 
