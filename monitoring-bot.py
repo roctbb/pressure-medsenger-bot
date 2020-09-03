@@ -791,9 +791,9 @@ def graph():
             "x": x,
             "y": y,
             # "sys_max_value": int(sys_max_value),
-            # "sys_max_value": max(y),
+            "sys_max_value": max(y),
             # "sys_min_value": int(sys_min_value),
-            # "sys_min_value": min(y),
+            "sys_min_value": min(y),
             # "sys_avg_value": sum(sys_avg_value),
             # "sys_slice_normal": int(sys_slice_normal),
             # "sys_slice_critical": int(sys_slice_critical),
@@ -1338,7 +1338,7 @@ def medicines():
 
         medicine_data[name] = {
             'id': id,
-            'action_link': MAIN_HOST + '/api/client/agents/' + AGENT_ID + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
+            'action_link': MAIN_HOST + '/api/client/agents/' + str(AGENT_ID) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
