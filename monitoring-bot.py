@@ -591,55 +591,103 @@ def server_error(error):
 
 @app.route('/actions', methods=['POST'])
 def actions():
-    data = request.json
+    try:
+        data = request.json
+        contract_id = quard_data_json(data)
 
-    if data['api_key'] != APP_KEY:
-        return 'invalid key'
+        out_cyan_light(contract_id)
+    except Exception as e:
+        print('ERROR actions: ', e)
 
+    answer = []
     type = 'patient'
 
-    answer = [
-        {
-            "link": "frame/pressure",
-            "type": type,
-            "name": "Записать давление"
-        },
-        {
-            "link": "frame/weight",
-            "type": type,
-            "name": "Записать вес"
-        },
-        {
-            "link": "frame/temperature",
-            "type": type,
-            "name": "Записать температуру"
-        },
-        {
-            "link": "frame/shin",
-            "type": type,
-            "name": "Записать размер обхвата голени"
-        },
-        {
-            "link": "frame/glukose",
-            "type": type,
-            "name": "Записать уровень глюкозы"
-        },
-        {
-            "link": "frame/waist",
-            "type": type,
-            "name": "Записать окружность талии"
-        },
-        {
-             "link": "frame/spo2",
-             "type": type,
-             "name": "Записать уровень насыщения крови"
-        },
-        {
-             "link": "frame/assessment",
-             "type": type,
-             "name": "Записать уровень болевых ощущений"
-        }
-    ]
+    category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
+
+    continues_list = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
+    change_list = ['systolic_pressure', 'leg_circumference_left', 'waist_circumference']
+
+    descriptions = {
+        'pressure': 'Записать давление',
+        'weight': 'Записать вес',
+        'temperature': 'Записать температуру',
+        'shin': 'Записать размер обхвата голени',
+        'glukose': 'Записать уровень глюкозы',
+        'waist': 'Записать окружность талии',
+        'spo2': 'Записать уровень насыщения крови',
+        'pain_assessment': 'Записать уровень болевых ощущений'
+    }
+
+    for category_param in category_params:
+        name = category_param.category
+        show = category_param.show
+
+        if (name in continues_list):
+            continue
+
+        if (name == 'systolic_pressure'):
+            name = 'pressure'
+
+        if (name == 'leg_circumference_left'):
+            name = 'shin'
+
+        if (name == 'waist_circumference'):
+            name = 'waist'
+
+        if (show):
+            answer.append({
+                'link': 'frame/' + str(name),
+                'type': type,
+                'name': descriptions[name]
+            })
+
+        # print(category_param.show)
+        # print('-------')
+
+    print('answer = ', answer)
+
+    # answer = [
+    #     {
+    #         "link": "frame/pressure",
+    #         "type": type,
+    #         "name": "Записать давление"
+    #     },
+    #     {
+    #         "link": "frame/weight",
+    #         "type": type,
+    #         "name": "Записать вес"
+    #     },
+    #     {
+    #         "link": "frame/temperature",
+    #         "type": type,
+    #         "name": "Записать температуру"
+    #     },
+    #     {
+    #         "link": "frame/shin",
+    #         "type": type,
+    #         "name": "Записать размер обхвата голени"
+    #     },
+    #     {
+    #         "link": "frame/glukose",
+    #         "type": type,
+    #         "name": "Записать уровень глюкозы"
+    #     },
+    #     {
+    #         "link": "frame/waist",
+    #         "type": type,
+    #         "name": "Записать окружность талии"
+    #     },
+    #     {
+    #          "link": "frame/spo2",
+    #          "type": type,
+    #          "name": "Записать уровень насыщения крови"
+    #     },
+    #     {
+    #          "link": "frame/assessment",
+    #          "type": type,
+    #          "name": "Записать уровень болевых ощущений"
+    #     }
+    # ]
 
     return json.dumps(answer)
 
@@ -1832,8 +1880,6 @@ def init():
                 ]
             }
             mode = 'daily'
-
-            print('params', params)
 
             # if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
             #     params = {
