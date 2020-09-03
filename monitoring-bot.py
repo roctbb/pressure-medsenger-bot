@@ -1338,7 +1338,7 @@ def medicines():
 
         medicine_data[name] = {
             'id': id,
-            'action_link': MAIN_HOST + '/api/client/agents/12?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
+            'action_link': MAIN_HOST + '/api/client/agents/' + AGENT_ID + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
