@@ -2929,13 +2929,13 @@ def action_pull_save(pull):
         if check_float(param_value) == False:
             return ERROR_FORM
 
-        query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-            contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
-
-        records = DB.select(query_str)
-
-        for row in records:
-            params = row[0]
+        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
+        #     contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
+        #
+        # records = DB.select(query_str)
+        #
+        # for row in records:
+        #     params = row[0]
 
         try:
             query = CategoryParams.query.filter_by(contract_id=contract_id, category=pull)
@@ -2963,23 +2963,23 @@ def action_pull_save(pull):
         print('param_value = ', param_value)
         print(Debug.delimiter())
 
-        if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
+        if (pull == 'spo2' and (param_value < min or param_value > max)):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_SPO2_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST)):
+        if (param == 'waist' and (param_value < min or param_value > max)):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_WAIST_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT)):
+        if (param == 'weight' and (param_value < min or param_value > max)):
             return ERROR_OUTSIDE_WEIGHT
 
-        if (param == 'glukose' and (param_value < MIN_GLUKOSE or param_value > MAX_GLUKOSE)):
+        if (param == 'glukose' and (param_value < min or param_value > max)):
             return ERROR_OUTSIDE_GLUKOSE
 
-        if (param == 'temperature' and (param_value < MIN_TEMPERATURE or param_value > MAX_TEMPERATURE)):
+        if (param == 'temperature' and (param_value < min or param_value > max)):
             return ERROR_OUTSIDE_TEMPERATURE
 
         param_for_record = param
