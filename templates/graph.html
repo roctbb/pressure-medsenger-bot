@@ -927,7 +927,7 @@
 
         function dump(data) {
             console.log('dump', data)
-         }
+        }
 
         // Create models
         constants = createModel('constants', {{ constants | safe }})
@@ -1029,6 +1029,10 @@
 
             // Create axes
             var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
+
+            {#categoryAxis.start = 0.79;#}
+            {#categoryAxis.keepSelection = true;#}
+
             categoryAxis.renderer.grid.template.location = 0
             {#categoryAxis.renderer.labels.template.rotation = 90;#}
             {#categoryAxis.renderer.minGridDistance = 30;#}
@@ -1136,10 +1140,24 @@
 
             {#console.log('dynamic_data', dataStorage.get('dynamic_data'))#}
 
+            data_length = data.length
+
+            console.log('data_length = ', data_length)
+            console.log('data[0] = ', data[0])
+            console.log('data[data_length-1] = ', data[data_length-1])
+
+            var date1 = new Date('01-09-2020');
+            var date2 = new Date('07-09-2020');
+            var daysLag = Math.ceil(Math.abs(date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
+            console.log('daysLag = ', daysLag)
+            console.log('data = ', data)
+
+            categoryAxis.start = 0.79;
+            categoryAxis.keepSelection = true;
+
             chart.data = data.reverse()
 
             // Create series Medicine
-
             function createSeriesMedicine(field, data, series_name, color, config) {
                 var series = chart.series.push(new am4charts__.LineSeries());
                 series.dataFields.valueY = field
@@ -1203,9 +1221,7 @@
                 color_index++
             }
 
-            {#console.log('610 data', data)#}
-
-            // Create series chart.xAxes.push(new am4charts.DateAxis());
+            // Creation series function for Pressure
             function createSeries(field, name, config, data) {
                 var series = chart.series.push(new am4charts__.LineSeries());
                 series.groupData = false;
@@ -1217,9 +1233,6 @@
                 series.strokeWidth = 2;
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core__.color(config.color);
-
-
-                {#console.log('610 field', field)#}
 
                 {#series.data = data#}
                 {#yAxis.min = 190#}
@@ -1298,48 +1311,9 @@
             // Enable export
             chart.exporting.menu = new am4core__.ExportMenu()
 
-            // *************************************
-            // ******* Create chart instance pain_assessment
-            // *************************************
+            })
 
-            {#am4core__.useTheme(am4themes_animated)#}
-            {##}
-            {#var chart_pain_assessment = am4core.create("pain_assessment", am4charts.XYChart)#}
-            {#chart_pain_assessment.language.locale = am4lang_ru_RU#}
-
-            {#// Create axes#}
-            {#var categoryAxis_pain_assessment = chart_pain_assessment.xAxes.push(new am4charts__.DateAxis())#}
-            {#categoryAxis_pain_assessment.renderer.grid.template.location = 0#}
-            {#categoryAxis.renderer.labels.template.rotation = 90;#}
-            {#categoryAxis.renderer.minGridDistance = 30;#}
-            {##}
-            {#var valueAxis_pain_assessment = chart_pain_assessment.yAxes.push(new am4charts__.ValueAxis())#}
-            {##}
-            {#valueAxis_pain_assessment.renderer.minGridDistance = 100#}
-
-            // ************************************* END
-
-            {#model = dataStorage.get('dynamic_data')#}
-            {#model.name = 'Динамика измерения верхнего давления'#}
-            {#model['tooltipText'] = model.name + ": [bold]{y}[normal] | {tooltip_date}"#}
-            {##}
-            {#params = {#}
-            {#    "div": "chartdiv_more",#}
-            {#    "lang": am4lang_ru_RU,#}
-            {#    "location": 0,#}
-            {#    "distance": 100,#}
-            {#    "y_min": 0,#}
-            {#    "y_max": 20,#}
-            {#    "color": "#a545c7",#}
-            {#    "strokeWidth": 2,#}
-            {#    "model": model#}
-            {#}#}
-
-            {#console.log('params', params)#}
-
-            {#am4Core.makeGraph(params)#}
-
-            }) // end am4core.ready()
+        //  ************************************* END am4core.ready()
 
         {#console.log('1');#}
     </script>
@@ -1428,9 +1402,9 @@
 
             {#console.log('data_pain', data_pain)#}
 
-            // *************************************
+            // *********************************************
             // ******* Create chart instance pain_assessment
-            // *************************************
+            // *********************************************
 
             am4core_pain.useTheme(am4themes_animated)
 
@@ -1440,6 +1414,10 @@
             // Create axes
             let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis())
             categoryAxis_pain.renderer.grid.template.location = 0
+
+            categoryAxis_pain.start = 0.8;
+            categoryAxis_pain.keepSelection = true;
+
             {#categoryAxis.renderer.labels.template.rotation = 90;#}
             {#categoryAxis.renderer.minGridDistance = 30;#}
 
@@ -1453,7 +1431,7 @@
 
             valueAxis_pain.renderer.minGridDistance = 50
 
-            chart_pain.data = data_pain
+            chart_pain.data = data_pain.reverse()
 
             image_width_pain = 9
 
@@ -1640,12 +1618,16 @@
                 chart.language.locale = params.lang
                 dateAxis = chart.xAxes.push(new am4charts.DateAxis())
                 dateAxis.renderer.grid.template.location = params.location
-                {#dateAxis.renderer.minGridDistance = params.distance#}
+
+                dateAxis.start = 0.8;
+                dateAxis.keepSelection = true;
+
                 yAxis = chart.yAxes.push(new am4charts.ValueAxis())
                 yAxis.min = params.y_min
                 yAxis.max = params.y_max
                 model = params.model
                 data = dataObject.dataTransform(model)
+                data = data.reverse()
                 min = params.min
                 max = params.max
 
@@ -1750,11 +1732,13 @@
         // Add data
         chart.data = shinData
 
-        console.log('chart.data 2', chart.data)
+        console.log('shinData >> ', shinData)
 
         // Create axes
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.renderer.minGridDistance = 50;
+        dateAxis.start = 0.8;
+        dateAxis.keepSelection = true;
 
         var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
@@ -1897,7 +1881,7 @@
 
         am4Core.makeGraph(params)
 
-        params_temperature = params.model
+        {#params_temperature = params.model#}
 
         // *************************************
         // ******* Create chart instance glukose
