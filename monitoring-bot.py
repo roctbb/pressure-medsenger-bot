@@ -2535,7 +2535,7 @@ def init():
 
                 delayed(1, post_request, [data])
             else:
-                show: False
+                show = False
 
                 params = {}
 
