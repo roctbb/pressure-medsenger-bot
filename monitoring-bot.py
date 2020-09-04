@@ -2505,7 +2505,7 @@ def init():
 
             name = 'weight'
 
-            if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
+            if (preset == 'heartfailure' or preset == 'fibrillation'):
                 show = True
 
                 try:
