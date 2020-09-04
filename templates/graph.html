@@ -323,8 +323,8 @@
             <li><a id="temperature_graph" href="#">График измерения температуры</a></li>
             <li><a id="pain_button" href="#">График оценки боли</a></li>
             <li><a id="spo2_button" href="#">Насыщение крови кислородом</a></li>
-            <li><a id="waist_button" href="#">Объем талии</a></li>
-            <li><a id="shin_button" href="#">Объем голени</a></li>
+            <li><a id="waist_button" href="#">Окружность талии</a></li>
+            <li><a id="shin_button" href="#">Обхват голени</a></li>
 {#            <li><a id="stat_button" href="#">Статистика измерения давления</a></li>#}
 
 {#			<li class="current"><a href="#">Portfolio</a></li>#}
@@ -1766,7 +1766,7 @@
         series.minBulletDistance = 10;
         series.tooltipText = "Объем левой голени: [bold]{value1}[/] см | {date.formatDate('dd-MM-yyyy k:mm')}\nОбъем правой голени: [bold]{value2}[/] см | {previousDate.formatDate('dd-MM-yyyy k:mm')}";
         series.tooltip.pointerOrientation = "vertical";
-        series.name = 'Объем голени'
+        series.name = 'Обхват голени'
 
         // Create series
         var series2 = chart.series.push(new am4charts.LineSeries());
@@ -1794,7 +1794,7 @@
         model['min'] = constants.min_waist
         model['max'] = constants.max_waist
 
-        model['name'] = 'Объем талии'
+        model['name'] = 'Окружность талии'
 
         params = {
             "div": "chartdiv_waist",

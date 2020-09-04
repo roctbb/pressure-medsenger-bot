@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Объем талии для сердечно-сосудистых пациентов{% endblock %}
+{% block title %}Окружность талии для сердечно-сосудистых пациентов{% endblock %}
 
 {% block style %}
     {{ super() }}
@@ -22,7 +22,7 @@
 <body onload="setFocus('waist')">
     <div id="app">
         <div class="container mt15">
-            <h4>Какой у вас объем талии?</h4>
+            <h4>Какая у вас окружность талии?</h4>
 
             {% for cat, msg in get_flashed_messages(True) %}
                 <span class="flash">{{msg}}</span><br />
@@ -31,7 +31,7 @@
 
             <form method="POST" class="mt25" id="main-form">
                 <div class="form-group">
-                    <label class="w30" for="spo2">Объем талии:</label>
+                    <label class="w30" for="spo2">Окружность талии:</label>
                     <input type="number" class="form-control inline" name="waist" id="waist" autofocus>
                     <span id="error-sys" class="error"> </span>
                 </div>
