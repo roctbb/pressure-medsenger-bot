@@ -6,8 +6,8 @@ MAX_SPO2 = 100
 MIN_SPO2 = 50
 MAX_WAIST = 250
 MIN_WAIST = 30
-MAX_WEIGHT = 150
-MIN_WEIGHT = 15
+MAX_WEIGHT = 400
+MIN_WEIGHT = 0
 MAX_TEMPERATURE = 42
 MIN_TEMPERATURE = 35
 MAX_SYSTOLIC = 270
@@ -137,7 +137,7 @@ MESS_SPO2_REMINDER = "Не забудьте проверить уровень н
 MESS_SPO2_TITLE = "Насыщение крови кислородом"
 
 MESS_WAIST_REMINDER = "Не забудьте измерить объем талии."
-MESS_WAIST_TITLE = "Объем талии для сердечно-сосудистых пациентов"
+MESS_WAIST_TITLE = "Объем талии"
 
 MESS_MEDICINE = {'text': 'Не забудьте принять лекарство, назначенное врачом.', 'action_link': 'medicine/{}', 'action_name': 'Подтвердить прием: {0} {1}'}
 

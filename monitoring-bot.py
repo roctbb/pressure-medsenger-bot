@@ -114,6 +114,9 @@ def warning(contract_id, param, param_value, param_value_2=''):
     if (param == 'diastolic_pressure'):
         param = 'pressure'
 
+    if (param == 'pulse'):
+        param = 'pressure'
+
     if (param == 'shin_volume_left'):
         param = 'shin'
 
@@ -2499,6 +2502,8 @@ def init():
             name = 'weight'
 
             if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation'):
+                show = True
+
                 try:
                     max_weight = preset_params['max_weight']
                 except Exception as e:
@@ -2530,6 +2535,8 @@ def init():
 
                 delayed(1, post_request, [data])
             else:
+                show: False
+
                 params = {}
 
             try:
@@ -2541,7 +2548,7 @@ def init():
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
                                                  last_push=datetime.datetime.now(),
-                                                 show=True)
+                                                 show=show)
 
                 db.session.add(category_params)
                 db.session.commit()
