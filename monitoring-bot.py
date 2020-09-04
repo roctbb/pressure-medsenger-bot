@@ -2235,6 +2235,45 @@ def init():
             if 'params' in data:
                 preset_params = data['params']
 
+                try:
+                    max_systolic = preset_params['max_systolic']
+                except Exception as e:
+                    max_systolic = MAX_SYSTOLIC_DEFAULT
+
+                try:
+                    min_systolic = preset_params['min_systolic']
+                except Exception as e:
+                    min_systolic = MIN_SYSTOLIC_DEFAULT
+
+                try:
+                    max_diastolic = preset_params['max_diastolic']
+                except Exception as e:
+                    max_diastolic = MAX_DIASTOLIC_DEFAULT
+
+                try:
+                    min_diastolic = preset_params['min_diastolic']
+                except Exception as e:
+                    min_diastolic = MIN_DIASTOLIC_DEFAULT
+
+                try:
+                    max_pulse = preset_params['max_pulse']
+                except Exception as e:
+                    max_pulse = MAX_PULSE_DEFAULT
+
+                try:
+                    min_pulse = preset_params['min_pulse']
+                except Exception as e:
+                    min_pulse = MIN_PULSE_DEFAULT
+
+                params = {
+                    "max_systolic": max_systolic,
+                    "min_systolic": min_systolic,
+                    "max_diastolic": max_diastolic,
+                    "min_diastolic": min_diastolic,
+                    "max_pulse": max_pulse,
+                    "min_pulse": min_pulse
+                }
+
                 if 'current_systolic' in preset_params:
                     print('current_systolic in preset_params')
 
