@@ -1259,12 +1259,14 @@ def graph():
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
         print('constants = ', contract_id, constants)
+        print(Debug.delimiter())
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
         y = []
         chartData = []
-        insertQuery = ''
+        insertQuery = []
+
 
         category = response['category']
         values = response['values']
@@ -1278,8 +1280,16 @@ def graph():
                 'visits': value['value']
             })
 
-        print('chartData = ', chartData)
+            print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(value['value']) + ", 27, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
+
+            # insertQuery.append('test')
+            # insertQuery.append("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(value['value']) + ", 27, 4, 2, '2020-09-04 11:34:04', '2020-09-04 11:34:04')")
+
+        print('insertQuery = ', insertQuery)
         print(Debug.delimiter())
+
+        # print('chartData = ', chartData)
+        # print(Debug.delimiter())
 
         systolic_dic = {
             "x": x,
@@ -1585,7 +1595,7 @@ def graph():
 
         shin_right = shin_right_dic
 
-        print('systolic = ', systolic)
+        # print('systolic = ', systolic)
 
         return render_template('graph.html',
                                constants=constants,
