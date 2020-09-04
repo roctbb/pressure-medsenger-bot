@@ -139,9 +139,9 @@ def warning(contract_id, param, param_value, param_value_2=''):
             text_doctor = MESS_PRESSURE_DOCTOR.format(
                 param_value, param_value_2)
 
-        if (param == 'weight'):
-            text_patient = MESS_WEIGHT_PATIENT
-            text_doctor = MESS_WEIGHT_DOCTOR
+        if (param == 'pulse'):
+            text_patient = MESS_PULSE_PATIENT
+            text_doctor = MESS_PULSE_DOCTOR
 
         if (param == 'shin'):
             text_patient = MESS_SHIN_PATIENT.format(
