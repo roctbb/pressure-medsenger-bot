@@ -2939,6 +2939,10 @@ def action_pull_save(pull):
         min = float(min)
         param_value = float(param_value)
 
+        print('param = ', param)
+        print('param_value = ', param_value)
+        print(Debug.delimiter())
+
         if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_SPO2_TEXT, category=param_value_int)
