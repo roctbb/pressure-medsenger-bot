@@ -167,7 +167,7 @@ NONE_MEASUREMENTS = "<strong>Измерений еще не проводилос
 
 
 
-AVAILABLE_MEASUREMENTS = ['pressure', 'weight', 'glukose', 'temperature', 'pain_assessment', 'spo2', 'waist', 'shin']
+AVAILABLE_MEASUREMENTS = ['pressure', 'pulse', 'weight', 'glukose', 'temperature', 'pain_assessment', 'spo2', 'waist', 'shin']
 AVAILABLE_MODES = ['daily', 'weekly', 'monthly', 'none']
 FORM_INPUTS = ['systolic', 'diastolic', 'weight', 'pulse_', 'glukose', 'spo2', 'waist', 'shin']
 SUPPORTED_SCENARIOS = ['heartfailure', 'stenocardia', 'fibrillation']
