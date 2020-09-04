@@ -1256,6 +1256,9 @@ def graph():
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
         y = []
+        chartData = []
+        insertQuery = ''
+
         category = response['category']
         values = response['values']
 
@@ -1263,6 +1266,13 @@ def graph():
             date = datetime.datetime.fromtimestamp(value['timestamp'])
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
+            chartData.append({
+                'date': date.strftime("%Y-%m-%d %H:%M:%S"),
+                'visits': value['value']
+            })
+
+        print('chartData = ', chartData)
+        print(Debug.delimiter())
 
         systolic_dic = {
             "x": x,
