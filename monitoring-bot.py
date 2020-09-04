@@ -115,7 +115,7 @@ def warning(contract_id, param, param_value, param_value_2=''):
         param = 'pressure'
 
     if (param == 'pulse'):
-        param = 'pressure'
+        param = 'pulse'
 
     if (param == 'shin_volume_left'):
         param = 'shin'
@@ -138,6 +138,10 @@ def warning(contract_id, param, param_value, param_value_2=''):
                 param_value, param_value_2)
             text_doctor = MESS_PRESSURE_DOCTOR.format(
                 param_value, param_value_2)
+
+        if (param == 'weight'):
+            text_patient = MESS_WEIGHT_PATIENT
+            text_doctor = MESS_WEIGHT_DOCTOR
 
         if (param == 'shin'):
             text_patient = MESS_SHIN_PATIENT.format(
@@ -2896,16 +2900,23 @@ def action_pull_save(pull):
             min_systolic = int(params['min_systolic'])
             max_diastolic = int(params['max_diastolic'])
             min_diastolic = int(params['min_diastolic'])
+            max_pulse = int(params['max_pulse'])
+            min_pulse = int(params['min_pulse'])
         except Exception as e:
             max_systolic = MAX_SYSTOLIC_DEFAULT
             min_systolic = MIN_SYSTOLIC_DEFAULT
             max_diastolic = MAX_DIASTOLIC_DEFAULT
             min_diastolic = MIN_DIASTOLIC_DEFAULT
+            max_pulse = MAX_PULSE_DEFAULT
+            min_pulse = MIN_PULSE_DEFAULT
 
             out_red_light("WARNING_NOT_INT")
 
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
+
+        if not (min_pulse <= pulse_ <= max_pulse):
+            delayed(1, warning, [contract_id, 'pulse', pulse_])
 
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
