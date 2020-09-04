@@ -1323,26 +1323,26 @@ def graph():
         category = response['category']
         values = response['values']
 
-        chartData = []
-        insertQuery = []
+        # chartData = []
+        # insertQuery = []
 
-        values = response['values']
+        # values = response['values']
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-            chartData.append({
-                'date': date.strftime("%Y-%m-%d %H:%M:%S"),
-                'visits': value['value']
-            })
-
-            print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(
-                value['value']) + ", 28, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
-
-        print('insertQuery = ', insertQuery)
-        print(Debug.delimiter())
+        #     chartData.append({
+        #         'date': date.strftime("%Y-%m-%d %H:%M:%S"),
+        #         'visits': value['value']
+        #     })
+        #
+        #     print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(
+        #         value['value']) + ", 28, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
+        #
+        # print('insertQuery = ', insertQuery)
+        # print(Debug.delimiter())
 
         diastolic_dic = {
             "x": x,
@@ -1360,10 +1360,24 @@ def graph():
         category = response['category']
         values = response['values']
 
+        chartData = []
+        insertQuery = []
+
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
+
+            chartData.append({
+                'date': date.strftime("%Y-%m-%d %H:%M:%S"),
+                'visits': value['value']
+            })
+
+            print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(
+                value['value']) + ", 26, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
+
+        print('insertQuery = ', insertQuery)
+        print(Debug.delimiter())
 
         pulse_dic = {
             "x": x,
