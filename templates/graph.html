@@ -1142,16 +1142,46 @@
 
             console.log('data.length = ', data.length)
 
-            var date1 = new Date('12-09-2020');
-            var date2 = new Date('12-10-2020');
-            var daysLag = Math.ceil(Math.abs(date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
-            console.log('daysLag = ', daysLag)
-            console.log('data = ', data)
+            {#var date1 = new Date('12-09-2020');#}
+            {#var date2 = new Date('12-10-2020');#}
+            {#var daysLag = Math.ceil(Math.abs(date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));#}
+            {#console.log('daysLag = ', daysLag)#}
+            {#console.log('data = ', data)#}
 
-            categoryAxis.start = 0.79;
-            categoryAxis.keepSelection = true;
+            {#categoryAxis.start = 0.79;#}
+            {#categoryAxis.keepSelection = true;#}
 
-            chart.data = data.reverse()
+            chart.data = data.reverse();
+
+            let date_max = systolic['date_max'];
+            let date_min = systolic['date_min'];
+
+            date_max = new Date(date_max);
+            date_min = new Date(date_min);
+
+            console.log('date_max 1 = ', date_max);
+            console.log('date_min 1 = ', date_min);
+
+            {#date_max = new Date('2020-07-04');#}
+            {#date_min = new Date('2020-09-07');#}
+
+            {#date_max = new Date('2020-09-07');#}
+            {#date_min = new Date('2020-08-31 16:59:43');#}
+            {##}
+            {#console.log('date_max 2 = ', date_max)#}
+            {#console.log('date_min 2 = ', date_min)#}
+
+            {#console.log('--- max', new Date('2020-09-07'))#}
+            {#console.log('--- min', new Date('2020-07-04'))#}
+
+
+            // Pre-zoom the chart
+            chart.events.on("ready", function () {
+                categoryAxis.zoomToDates(
+                    date_min,
+                    date_max
+                );
+            });
 
             // Create series Medicine
             function createSeriesMedicine(field, data, series_name, color, config) {
