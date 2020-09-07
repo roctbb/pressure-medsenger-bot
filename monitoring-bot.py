@@ -3001,23 +3001,23 @@ def action_pull_save(pull):
         print('param_value = ', param_value)
         print(Debug.delimiter())
 
-        if (pull == 'spo2' and (param_value < min or param_value > max)):
+        if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_SPO2_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'waist' and (param_value < min or param_value > max)):
+        if (param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST)):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_WAIST_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'weight' and (param_value < min or param_value > max)):
+        if (param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT)):
             return ERROR_OUTSIDE_WEIGHT
 
-        if (param == 'glukose' and (param_value < min or param_value > max)):
+        if (param == 'glukose' and (param_value < MIN_GLUKOSE or param_value > MAX_GLUKOSE)):
             return ERROR_OUTSIDE_GLUKOSE
 
-        if (param == 'temperature' and (param_value < min or param_value > max)):
+        if (param == 'temperature' and (param_value < MIN_TEMPERATURE or param_value > MAX_TEMPERATURE)):
             return ERROR_OUTSIDE_TEMPERATURE
 
         param_for_record = param
@@ -3033,6 +3033,9 @@ def action_pull_save(pull):
 
         if (param_value < min or param_value > max):
             # Сигналим врачу
+            out_red_light('Сигналим врачу')
+            print('param = ', param)
+            print('param_value', param_value)
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
