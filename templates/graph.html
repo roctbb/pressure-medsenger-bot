@@ -1758,6 +1758,7 @@
         shin_right = {{ shin_right | safe }};
 
         var chart = am4core.create("chartdiv_shin", am4charts.XYChart);
+        chart.scrollbarX = new am4core.Scrollbar()
         chart.language.locale = am4lang_ru_RU;
 
         shinData = [];
@@ -1770,7 +1771,7 @@
         })
 
         // Add data
-        chart.data = shinData
+        chart.data = shinData.reverse()
 
         console.log('shinData >> ', shinData)
 
