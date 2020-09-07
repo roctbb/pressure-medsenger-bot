@@ -842,6 +842,20 @@
             }
         }
 
+        const startAxis = function(systolic_max_date, systolic_min_date) {
+            systolic_max_date = new Date(systolic_max_date)
+            systolic_min_date = new Date(systolic_min_date)
+            systolic_max_date = systolic_max_date.getTime() / 1000
+            systolic_min_date = systolic_min_date.getTime() / 1000
+            let systolic_days_count = (systolic_max_date - systolic_min_date) / (3600 * 24)
+
+            let start = 7 / systolic_days_count;
+            start = parseFloat(start).toFixed(2);
+            console.log('start = ', start);
+
+            return start;
+        }
+
         imageWidth = 6;
 
         function createModel(...args) {
@@ -1135,24 +1149,7 @@
             dynamic_data['y'] = dynamic_data_y
             dynamic_data['name'] = 'Динамика роста давления'
 
-            {#dataStorage.set('data', data)#}
-            {#dataStorage.set('dynamic_data', dynamic_data)#}
-
-            {#console.log('dynamic_data', dataStorage.get('dynamic_data'))#}
-
-            data_length = data.length
-
-            console.log('data_length = ', data_length)
-            console.log('data[0] = ', data[0])
-            console.log('data[data_length-1] = ', data[data_length-1])
-
-            var date1 = new Date('01-09-2020');
-            var date2 = new Date('07-09-2020');
-            var daysLag = Math.ceil(Math.abs(date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
-            console.log('daysLag = ', daysLag)
-            console.log('data = ', data)
-
-            categoryAxis.start = 0.79;
+            categoryAxis.start = startAxis(systolic_max_date, systolic_min_date); // 0.79;
             categoryAxis.keepSelection = true;
 
             chart.data = data.reverse()
@@ -2130,7 +2127,8 @@
         let timestamp_for_pressure = systolic.timestamp_for_pressure;
         let arr = []
 
-        {#console.log('constants', constants);#}
+        let systolic_max_date = systolic['date_max'];
+        let systolic_min_date = systolic['date_min'];
 
         let formatDate = function (timestamp_) {
             {#console.warn('timestamp_', timestamp_)#}

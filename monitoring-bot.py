@@ -1275,22 +1275,17 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-            # chartData.append({
-            #     'date': date.strftime("%Y-%m-%d %H:%M:%S"),
-            #     'visits': value['value']
-            # })
-        #
-        #     print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(value['value']) + ", 27, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
-        #
-        # print('insertQuery = ', insertQuery)
-        # print(Debug.delimiter())
+        date_min = x[len(x)-1]
+        date_max = x[0]
+        print('date_max = ', date_max)
+        print('date_min = ', date_min)
 
-        # print('chartData = ', chartData)
-        # print(Debug.delimiter())
 
         systolic_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max,
+            "date_min": date_min,
             # "sys_max_value": int(sys_max_value),
             "sys_max_value": max(y),
             # "sys_min_value": int(sys_min_value),
