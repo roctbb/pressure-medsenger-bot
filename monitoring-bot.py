@@ -24,6 +24,24 @@ class CategoryParams(db.Model):
 
 # METHODS
 
+def dateMaxMin(date_max):
+    out = []
+    date_max = date_max
+
+    dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
+    delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+    date_min = delta
+    date_max = time.strftime('%Y-%m-%d', dt)
+
+    print('delta ******* = ', delta)
+    print('date_max ******* = ', date_max)
+    print('date_min ******* = ', date_min)
+
+    out.append(date_max)
+    out.append(date_min)
+
+    return out
+
 def getBotCategories():
     try:
         query = CategoryParams.query
@@ -666,474 +684,6 @@ def actions():
 
     return json.dumps(answer)
 
-
-@app.route('/graph-test', methods=['GET'])
-def graph_test():
-    contract_id = quard()
-
-    constants = {}
-    # systolic = []
-    comments = []
-
-    # diastolic = []
-    # pulse = []
-    # glukose = []
-    # weight = []
-    # temperature = []
-    # times = []
-    # pressure_timestamp = []
-    # glukose_trace_times = []
-    # weight_trace_times = []
-    # temperature_trace_times = []
-    # medicines_names = []
-    # medicines_trace_times = []
-    # medicines_trace_data = {}
-    # medicines_times_ = []
-    # dosage = []
-    # amount = []
-    #
-    # array_x = []
-    # array_y = []
-
-    # systolic_dic = {}
-
-    if (True):
-        constants = {}
-
-        medical_record_categories = getCategories()
-
-        for item in medical_record_categories:
-            category = item['name']
-
-            out_cyan_light(category)
-
-            try:
-                CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
-
-                params = CategoryParamsObj.params
-            except Exception as e:
-                out_magenta_light('ERROR CONNECTION')
-                print(e)
-
-            if (category == 'systolic_pressure'):
-                try:
-                    constants['max_systolic'] = params['max_systolic']
-                    constants['min_systolic'] = params['min_systolic']
-                    constants['max_diastolic'] = params['max_diastolic']
-                    constants['min_diastolic'] = params['min_diastolic']
-                    constants['max_pulse'] = params['max_pulse']
-                    constants['min_pulse'] = params['min_pulse']
-                except:
-                    constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
-                    constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
-                    constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
-                    constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
-                    constants['max_pulse'] = MAX_PULSE_DEFAULT
-                    constants['min_pulse'] = MIN_PULSE_DEFAULT
-
-            if (category == 'spo2'):
-                try:
-                    constants['max_spo2'] = params['max']
-                    constants['min_spo2'] = params['min']
-                except Exception as e:
-                    constants['max_spo2'] = MAX_SPO2_DEFAULT
-                    constants['min_spo2'] = MIN_SPO2_DEFAULT
-
-            if (category == 'glukose'):
-                try:
-                    constants['max_glukose'] = params['max']
-                    constants['min_glukose'] = params['min']
-                except Exception as e:
-                    constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
-                    constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
-
-            if (category == 'pain_assessment'):
-                try:
-                    constants['max_pain'] = params['max']
-                    constants['min_pain'] = params['min']
-                except Exception as e:
-                    constants['max_pain'] = MAX_PAIN_DEFAULT
-                    constants['min_pain'] = MIN_PAIN_DEFAULT
-
-            if (category == 'weight'):
-                try:
-                    constants['max_weight'] = params['max']
-                    constants['min_weight'] = params['min']
-                except Exception as e:
-                    constants['max_weight'] = MAX_WEIGHT_DEFAULT
-                    constants['min_weight'] = MIN_WEIGHT_DEFAULT
-
-            if (category == 'waist_circumference'):
-                try:
-                    constants['max_waist'] = params['max']
-                    constants['min_waist'] = params['min']
-                except Exception as e:
-                    constants['max_waist'] = MAX_WAIST_DEFAULT
-                    constants['min_waist'] = MIN_WAIST_DEFAULT
-
-            if (category == 'leg_circumference_left' or category == 'leg_circumference_right'):
-                try:
-                    constants['max_shin_left'] = params['max']
-                    constants['min_shin_left'] = params['min']
-                    constants['max_shin_right'] = params['max']
-                    constants['min_shin_right'] = params['min']
-                except Exception as e:
-                    constants['max_shin_left'] = MAX_SHIN_DEFAULT
-                    constants['min_shin_left'] = MIN_SHIN_DEFAULT
-                    constants['max_shin_right'] = MAX_SHIN_DEFAULT
-                    constants['min_shin_right'] = MIN_SHIN_DEFAULT
-
-            if (category == 'temperature'):
-                try:
-                    constants['max_temperature'] = params['max']
-                    constants['min_temperature'] = params['min']
-                except Exception as e:
-                    constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
-                    constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
-
-        print('constants = ', contract_id, constants)
-
-        response = getRecords(contract_id, 'systolic_pressure')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        systolic_dic = {
-            "x": x,
-            "y": y,
-            # "sys_max_value": int(sys_max_value),
-            "sys_max_value": max(y),
-            # "sys_min_value": int(sys_min_value),
-            "sys_min_value": min(y),
-            # "sys_avg_value": sum(sys_avg_value),
-            # "sys_slice_normal": int(sys_slice_normal),
-            # "sys_slice_critical": int(sys_slice_critical),
-            # "sys_max_week": int(sys_max_week),
-            # "sys_min_week": int(sys_min_week),
-            # "sys_avg_week": int(sys_avg_week),
-            # "sys_slice_normal_week": int(sys_slice_normal_week),
-            # "sys_slice_critical_week": int(sys_slice_critical_week),
-            # "sys_max_month": int(sys_max_month),
-            # "sys_min_month": int(sys_min_month),
-            # "sys_avg_month": int(sys_avg_month),
-            # "sys_slice_normal_month": int(sys_slice_normal_month),
-            # "sys_slice_critical_month": int(sys_slice_critical_month),
-            "comments": '',
-            "name": category['description']
-        }
-
-        systolic = systolic_dic
-
-        # diastolic
-
-        response = getRecords(contract_id, 'diastolic_pressure')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        diastolic_dic = {
-            "x": x,
-            "y": y,
-            "name": category['description']
-        }
-
-        diastolic = diastolic_dic
-
-        # pulse
-
-        response = getRecords(contract_id, 'pulse')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        pulse_dic = {
-            "x": x,
-            "y": y,
-            "name": category['description']
-        }
-
-        pulse = pulse_dic
-
-        # medicines
-
-        query_str = "select * from medicines m inner join medicines_results mr on m.id = mr.medicines_id " + \
-                    " WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " ORDER BY time ASC"
-
-        records = DB.select(query_str)
-
-        array_x = []
-        array_y = []
-        text = []
-        dosage = []
-        amount = []
-        medicines_data = {}
-
-        for row in records:
-            date_ = row[13]
-            text.append(row[2])
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-
-        query_str = "SELECT m.name, m.dosage, m.amount, m.id, count(m.id) c FROM medicines m INNER JOIN medicines_results mr ON m.id = mr.medicines_id " + \
-                    " WHERE contract_id = " + \
-                    Aux.quote() + str(contract_id) + Aux.quote() + \
-                    " GROUP BY m.id"
-
-        records = DB.select(query_str)
-
-        for row in records:
-            name = row[0]
-            dosage = row[1]
-            amount = row[2]
-            medicines_id = row[3]
-            query_str = "SELECT * FROM medicines_results WHERE medicines_id = '" + medicines_id + "'"
-            results = DB.select(query_str)
-
-            medicines_times_ = []
-
-            for item in results:
-                date_ = item[2]
-                medicines_times_.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
-
-            medicines_data[name] = {
-                'medicines_times_': medicines_times_,
-                'dosage': dosage,
-                'amount': amount
-            }
-
-        medicine_dic = {
-            "x": array_x,
-            "y": array_y,
-            "text": text,
-            "dosage": [],
-            "amount": [],
-            "name": "Лекарства",
-            "medicines_data": medicines_data
-        }
-
-        medicine = medicine_dic
-
-        medicines_trace_data = medicines_data
-
-        # pain_assessment
-
-        response = getRecords(contract_id, 'pain_assessment')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        pain_assessment_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        # weight
-
-        response = getRecords(contract_id, 'weight')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        weight_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        weight_series = weight_dic
-
-        # temperature
-
-        response = getRecords(contract_id, 'temperature')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        temperature_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        temperature_series = temperature_dic
-
-        # ********************************************* glukose
-
-        response = getRecords(contract_id, 'glukose')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        glukose_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        glukose_series = glukose_dic
-
-        # spo2
-
-        response = getRecords(contract_id, 'spo2')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        spo2_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        spo2_series = spo2_dic
-
-        # waist_circumference
-
-        response = getRecords(contract_id, 'waist_circumference')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        waist_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        waist_series = waist_dic
-
-        # leg_circumference_left
-
-        response = getRecords(contract_id, 'leg_circumference_left')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        shin_left_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        shin_left = shin_left_dic
-
-        # leg_circumference_right
-
-        response = getRecords(contract_id, 'leg_circumference_right')
-        x = []
-        y = []
-        category = response['category']
-        values = response['values']
-
-        for value in values:
-            date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
-            y.append(value['value'])
-
-        shin_right_dic = {
-            "x": x,
-            "y": y,
-            "comments": comments,
-            "name": category['description']
-        }
-
-        shin_right = shin_right_dic
-
-        return render_template('graph.html',
-                               constants=constants,
-                               medicine=medicine,
-                               systolic=systolic,
-                               comments=comments,
-                               diastolic=diastolic,
-                               pulse_=pulse,
-                               glukose=glukose_series,
-                               weight=weight_series,
-                               temperature=temperature_series,
-                               pain_assessment=pain_assessment_dic,
-                               spo2=spo2_series,
-                               waist=waist_series,
-                               shin_left=shin_left,
-                               shin_right=shin_right,
-                               medicine_trace_data=medicines_trace_data
-                               )
-    else:
-        print('NONE_MEASUREMENTS')
-        return NONE_MEASUREMENTS
-
-    return "ok"
-
-    return render_template('graph-test.html')
-
-
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = quard()
@@ -1497,9 +1047,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         weight_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1519,9 +1073,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         temperature_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1541,9 +1099,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         glukose_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1563,9 +1125,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         spo2_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1585,9 +1151,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         waist_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1607,9 +1177,13 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max_min = dateMaxMin(x[0])
+
         shin_left_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }

@@ -1643,8 +1643,22 @@
                 dateAxis = chart.xAxes.push(new am4charts.DateAxis())
                 dateAxis.renderer.grid.template.location = params.location
 
-                dateAxis.start = 0.8;
-                dateAxis.keepSelection = true;
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                let date_max = new Date(params.model['date_max']);
+                let date_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart.events.on("ready", function () {
+                    dateAxis.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
 
                 yAxis = chart.yAxes.push(new am4charts.ValueAxis())
                 yAxis.min = params.y_min
@@ -1733,6 +1747,8 @@
         {#am4Core.darkTheme(am4core)#}
         am4Core.defaultTheme(am4core)
         let strokeWidth = 2
+        let date_max;
+        let date_min;
 
         // ************************************
         // ******* Create chart instance shin
@@ -1763,6 +1779,8 @@
         dateAxis.renderer.minGridDistance = 50;
         dateAxis.start = 0.8;
         dateAxis.keepSelection = true;
+
+
 
         var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
@@ -1821,7 +1839,79 @@
 
         console.log('params waist', params)
 
-        am4Core.makeGraph(params)
+        {#am4Core.makeGraph(params)#}
+
+
+                chart_waist = am4core.create(params.div, am4charts.XYChart)
+                chart_waist.language.locale = params.lang
+                dateAxis_waist = chart_waist.xAxes.push(new am4charts.DateAxis())
+                dateAxis_waist.renderer.grid.template.location = params.location
+
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                date_max = new Date(params.model['date_max']);
+                date_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart_waist.events.on("ready", function () {
+                    dateAxis_waist.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+
+                yAxis_waist = chart_waist.yAxes.push(new am4charts.ValueAxis())
+                yAxis_waist.min = params.y_min
+                yAxis_waist.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                data = data.reverse()
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+
+                {#console.log('tooltipText', tooltipText)#}
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates_format",
+                    "comments": "comments",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart_waist
+                }
+
+                {#console.warn('config', config)#}
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart_waist.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart_waist.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart_waist.exporting.menu = new am4core.ExportMenu()
+
 
         // ************************************
         // ******* Create chart instance spo2
@@ -1850,7 +1940,89 @@
 
         console.log('params spo2', params)
 
-        am4Core.makeGraph(params)
+        //am4Core.makeGraph(params)
+
+
+
+                chart_spo2 = am4core.create(params.div, am4charts.XYChart)
+                chart_spo2.language.locale = params.lang
+                dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
+                dateAxis_spo2.renderer.grid.template.location = params.location
+
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                date_max = new Date(params.model['date_max']);
+                ate_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart_spo2.events.on("ready", function () {
+                    dateAxis_spo2.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+
+                yAxis_spo2 = chart_spo2.yAxes.push(new am4charts.ValueAxis())
+                yAxis_spo2.min = params.y_min
+                yAxis_spo2.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                data = data.reverse()
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+
+                {#console.log('tooltipText', tooltipText)#}
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates_format",
+                    "comments": "comments",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart_spo2
+                }
+
+                {#console.warn('config', config)#}
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart_spo2.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart_spo2.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart_spo2.exporting.menu = new am4core.ExportMenu()
+
+
+
+
+
+
+
+
+
+
 
         // ************************************
         // ******* Create chart instance weight
@@ -1878,7 +2050,77 @@
 
         {#console.log('params weight', params)#}
 
-        am4Core.makeGraph(params)
+        {#am4Core.makeGraph(params)#}
+
+                chart_weight = am4core.create(params.div, am4charts.XYChart)
+                chart_weight.language.locale = params.lang
+                dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis())
+                dateAxis_weight.renderer.grid.template.location = params.location
+
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                date_max = new Date(params.model['date_max']);
+                ate_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart_weight.events.on("ready", function () {
+                    dateAxis_weight.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+
+                yAxis_weight = chart_weight.yAxes.push(new am4charts.ValueAxis())
+                yAxis_weight.min = params.y_min
+                yAxis_weight.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                data = data.reverse()
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+
+                {#console.log('tooltipText', tooltipText)#}
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates_format",
+                    "comments": "comments",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart_weight
+                }
+
+                {#console.warn('config', config)#}
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart_weight.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart_weight.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart_weight.exporting.menu = new am4core.ExportMenu()
 
         // *****************************************
         // ******* Create chart instance temperature
@@ -1903,9 +2145,77 @@
             "model": model
         }
 
-        am4Core.makeGraph(params)
+        {#am4Core.makeGraph(params)#}
 
-        {#params_temperature = params.model#}
+                chart_temperature = am4core.create(params.div, am4charts.XYChart)
+                chart_temperature.language.locale = params.lang
+                dateAxis_temperature = chart_temperature.xAxes.push(new am4charts.DateAxis())
+                dateAxis_temperature.renderer.grid.template.location = params.location
+
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                date_max = new Date(params.model['date_max']);
+                ate_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart_temperature.events.on("ready", function () {
+                    dateAxis_temperature.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+
+                yAxis_temperature = chart_temperature.yAxes.push(new am4charts.ValueAxis())
+                yAxis_temperature.min = params.y_min
+                yAxis_temperature.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                data = data.reverse()
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+
+                {#console.log('tooltipText', tooltipText)#}
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates_format",
+                    "comments": "comments",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart_temperature
+                }
+
+                {#console.warn('config', config)#}
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart_temperature.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart_temperature.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart_temperature.exporting.menu = new am4core.ExportMenu()
 
         // *************************************
         // ******* Create chart instance glukose
@@ -1930,9 +2240,91 @@
             "model": model
         }
 
-        am4Core.makeGraph(params)
-        {#console.log('3');#}
+        {#am4Core.makeGraph(params)#}
+
+                chart_glukose = am4core.create(params.div, am4charts.XYChart)
+                chart_glukose.language.locale = params.lang
+                dateAxis_glukose = chart_glukose.xAxes.push(new am4charts.DateAxis())
+                dateAxis_glukose.renderer.grid.template.location = params.location
+
+                {#dateAxis.start = 0.8;#}
+                {#dateAxis.keepSelection = true;#}
+
+                date_max = new Date(params.model['date_max']);
+                ate_min = new Date(params.model['date_min']);
+
+                console.log('date_max model = ', params.model.name, date_max);
+                console.log('date_min model = ', params.model.name, date_min);
+
+                // Pre-zoom the chart
+                chart_glukose.events.on("ready", function () {
+                    dateAxis_glukose.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+
+                yAxis_glukose = chart_glukose.yAxes.push(new am4charts.ValueAxis())
+                yAxis_glukose.min = params.y_min
+                yAxis_glukose.max = params.y_max
+                model = params.model
+                data = dataObject.dataTransform(model)
+                data = data.reverse()
+                min = params.min
+                max = params.max
+
+                for (key in data) {
+                    if (data[key]['y'] > max || data[key]['y'] < min) {
+                        data[key]['color_danger'] = namesConstants.get('color_danger')
+                        data[key]['disabled'] = false
+                    } else {
+                        data[key]['disabled'] = true
+                    }
+                }
+
+                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+
+                {#console.log('tooltipText', tooltipText)#}
+
+                config = {
+                    "name": model.name,
+                    "field": "y",
+                    "dateX": "dates_format",
+                    "comments": "comments",
+                    "tooltipText": tooltipText,
+                    "color": params.color,
+                    "color_danger": "color_danger",
+                    "strokeWidth": params.strokeWidth,
+                    "disabled": "disabled",
+                    "chart": chart_glukose
+                }
+
+                {#console.warn('config', config)#}
+
+                am4Core.createSeries(data, config)
+
+                // Create legend
+                chart_glukose.legend = new am4charts.Legend()
+
+                // Create cursor
+                chart_glukose.cursor = new am4charts.XYCursor()
+
+                // Enable export
+                chart_glukose.exporting.menu = new am4core.ExportMenu()
+
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Chart donat -->
     <script>
