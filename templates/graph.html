@@ -1773,15 +1773,26 @@
         // Add data
         chart.data = shinData.reverse()
 
-        console.log('shinData >> ', shinData)
-
         // Create axes
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.renderer.minGridDistance = 50;
-        dateAxis.start = 0.8;
-        dateAxis.keepSelection = true;
 
+        {#dateAxis.start = 0.8;#}
+        {#dateAxis.keepSelection = true;#}
 
+        date_max = new Date(shin_left['date_max']);
+        date_min = new Date(shin_left['date_min']);
+
+        console.log('date_max shin = ', date_max);
+        console.log('date_min shin = ', date_min);
+
+        // Pre-zoom the chart
+        chart.events.on("ready", function () {
+            dateAxis.zoomToDates(
+                date_min,
+                date_max
+            );
+        });
 
         var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
