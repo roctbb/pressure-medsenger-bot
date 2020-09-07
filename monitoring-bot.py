@@ -1275,23 +1275,12 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_min = x[6]
         date_max = x[0]
-        # print('date_max = ', date_max)
-        # print('date_min = ', date_min)
 
         dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
-
-        print('dt = ', dt)
-        print(time.strftime('%Y-%m-%d', dt))
-
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
-
         date_min = delta
-
-        date_max__ = time.strftime('%Y-%m-%d', dt)
-        date_max = date_max__
-        print('date_max__ = ', date_max__, date_max)
+        date_max = time.strftime('%Y-%m-%d', dt)
 
         print('delta = ', delta)
         print('date_max = ', date_max)

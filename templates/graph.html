@@ -1153,27 +1153,11 @@
 
             chart.data = data.reverse();
 
-            let date_max = systolic['date_max'];
-            let date_min = systolic['date_min'];
+            let date_max = new Date(systolic['date_max']);
+            let date_min = new Date(systolic['date_min']);
 
-            date_max = new Date(date_max);
-            date_min = new Date(date_min);
-
-            console.log('date_max 1 = ', date_max);
-            console.log('date_min 1 = ', date_min);
-
-            {#date_max = new Date('2020-07-04');#}
-            {#date_min = new Date('2020-09-07');#}
-
-            {#date_max = new Date('2020-09-07');#}
-            {#date_min = new Date('2020-08-31 16:59:43');#}
-            {##}
-            {#console.log('date_max 2 = ', date_max)#}
-            {#console.log('date_min 2 = ', date_min)#}
-
-            {#console.log('--- max', new Date('2020-09-07'))#}
-            {#console.log('--- min', new Date('2020-07-04'))#}
-
+            console.log('date_max = ', date_max);
+            console.log('date_min = ', date_min);
 
             // Pre-zoom the chart
             chart.events.on("ready", function () {
