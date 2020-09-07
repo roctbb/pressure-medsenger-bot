@@ -1464,9 +1464,22 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
+        date_max = x[0]
+
+        dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
+        delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+        date_min = delta
+        date_max = time.strftime('%Y-%m-%d', dt)
+
+        print('delta pain_assessment = ', delta)
+        print('date_max pain_assessment = ', date_max)
+        print('date_min pain_assessment = ', date_min)
+
         pain_assessment_dic = {
             "x": x,
             "y": y,
+            "date_max": date_max,
+            "date_min": date_min,
             "comments": comments,
             "name": category['description']
         }

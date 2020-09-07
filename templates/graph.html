@@ -1425,8 +1425,8 @@
             let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis())
             categoryAxis_pain.renderer.grid.template.location = 0
 
-            categoryAxis_pain.start = 0.8;
-            categoryAxis_pain.keepSelection = true;
+            {#categoryAxis_pain.start = 0.8;#}
+            {#categoryAxis_pain.keepSelection = true;#}
 
             {#categoryAxis.renderer.labels.template.rotation = 90;#}
             {#categoryAxis.renderer.minGridDistance = 30;#}
@@ -1442,6 +1442,20 @@
             valueAxis_pain.renderer.minGridDistance = 50
 
             chart_pain.data = data_pain.reverse()
+
+            let date_max = new Date(pain_assessment['date_max']);
+            let date_min = new Date(pain_assessment['date_min']);
+
+            console.log('date_max pain = ', date_max);
+            console.log('date_min pian = ', date_min);
+
+            // Pre-zoom the chart
+            chart_pain.events.on("ready", function () {
+                categoryAxis_pain.zoomToDates(
+                    date_min,
+                    date_max
+                );
+            });
 
             image_width_pain = 9
 
