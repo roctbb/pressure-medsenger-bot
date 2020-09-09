@@ -351,7 +351,7 @@
 {#        #}
 {#    </div>#}
 
-    <div id="chartdiv__" class="chartdiv height-530__ dark" style="width: 100%; height: 590px; min-height: 250px;"></div>
+    <div id="chartdiv__" class="chartdiv height-530__ dark" style="width: 100%; height: 800px; min-height: 600px;"></div>
 {#     <div id="chartdiv-more" class="chartdiv height-530 dark"></div>#}
 
     <div id="chartdiv_spo2" class="chartdiv height-530 dark"></div>
@@ -944,7 +944,7 @@
         namesConstants.set('color_weight', 'lightgreen')
         namesConstants.set('color_temperature', '#23759F')
 
-        // Create chart instance
+        // Create chart instance pressure
         am4core__.ready(function() {
             // Vars
             var i = 0
@@ -1002,7 +1002,7 @@
             let dates_medicines = []
             let data_ = {}
             let date_in = ''
-            let _y = -20
+            let _y = 2
             let series_name = ''
             let dosage = ''
             let amount = ''
@@ -1216,7 +1216,7 @@
                     createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index])
                 }
 
-                _y -= 15
+                _y += 3
                 color_index++
             }
 
@@ -1248,32 +1248,32 @@
                 image.horizontalCenter = "middle";
                 image.verticalCenter = "middle";
 
-                bullet.tooltipText = config.tooltipText
-                chart.scrollbarX = new am4core__.Scrollbar()
-                chart.scrollbarН = new am4core__.Scrollbar()
+                bullet.tooltipText = config.tooltipText;
+                chart.scrollbarX = new am4core__.Scrollbar();
+                {#chart.scrollbarН = new am4core__.Scrollbar()#}
 
                 if (name == systolic.name) {
                     {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
                     {#bullet.propertyFields.fill = "systolic_up_color"#}
-                    bullet.disabled = true
-                    bullet.propertyFields.disabled = "disabled_systolic"
+                    bullet.disabled = true;
+                    bullet.propertyFields.disabled = "disabled_systolic";
                 }
 
                 if (name == diastolic.name) {
                     {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
                     {#bullet.propertyFields.fill = "diastolic_down_color"#}
-                    bullet.disabled = true
-                    bullet.propertyFields.disabled = "disabled_diastolic"
+                    bullet.disabled = true;
+                    bullet.propertyFields.disabled = "disabled_diastolic";
                 }
 
                 if (name == pulse_.name) {
                     {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
                     {#bullet.propertyFields.fill = "pulse_up_color"#}
-                    bullet.disabled = true
-                    bullet.propertyFields.disabled = "disabled_pulse"
+                    bullet.disabled = true;
+                    bullet.propertyFields.disabled = "disabled_pulse";
                 }
             }
 
@@ -1323,7 +1323,7 @@
         am4charts_pain = am4charts
 
         am4core_pain.ready(function() {
-            delta_y = -0.5
+            delta_y = 10
             dates_medicines = []
             data_ = {}
             date_in = ''
@@ -1558,7 +1558,7 @@
                     createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index])
                 }
 
-                delta_y -= 0.5
+                delta_y += 3
                 color_index++
             }
 
