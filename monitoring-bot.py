@@ -24,14 +24,24 @@ class CategoryParams(db.Model):
 
 # METHODS
 
-def dateMaxMin(date_max):
+def dateMaxMin(date):
     out = []
-    date_max = date_max
 
-    dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
-    delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+    try:
+        date_max = date
+    except Exception as e:
+        out_red(e)
+        date_max = datetime.datetime.now().strftime(DATE_HOUR_FORMAT)
+
+    # dt = time.strptime(date_max, DATE_HOUR_FORMAT)
+    delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
     date_min = delta
-    date_max = time.strftime('%Y-%m-%d', dt)
+
+    # date_max = time.strftime('%Y-%m-%d', dt)
+
+    print('date_max | dateMaxMin = ', date_max)
+    # print('dt = ', dt)
+    # print('date_max 2 = ', date_max)
 
     out.append(date_max)
     out.append(date_min)
@@ -842,7 +852,12 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max = x[0]
+        try:
+            date_max = x[0]
+        except Exception as e:
+            out_red(e)
+            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
@@ -1031,7 +1046,11 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max = x[0]
+        try:
+            date_max = x[0]
+        except Exception as e:
+            out_red(e)
+            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')

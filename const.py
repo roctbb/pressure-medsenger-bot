@@ -2,6 +2,8 @@ backhistory = "<br><a style='font-family: Arial; cursor: pointer; border: 0px so
 open_tag = "<p style='font-family: Arial;'>"
 close_tag = "</p>"
 
+DATE_HOUR_FORMAT = '%Y-%m-%d %H:%M:%S'
+
 MAX_SPO2 = 100
 MIN_SPO2 = 50
 MAX_WAIST = 250
