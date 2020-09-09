@@ -24,6 +24,10 @@
     <style >
         @import url("https://fonts.googleapis.com/css?family=Archivo+Narrow");
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: "Tahoma", "Archivo Narrow";
         }
@@ -315,7 +319,6 @@
 
     <nav class="nav">
 		<ul>
-{#            <li class="current"><a href="#">Portfolio</a></li>#}
             <li class="current"><a id="all_graph" href="#">Все графики</a></li>
             <li><a id="pressure_graph" href="#">График измерения давления</a></li>
             <li><a id="weight_graph" href="#">График измерения веса</a></li>
@@ -327,11 +330,6 @@
             <li><a id="shin_button" href="#">Обхват голени</a></li>
 {#            <li><a id="stat_button" href="#">Статистика измерения давления</a></li>#}
 
-{#			<li class="current"><a href="#">Portfolio</a></li>#}
-{#			<li><a href="#">Illustration</a></li>#}
-{#			<li><a href="#">Web Design</a></li>#}
-{#			<li><a href="#">Print Media</a></li>#}
-{#			<li><a href="#">Graphic Design</a></li>#}
 		</ul>
 	</nav>
 
@@ -340,16 +338,6 @@
     {% endfor %}
 
     <div>
-{#        <button id="all_graph" class="btn btn-success">Все графики</button>#}
-{#        <button id="pressure_graph" class="btn">График измерения давления</button>#}
-{#        <button id="weight_graph" class="btn">График измерения веса</button>#}
-{#        <button id="glukose_graph" class="btn">График уровеня глюкозы</button>#}
-{#        <button id="temperature_graph" class="btn">График измерения температуры</button>#}
-{#        <button id="pain_button" class="btn">График оценки боли</button>#}
-{#        <button id="spo2_button" class="btn">Насыщение крови кислородом</button>#}
-{#        <button id="waist_button" class="btn">Насыщение крови кислородом</button>#}
-{#        <button id="stat_button" class="btn">Статистика измерения давления</button>#}
-
         <select id="theme" class="hidden">
             <option>Тема</option>
             <option value="light">Светлая</option>
@@ -358,11 +346,12 @@
 
     </div>
 
-    <div>
-        <p style="margin-top: 10px; margin-bottom: -25px; margin-left: 50px; font-size: small; color: #666666;">На графиках красными точками обозначены измерения, выходящие за диапазон допустимых значений.</p>
-        <div id="chartdiv__" class="chartdiv height-530 dark"></div>
-    </div>
+{#    <div>#}
+{#        <p style="margin-top: 10px; margin-bottom: -25px; margin-left: 50px; font-size: small; color: #666666;">На графиках красными точками обозначены измерения, выходящие за диапазон допустимых значений.</p>#}
+{#        #}
+{#    </div>#}
 
+    <div id="chartdiv__" class="chartdiv height-530__ dark" style="width: 100%; height: 590px; min-height: 250px;"></div>
 {#     <div id="chartdiv-more" class="chartdiv height-530 dark"></div>#}
 
     <div id="chartdiv_spo2" class="chartdiv height-530 dark"></div>

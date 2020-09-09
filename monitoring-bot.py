@@ -33,10 +33,6 @@ def dateMaxMin(date_max):
     date_min = delta
     date_max = time.strftime('%Y-%m-%d', dt)
 
-    print('delta ******* = ', delta)
-    print('date_max ******* = ', date_max)
-    print('date_min ******* = ', date_min)
-
     out.append(date_max)
     out.append(date_min)
 
@@ -56,6 +52,27 @@ def getBotCategories():
         print('ERROR CONNECTION', e)
         return 'ERROR CONNECTION'
 
+def getAgentToken(contract):
+    try:
+        data_request = {
+            "api_key": APP_KEY,
+            "contract_id": contract
+        }
+
+        response = requests.post(MAIN_HOST + '/api/agents/token', json=data_request)
+
+        if (response.status_code == 200):
+            return json.loads(response.text)
+
+        return response.status_code
+
+
+    except Exception as e:
+        print('Error getAgentToken(): ', e)
+
+# response =  getAgentToken(2)
+# out_green_light('response')
+# out_green_light(response['agent_token'])
 
 def getCategories():
     try:
@@ -1455,13 +1472,18 @@ def medicines():
 
     medicine_data = {}
 
+    response = getAgentToken(contract_id)
+    agent_token = response['agent_token']
+
+    out_yellow(agent_token)
+
     for row in records:
         id = row[0]
         name = row[1]
 
         medicine_data[name] = {
             'id': id,
-            'action_link': MAIN_HOST + '/api/client/agents/' + str(AGENT_ID) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id)
+            'action_link': MAIN_HOST + '/api/client/agents/' + str(AGENT_ID) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id) + '&agent_token=' + str(agent_token)
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)

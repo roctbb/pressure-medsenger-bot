@@ -10,32 +10,30 @@
 
             <p class="success"></p>
 
+            <form>
             {% for item in medicine_data %}
                 <p>
-                    <a data="{{ medicine_data[item] }}" onclick="postMessage__({{ medicine_data[item] }})" id="{{ medicine_data[item]['id' ] }}" href="{{ medicine_data[item]['action_link'] }}" class="btn btn-success j">
+                    <a data="{{ medicine_data[item] }}" id="{{ medicine_data[item]['id' ] }}" href="{{ medicine_data[item]['action_link'] }}" class="btn btn-success j">
                         Подтвердить прием: {{ item }}
                     </a>
                 </p>
             {% endfor %}
+            </form>
+
         </div>
     </div>
 
     {% block body_script %}
         {{ super() }}
 
-
         <script>
             const postMessage__ = (obj => {
-                {#log(obj)#}
-                {#log('-------')#}
                 log(obj['id'])
                 log(obj['action_link'])
 
             })
 
             ;(function() {
-                {#'use strict'#}
-
                 const medicine_data = {{ medicine_data | safe }}
 
                 console.log('medicine_data = ', medicine_data)
