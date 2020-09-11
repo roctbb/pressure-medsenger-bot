@@ -38,8 +38,8 @@ try:
     if query.count() != 0:
         tasks = query.all()
 
-    for task in tasks:
-        print(task)
+        for task in tasks:
+            print(task)
 
     out_yellow('end test')
 
@@ -49,7 +49,7 @@ except Exception as e:
 
 # METHODS
 
-def gts():
+def now():
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -927,7 +927,7 @@ def graph():
             date_max = x[0]
         except Exception as e:
             out_red(e)
-            date_max = gts()
+            date_max = now()
 
         dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
