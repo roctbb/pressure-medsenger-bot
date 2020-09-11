@@ -2585,6 +2585,7 @@ def action_pull_save(pull):
             out_yellow("WARNING_NOT_INT")
 
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
+            error('Сигналим врачу по голени')
             delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
 
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
@@ -2651,9 +2652,11 @@ def action_pull_save(pull):
             out_red_light("WARNING_NOT_INT")
 
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
+            error('Сигналим врачу по давлению')
             delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
 
         if not (min_pulse <= pulse_ <= max_pulse):
+            error('Сигналим врачу по пульсу')
             delayed(1, warning, [contract_id, 'pulse', pulse_])
 
         delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
@@ -2733,6 +2736,8 @@ def action_pull_save(pull):
             out_yellow('Сигналим врачу')
             print('param = ', param)
             print('param_value', param_value)
+            print('min = ', min)
+            print('max = ', max)
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
