@@ -5,10 +5,10 @@ class ContractTasks(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     contract_id = db.Column(db.Integer)
+    task_id = db.Column(db.Integer)
     last_task_push = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-
 
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
@@ -32,59 +32,40 @@ class CategoryParams(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
-# try:
-#     query = ContractTasks.query.filter_by(contract_id=2)
-#
-#     if query.count() != 0:
-#         tasks = query.all()
-#
-#         for task in tasks:
-#             print(task)
-#
-#     out_yellow('end test')
-#
-# except Exception as e:
-#     out_red_light('ERROR ContractTasks')
-#     print(e)
 
 # METHODS
 
 def now():
-    now = datetime.datetime.now()
-    return now.strftime(DATE_HOUR_FORMAT)
+    date_now = datetime.datetime.now()
+    return date_now.strftime(DATE_HOUR_FORMAT)
 
-# response = make_task(2, 1)
 
-# print('response = ', response)
+def submit_task(contract_id, task_id):
+    if contract_id:
+        make_task(contract_id, task_id)
 
-def submit_task(contract_id):
-    if contract.last_task_id:
-        make_task(contract.id, contract.last_task_id)
+
     contract_last_task_id = None
 
-# def submit_task(contract_id):
-#     if contract.last_task_id:
-#         make_task(contract.id, contract.last_task_id)
-#     contract.last_task_id = None
 
-def drop_task(contract_id, task_id):
+def drop_tasks(contract_id):
     if contract_id:
-        delete_task(contract_id, task_id)
+        try:
+            q = ContractTasks.query.filter_by(contract_id=2)
 
-    # contract_last_task_id = None
 
-# def drop_task(contract):
-#     if contract.last_task_id:
-#         delete_task(contract.id, contract.last_task_id)
-#     contract.last_task_id = None
+
+            q.delete()
+            db.session.commit()
+            out_green_light('drop_tasks success')
+
+        except Exception as e:
+            print('error drop_tasks', e)
+
 
 def init_task(contract_id, text, action_link):
-    drop_task(contract_id)
+    drop_tasks(contract_id)
     contract_last_task_id = add_task(contract_id, text, action_link)
-
-# def init_task(contract_id):
-#     drop_task(contract_id)
-#     contract.last_task_id = add_task(contract_id, "Заполнить анкету кардиомониторинга", action_link='frame')
 
 
 def dateMaxMin(date):
@@ -103,6 +84,7 @@ def dateMaxMin(date):
 
     return out
 
+
 def getBotCategories():
     try:
         query = CategoryParams.query
@@ -116,6 +98,7 @@ def getBotCategories():
     except Exception as e:
         print('ERROR CONNECTION', e)
         return 'ERROR CONNECTION'
+
 
 def getAgentToken(contract):
     try:
@@ -135,9 +118,6 @@ def getAgentToken(contract):
     except Exception as e:
         print('Error getAgentToken(): ', e)
 
-# response =  getAgentToken(2)
-# out_green_light('response')
-# out_green_light(response['agent_token'])
 
 def getCategories():
     try:
@@ -298,6 +278,56 @@ def warning(contract_id, param, param_value, param_value_2=''):
         post_request(data_doctor)
         print('warning')
         print(Debug.delimiter())
+
+
+def quard_data_json(data):
+    if (data == None):
+        out_red_light('data None')
+        return 'None'
+
+    if ('api_key' not in data):
+        out_red_light('key api_key not exists')
+        return 'key api_key not exists'
+
+    if (APP_KEY != data['api_key']):
+        out_red_light('invalid key')
+        return 'invalid key'
+
+    if ('contract_id' not in data):
+        out_red_light('key contract_id not exists')
+        return 'key contract_id not exists'
+
+    contract_id = data['contract_id']
+
+    return contract_id
+
+
+def quard():
+    key = request.args.get('api_key', '')
+
+    if key != APP_KEY:
+        out_red_light('WRONG_APP_KEY')
+        return 'WRONG_APP_KEY'
+
+    try:
+        contract_id = int(request.args.get('contract_id', ''))
+    except Exception as e:
+        out_red_light('ERROR_CONTRACT')
+        print(e)
+        return 'ERROR_CONTRACT'
+
+    try:
+        actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
+
+        for actual_bot in actual_bots:
+            return actual_bot.contract_id
+
+    except Exception as e:
+        out_red_light('ERROR_QUARD')
+        print(e)
+        return 'ERROR QUARD'
+
+    return contract_id
 
 
 def sender():
@@ -462,6 +492,24 @@ def sender():
                                             if (delta < 60):
                                                 no_message = True
 
+                                                # contracts = Contract.query.all()
+                                                # now = datetime.datetime.now()
+                                                # hour = now.hour
+                                                # for contract in contracts:
+                                                #     if hour > 0 and hour < 8 and time.time() - contract.last_task_push > get_delta(
+                                                #             contract.mode) - 8 * 60 * 60:
+                                                #         print("{}: Init task to {}".format(gts(), contract.id))
+                                                #         init_task(contract)
+                                                #
+                                                #     if contract.last_task_id != None and time.time() - contract.last_push > get_delta(
+                                                #             contract.mode):
+                                                #         send(contract.id)
+                                                #         print("{}: Sending form to {}".format(gts(), contract.id))
+                                                #         contract.last_push = int(time.time())
+                                                #
+                                                # db.session.commit()
+                                                # time.sleep(60 * 5)
+
                                             break
 
                                     print('no_message', no_message)
@@ -612,55 +660,62 @@ def sender():
         time.sleep(20)
 
 
-def quard_data_json(data):
-    if (data == None):
-        out_red_light('data None')
-        return 'None'
-
-    if ('api_key' not in data):
-        out_red_light('key api_key not exists')
-        return 'key api_key not exists'
-
-    if (APP_KEY != data['api_key']):
-        out_red_light('invalid key')
-        return 'invalid key'
-
-    if ('contract_id' not in data):
-        out_red_light('key contract_id not exists')
-        return 'key contract_id not exists'
-
-    contract_id = data['contract_id']
-
-    return contract_id
-
-
-def quard():
-    key = request.args.get('api_key', '')
-
-    if key != APP_KEY:
-        out_red_light('WRONG_APP_KEY')
-        return 'WRONG_APP_KEY'
-
+def getTasks(contract_id):
     try:
-        contract_id = int(request.args.get('contract_id', ''))
-    except Exception as e:
-        out_red_light('ERROR_CONTRACT')
-        print(e)
-        return 'ERROR_CONTRACT'
+        q = ContractTasks.query.filter_by(contract_id=contract_id)
+        __tasks = []
 
-    try:
-        actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
+        if q.count() != 0:
+            return q.all()
 
-        for actual_bot in actual_bots:
-            return actual_bot.contract_id
+        return __tasks
 
     except Exception as e:
-        out_red_light('ERROR_QUARD')
+        error('Error get_tasks()')
         print(e)
-        return 'ERROR QUARD'
 
-    return contract_id
 
+# Testing place
+
+zzz = getTasks(2)
+
+print('zzz = ', zzz, len(zzz))
+
+for task in zzz:
+    print(task.task_id)
+
+# drop_tasks(2)
+
+# try:
+#     query = ContractTasks.query.filter_by(contract_id=2)
+#
+#     # query.delete()
+#     #
+#     # db.session.commit()
+#
+#     # db.session.delete(query)
+#     # db.session.commit()
+#     #
+#     # obj = db.session.query(ContractTasks).filter(ContractTasks.contract_id == 2).first()
+#     #
+#     # print('obj = ', obj)
+#
+#     # session.delete(obj)
+#     # session.commit()
+#
+#     # if query.count() != 0:
+#     #     tasks = query.all()
+#
+#     # for task in tasks:
+#     #     print(task)
+#
+#     out_green_light('test success')
+#
+# except Exception as e:
+#     out_red_light('ERROR ContractTasks')
+#     print(e)
+
+# END Testing place
 
 # GET ROUTES
 
@@ -2675,7 +2730,7 @@ def action_pull_save(pull):
 
         if (param_value < min or param_value > max):
             # Сигналим врачу
-            out_red_light('Сигналим врачу')
+            out_yellow('Сигналим врачу')
             print('param = ', param)
             print('param_value', param_value)
             delayed(1, warning, [contract_id, param, param_value])
