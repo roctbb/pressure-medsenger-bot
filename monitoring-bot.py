@@ -32,44 +32,26 @@ class CategoryParams(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
-try:
-    query = ContractTasks.query.filter_by(contract_id=2)
-
-    if query.count() != 0:
-        tasks = query.all()
-
-        for task in tasks:
-            print(task)
-
-    out_yellow('end test')
-
-except Exception as e:
-    out_red_light('ERROR ContractTasks')
-    print(e)
+# try:
+#     query = ContractTasks.query.filter_by(contract_id=2)
+#
+#     if query.count() != 0:
+#         tasks = query.all()
+#
+#         for task in tasks:
+#             print(task)
+#
+#     out_yellow('end test')
+#
+# except Exception as e:
+#     out_red_light('ERROR ContractTasks')
+#     print(e)
 
 # METHODS
 
 def now():
     now = datetime.datetime.now()
-    return now.strftime("%Y-%m-%d %H:%M:%S")
-
-def make_task(contract_id, task_id):
-    data = {
-        "contract_id": contract_id,
-        "api_key": APP_KEY,
-        "task_id": task_id,
-    }
-
-    try:
-        answer = requests.post(MAIN_HOST + '/api/agents/tasks/done', json=data).json()
-
-        print('answer = ', answer)
-
-        return answer['is_done']
-
-    except Exception as e:
-        out_red_light('error make_task')
-        print('error: ', e)
+    return now.strftime(DATE_HOUR_FORMAT)
 
 # response = make_task(2, 1)
 
@@ -78,30 +60,32 @@ def make_task(contract_id, task_id):
 def submit_task(contract_id):
     if contract.last_task_id:
         make_task(contract.id, contract.last_task_id)
-    contract.last_task_id = None
+    contract_last_task_id = None
 
-def drop_task(contract):
-    if contract.last_task_id:
-        delete_task(contract.id, contract.last_task_id)
-    contract.last_task_id = None
-
-def init_task(contract):
-    drop_task(contract)
-    contract.last_task_id = add_task(contract.id, "Заполнить анкету кардиомониторинга", action_link='frame')
-
-# def submit_task(contract):
+# def submit_task(contract_id):
 #     if contract.last_task_id:
 #         make_task(contract.id, contract.last_task_id)
 #     contract.last_task_id = None
-#
+
+def drop_task(contract_id, task_id):
+    if contract_id:
+        delete_task(contract_id, task_id)
+
+    # contract_last_task_id = None
+
 # def drop_task(contract):
 #     if contract.last_task_id:
 #         delete_task(contract.id, contract.last_task_id)
 #     contract.last_task_id = None
-#
-# def init_task(contract):
-#     drop_task(contract)
-#     contract.last_task_id = add_task(contract.id, "Заполнить анкету кардиомониторинга", action_link='frame')
+
+def init_task(contract_id, text, action_link):
+    drop_task(contract_id)
+    contract_last_task_id = add_task(contract_id, text, action_link)
+
+# def init_task(contract_id):
+#     drop_task(contract_id)
+#     contract.last_task_id = add_task(contract_id, "Заполнить анкету кардиомониторинга", action_link='frame')
+
 
 def dateMaxMin(date):
     out = []
@@ -1915,35 +1899,12 @@ def init():
 
             print('preset = ', preset)
 
-            try:
-                max_systolic = preset_params['max_systolic']
-            except Exception as e:
-                max_systolic = MAX_SYSTOLIC_DEFAULT
-
-            try:
-                min_systolic = preset_params['min_systolic']
-            except Exception as e:
-                min_systolic = MIN_SYSTOLIC_DEFAULT
-
-            try:
-                max_diastolic = preset_params['max_diastolic']
-            except Exception as e:
-                max_diastolic = MAX_DIASTOLIC_DEFAULT
-
-            try:
-                min_diastolic = preset_params['min_diastolic']
-            except Exception as e:
-                min_diastolic = MIN_DIASTOLIC_DEFAULT
-
-            try:
-                max_pulse = preset_params['max_pulse']
-            except Exception as e:
-                max_pulse = MAX_PULSE_DEFAULT
-
-            try:
-                min_pulse = preset_params['min_pulse']
-            except Exception as e:
-                min_pulse = MIN_PULSE_DEFAULT
+            max_systolic = MAX_SYSTOLIC_DEFAULT
+            min_systolic = MIN_SYSTOLIC_DEFAULT
+            max_diastolic = MAX_DIASTOLIC_DEFAULT
+            min_diastolic = MIN_DIASTOLIC_DEFAULT
+            max_pulse = MAX_PULSE_DEFAULT
+            min_pulse = MIN_PULSE_DEFAULT
 
             params = {
                 "max_systolic": max_systolic,
@@ -2123,6 +2084,7 @@ def init():
                 }
             }
 
+            init_task(contract_id, 'Записать давление', '/frame/pressure')
             delayed(1, post_request, [data])
 
             try:
@@ -2252,6 +2214,7 @@ def init():
                     }
                 }
 
+                init_task(contract_id, 'Записать вес', '/frame/weight')
                 delayed(1, post_request, [data])
             else:
                 show = False
@@ -2309,6 +2272,7 @@ def init():
                     }
                 }
 
+                init_task(contract_id, 'Записать окружность талии', '/frame/waist')
                 delayed(1, post_request, [data])
             else:
                 params = {}
@@ -2413,6 +2377,7 @@ def init():
                     }
                 }
 
+                init_task(contract_id, 'Записать размеры обхвата голеней', '/frame/shin')
                 delayed(1, post_request, [data])
             else:
                 show = False
