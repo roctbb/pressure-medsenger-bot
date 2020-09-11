@@ -110,7 +110,7 @@ def dateMaxMin(date):
         date_max = date
     except Exception as e:
         out_red_light(e)
-        date_max = datetime.datetime.now().strftime(DATE_HOUR_FORMAT)
+        date_max = now()
 
     delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
     date_min = delta
@@ -1181,7 +1181,10 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         temperature_dic = {
             "x": x,
