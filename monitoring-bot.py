@@ -2675,15 +2675,19 @@ def action_pull_save(pull):
         # for row in records:
         #     params = row[0]
 
-        try:
-            query = CategoryParams.query.filter_by(contract_id=contract_id, category=pull)
+        info_cyan('START TEST')
 
-            if query.count() != 0:
-                contract = query.first()
+        try:
+            q = CategoryParams.query.filter_by(contract_id=contract_id, category=pull)
+
+            print(q)
+
+            if q.count() != 0:
+                contract = q.first()
                 params = contract.params
                 print('params = ', params)
         except Exception as e:
-            out_red_light('ERROR CONNECTION')
+            error('ERROR CONNECTION')
             print(e)
 
         try:
