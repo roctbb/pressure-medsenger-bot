@@ -71,7 +71,7 @@ def make_task(contract_id, task_id):
         out_red_light('error make_task')
         print('error: ', e)
 
-response = make_task(2, 1)
+# response = make_task(2, 1)
 
 print('response = ', response)
 
