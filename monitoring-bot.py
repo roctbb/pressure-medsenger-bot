@@ -920,7 +920,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -929,14 +929,14 @@ def graph():
             out_red(e)
             date_max = now()
 
-        dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
-        delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+        dt = time.strptime(date_max, DATE_HOUR_FORMAT)
+        delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
         date_min = delta
         date_max = time.strftime('%Y-%m-%d', dt)
 
-        print('delta = ', delta)
-        print('date_max = ', date_max)
-        print('date_min = ', date_min)
+        print('delta systolic = ', delta)
+        print('date_max systolic = ', date_max)
+        print('date_min systolic = ', date_min)
 
         systolic_dic = {
             "x": x,
@@ -966,10 +966,6 @@ def graph():
 
         systolic = systolic_dic
 
-        # print('systolic = ', systolic)
-
-        # diastolic
-
         response = getRecords(contract_id, 'diastolic_pressure')
 
         x = []
@@ -977,26 +973,10 @@ def graph():
         category = response['category']
         values = response['values']
 
-        # chartData = []
-        # insertQuery = []
-
-        # values = response['values']
-
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
-
-        #     chartData.append({
-        #         'date': date.strftime("%Y-%m-%d %H:%M:%S"),
-        #         'visits': value['value']
-        #     })
-        #
-        #     print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(
-        #         value['value']) + ", 28, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
-        #
-        # print('insertQuery = ', insertQuery)
-        # print(Debug.delimiter())
 
         diastolic_dic = {
             "x": x,
@@ -1014,24 +994,10 @@ def graph():
         category = response['category']
         values = response['values']
 
-        # chartData = []
-        # insertQuery = []
-
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
-
-        #     chartData.append({
-        #         'date': date.strftime("%Y-%m-%d %H:%M:%S"),
-        #         'visits': value['value']
-        #     })
-        #
-        #     print("INSERT INTO medical_records VALUES(nextval('medical_records_id_seq'), " + str(
-        #         value['value']) + ", 26, 4, 2, '" + date.strftime("%Y-%m-%d %H:%M:%S") + "', '2020-09-04 11:34:04');")
-        #
-        # print('insertQuery = ', insertQuery)
-        # print(Debug.delimiter())
 
         pulse_dic = {
             "x": x,
@@ -1060,7 +1026,7 @@ def graph():
         for row in records:
             date_ = row[13]
             text.append(row[2])
-            array_x.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
+            array_x.append(date_.strftime(DATE_HOUR_FORMAT))
 
         query_str = "SELECT m.name, m.dosage, m.amount, m.id, count(m.id) c FROM medicines m INNER JOIN medicines_results mr ON m.id = mr.medicines_id " + \
                     " WHERE contract_id = " + \
@@ -1081,7 +1047,7 @@ def graph():
 
             for item in results:
                 date_ = item[2]
-                medicines_times_.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
+                medicines_times_.append(date_.strftime(DATE_HOUR_FORMAT))
 
             medicines_data[name] = {
                 'medicines_times_': medicines_times_,
@@ -1113,29 +1079,19 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
-            date_max = x[0]
+            date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            out_red(e)
-            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
-        delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
-        date_min = delta
-        date_max = time.strftime('%Y-%m-%d', dt)
-
-        print('delta pain_assessment = ', delta)
-        print('date_max pain_assessment = ', date_max)
-        print('date_min pain_assessment = ', date_min)
+            date_max_min = now()
 
         pain_assessment_dic = {
             "x": x,
             "y": y,
-            "date_max": date_max,
-            "date_min": date_min,
+            "date_max": date_max_min[0],
+            "date_min": date_max_min[1],
             "comments": comments,
             "name": category['description']
         }
@@ -1150,10 +1106,13 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         weight_dic = {
             "x": x,
@@ -1174,11 +1133,9 @@ def graph():
         category = response['category']
         values = response['values']
 
-        print('values = ', values)
-
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -1207,7 +1164,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -1236,7 +1193,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -1265,7 +1222,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -1294,7 +1251,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         try:
@@ -1323,7 +1280,7 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
-            x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
+            x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
         shin_right_dic = {
@@ -1334,8 +1291,6 @@ def graph():
         }
 
         shin_right = shin_right_dic
-
-        # print('systolic = ', systolic)
 
         return render_template('graph.html',
                                constants=constants,
