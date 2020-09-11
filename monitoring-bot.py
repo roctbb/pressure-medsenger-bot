@@ -1109,6 +1109,9 @@ def graph():
             x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
+            print('date = ', date)
+            print(Debug.delimiter())
+
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
@@ -1124,6 +1127,8 @@ def graph():
         }
 
         weight_series = weight_dic
+
+        print('weight_series = ', weight_series)
 
         # temperature
 
