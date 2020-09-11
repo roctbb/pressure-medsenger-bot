@@ -2,12 +2,12 @@ from config import *
 import requests
 # from init import db
 
-def add_task(contract_id, text, number=1, date=None, important=False, action_link=None):
+def add_task(contract_id, text, target_number=1, date=None, important=False, action_link=None):
     data = {
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "text": text,
-        "number": number,
+        "number": target_number,
         "important": important
     }
 

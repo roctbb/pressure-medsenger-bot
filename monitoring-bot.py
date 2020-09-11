@@ -2569,12 +2569,18 @@ def action_pull_save(pull):
         try:
             query = CategoryParams.query.filter_by(contract_id=contract_id, category='leg_circumference_left')
 
+            print('query shin', query)
+
             if query.count() != 0:
                 contract = query.first()
                 params = contract.params
         except Exception as e:
             out_red_light('ERROR CONNECTION')
             print(e)
+
+        info_cyan('START TEST shin')
+        info_yellow(pull)
+        print('params = ', params)
 
         try:
             max_shin = int(params['max'])
