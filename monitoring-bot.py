@@ -73,7 +73,7 @@ def make_task(contract_id, task_id):
 
 # response = make_task(2, 1)
 
-print('response = ', response)
+# print('response = ', response)
 
 def submit_task(contract_id):
     if contract.last_task_id:
