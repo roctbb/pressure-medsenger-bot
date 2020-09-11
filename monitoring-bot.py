@@ -1210,7 +1210,10 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         glukose_dic = {
             "x": x,
@@ -1236,7 +1239,10 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         spo2_dic = {
             "x": x,
@@ -1262,7 +1268,10 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         waist_dic = {
             "x": x,
@@ -1288,7 +1297,10 @@ def graph():
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
             y.append(value['value'])
 
-        date_max_min = dateMaxMin(x[0])
+        try:
+            date_max_min = dateMaxMin(x[0])
+        except Exception as e:
+            date_max_min = now()
 
         shin_left_dic = {
             "x": x,
