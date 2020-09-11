@@ -1,5 +1,15 @@
 from init import *
 
+class ContractTasks(db.Model):
+    __tablename__ = 'contract_tasks'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    contract_id = db.Column(db.Integer)
+    last_task_push = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+
+
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
@@ -22,7 +32,76 @@ class CategoryParams(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
+try:
+    query = ContractTasks.query.filter_by(contract_id=2)
+
+    if query.count() != 0:
+        tasks = query.all()
+
+    for task in tasks:
+        print(task)
+
+    out_yellow('end test')
+
+except Exception as e:
+    out_red_light('ERROR ContractTasks')
+    print(e)
+
 # METHODS
+
+def gts():
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+
+def make_task(contract_id, task_id):
+    data = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "task_id": task_id,
+    }
+
+    try:
+        answer = requests.post(MAIN_HOST + '/api/agents/tasks/done', json=data).json()
+
+        print('answer = ', answer)
+
+        return answer['is_done']
+
+    except Exception as e:
+        out_red_light('connection error')
+        print('connection error', e)
+
+response = make_task(2, 1)
+
+print('response = ', response)
+
+def submit_task(contract_id):
+    if contract.last_task_id:
+        make_task(contract.id, contract.last_task_id)
+    contract.last_task_id = None
+
+def drop_task(contract):
+    if contract.last_task_id:
+        delete_task(contract.id, contract.last_task_id)
+    contract.last_task_id = None
+
+def init_task(contract):
+    drop_task(contract)
+    contract.last_task_id = add_task(contract.id, "Заполнить анкету кардиомониторинга", action_link='frame')
+
+# def submit_task(contract):
+#     if contract.last_task_id:
+#         make_task(contract.id, contract.last_task_id)
+#     contract.last_task_id = None
+#
+# def drop_task(contract):
+#     if contract.last_task_id:
+#         delete_task(contract.id, contract.last_task_id)
+#     contract.last_task_id = None
+#
+# def init_task(contract):
+#     drop_task(contract)
+#     contract.last_task_id = add_task(contract.id, "Заполнить анкету кардиомониторинга", action_link='frame')
 
 def dateMaxMin(date):
     out = []
@@ -30,19 +109,11 @@ def dateMaxMin(date):
     try:
         date_max = date
     except Exception as e:
-        out_red(e)
+        out_red_light(e)
         date_max = datetime.datetime.now().strftime(DATE_HOUR_FORMAT)
 
-    # dt = time.strptime(date_max, DATE_HOUR_FORMAT)
     delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
     date_min = delta
-
-    # date_max = time.strftime('%Y-%m-%d', dt)
-
-    print('date_max | dateMaxMin = ', date_max)
-    # print('dt = ', dt)
-    # print('date_max 2 = ', date_max)
-
     out.append(date_max)
     out.append(date_min)
 
@@ -856,8 +927,7 @@ def graph():
             date_max = x[0]
         except Exception as e:
             out_red(e)
-            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            date_max = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            date_max = gts()
 
         dt = time.strptime(date_max, '%Y-%m-%d %H:%M:%S')
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
