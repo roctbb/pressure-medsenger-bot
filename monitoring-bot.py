@@ -2676,6 +2676,7 @@ def action_pull_save(pull):
         #     params = row[0]
 
         info_cyan('START TEST')
+        info_yellow(pull)
 
         try:
             q = CategoryParams.query.filter_by(contract_id=contract_id, category=pull)
