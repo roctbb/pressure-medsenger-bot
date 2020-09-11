@@ -68,8 +68,8 @@ def make_task(contract_id, task_id):
         return answer['is_done']
 
     except Exception as e:
-        out_red_light('connection error')
-        print('connection error', e)
+        out_red_light('error make_task')
+        print('error: ', e)
 
 response = make_task(2, 1)
 
