@@ -1174,6 +1174,8 @@ def graph():
         category = response['category']
         values = response['values']
 
+        print('values = ', values)
+
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
             x.append(date.strftime("%Y-%m-%d %H:%M:%S"))
