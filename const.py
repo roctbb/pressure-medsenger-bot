@@ -3,6 +3,24 @@ open_tag = "<p style='font-family: Arial;'>"
 close_tag = "</p>"
 
 DATE_HOUR_FORMAT = '%Y-%m-%d %H:%M:%S'
+STOP_LIST = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
+
+
+
+CATEGORY_TRNSFORM = ['', '', '', '', '']
+CATEGORY_TEXT = {
+    'leg_circumference_right':'Обхват  голени',
+    'leg_circumference_left':'Обхват  голени',
+    'pain_assessment':'Оценка боли',
+    'spo2':'Мониторинг насыщения крови кислородом',
+    'waist_circumference':'Окружность талии',
+    'weight':'Вес',
+    'glukose':'Глюкоза',
+    'temperature':'Температура',
+    'pulse':'Пульс в покое',
+    'diastolic_pressure':'Диастолическое (нижнее) артериальное давление',
+    'systolic_pressure':'Систолическое (верхнее) артериальное давление в покое'
+}
 
 MAX_SPO2 = 100
 MIN_SPO2 = 50

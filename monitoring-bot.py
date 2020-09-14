@@ -9,6 +9,7 @@ class ContractTasks(db.Model):
     last_task_push = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
+    action_link = db.Column(db.String(255))
 
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
@@ -44,28 +45,39 @@ def submit_task(contract_id, task_id):
     if contract_id:
         make_task(contract_id, task_id)
 
-
     contract_last_task_id = None
+
+
+def drop_task(contract_id, task_id):
+    if contract_id:
+        try:
+            delete_task(contract_id, task_id)
+
+        except Exception as e:
+            print('error drop_tasks()', e)
 
 
 def drop_tasks(contract_id):
     if contract_id:
         try:
-            q = ContractTasks.query.filter_by(contract_id=2)
-
-
-
+            q = ContractTasks.query.filter_by(contract_id=contract_id)
             q.delete()
             db.session.commit()
-            out_green_light('drop_tasks success')
+            out_green_light('success drop_tasks()')
 
         except Exception as e:
-            print('error drop_tasks', e)
+            print('error drop_tasks()', e)
 
 
-def init_task(contract_id, text, action_link):
-    drop_tasks(contract_id)
-    contract_last_task_id = add_task(contract_id, text, action_link)
+# def init_task(contract_id, text, action_link):
+#     drop_tasks(contract_id)
+#     contract_last_task_id = add_task(contract_id, text, action_link)
+
+
+def getTaskCount(contract_id):
+    query = ContractTasks.query.filter_by(contract_id=contract_id)
+
+    return query.count()
 
 
 def dateMaxMin(date):
@@ -341,11 +353,11 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
+            if (name in STOP_LIST):
                 continue
 
             mode = record[3]
-            params = record[4]
+            # params = record[4]
             timetable = record[5]
             last_push = record[8].timestamp()
             show = record[9]
@@ -484,7 +496,7 @@ def sender():
 
                                         for value in values:
                                             date = datetime.datetime.fromtimestamp(value['timestamp'])
-                                            print('value = ', date)
+                                            print('date = ', date)
                                             delta = (control_time - value['timestamp']) / 60
                                             print('delta = ', delta)
                                             print(Debug.delimiter())
@@ -492,27 +504,9 @@ def sender():
                                             if (delta < 60):
                                                 no_message = True
 
-                                                # contracts = Contract.query.all()
-                                                # now = datetime.datetime.now()
-                                                # hour = now.hour
-                                                # for contract in contracts:
-                                                #     if hour > 0 and hour < 8 and time.time() - contract.last_task_push > get_delta(
-                                                #             contract.mode) - 8 * 60 * 60:
-                                                #         print("{}: Init task to {}".format(gts(), contract.id))
-                                                #         init_task(contract)
-                                                #
-                                                #     if contract.last_task_id != None and time.time() - contract.last_push > get_delta(
-                                                #             contract.mode):
-                                                #         send(contract.id)
-                                                #         print("{}: Sending form to {}".format(gts(), contract.id))
-                                                #         contract.last_push = int(time.time())
-                                                #
-                                                # db.session.commit()
-                                                # time.sleep(60 * 5)
-
                                             break
 
-                                    print('no_message', no_message)
+                                    # print('no_message', no_message)
 
                                     if (no_message == False):
                                         print('data = ', data)
@@ -657,67 +651,108 @@ def sender():
 
                                     post_request(data)
 
+        info_yellow(now())
+
+        current_datetime = datetime.datetime.now()
+
+        if (current_datetime.hour == 0 and current_datetime.minute == 0 and (current_datetime.second > 1 and current_datetime.second < 23)):
+            initTasks(contract_id)
+
+            info_green(now())
+
+        # print(current_datetime.hour)
+        # print(current_datetime.minute)
+        # print(current_datetime.second)
+
         time.sleep(20)
 
 
 def getTasks(contract_id):
     try:
         q = ContractTasks.query.filter_by(contract_id=contract_id)
-        __tasks = []
 
         if q.count() != 0:
             return q.all()
 
-        return __tasks
+        return []
 
     except Exception as e:
         error('Error get_tasks()')
         print(e)
 
 
-# Testing place
+def transformMeasurementName(name):
+    if (name == 'systolic_pressure'):
+        name = 'pressure'
 
-zzz = getTasks(2)
+    if (name == 'leg_circumference_left'):
+        name = 'shin'
 
-print('zzz = ', zzz, len(zzz))
+    if (name == 'waist_circumference'):
+        name = 'waist'
 
-for task in zzz:
-    print(task.task_id)
+    return name
 
-# drop_tasks(2)
 
-# try:
-#     query = ContractTasks.query.filter_by(contract_id=2)
-#
-#     # query.delete()
-#     #
-#     # db.session.commit()
-#
-#     # db.session.delete(query)
-#     # db.session.commit()
-#     #
-#     # obj = db.session.query(ContractTasks).filter(ContractTasks.contract_id == 2).first()
-#     #
-#     # print('obj = ', obj)
-#
-#     # session.delete(obj)
-#     # session.commit()
-#
-#     # if query.count() != 0:
-#     #     tasks = query.all()
-#
-#     # for task in tasks:
-#     #     print(task)
-#
-#     out_green_light('test success')
-#
-# except Exception as e:
-#     out_red_light('ERROR ContractTasks')
-#     print(e)
+def initTasks(contract_id):
+    # tasks = getTasks(contract_id)
+    #
+    # for task in tasks:
+        # delete_task(contract_id, task.id)
+        # print('delete_task = ', task.id)
 
-# END Testing place
+    drop_tasks(contract_id)
 
-# GET ROUTES
+    category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
+
+    for category_param in category_params:
+        name = category_param.category
+        timetable = category_param.timetable
+        hours = timetable['hours']
+        show = category_param.show
+
+        if (show == True):
+            if (name in STOP_LIST):
+                continue
+
+            text = CATEGORY_TEXT[name]
+
+            name = transformMeasurementName(name)
+
+            task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
+
+            print('task_id = ', task_id)
+
+            try:
+                contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=now(),
+                                              created_at=now(), updated_at=now(), action_link='frame/' + str(name))
+                db.session.add(contract_task)
+                db.session.commit()
+
+            except Exception as e:
+                db.session.rollback()
+                error('Error insert into table contract_task')
+                print(e)
+                raise
+
+
+            info_yellow(name)
+            # info_cyan(hours)
+            # info_magenta(len(hours))
+
+    info_green('Success initTask()')
+
+# ******************************************
+# ************** Testing place *************
+# ******************************************
+
+
+
+# ******************************************
+# ************** END Testing place *********
+# ******************************************
+
+# ROUTES GET
 
 @app.route('/', methods=['GET'])
 def index():
@@ -748,7 +783,6 @@ def server_error(error):
     title = "Server error: 500"
     error_text = title
     return render_template('500.html', title=title, error_text=error_text), 500
-
 
 
 @app.route('/actions', methods=['POST'])
@@ -820,6 +854,7 @@ def actions():
             })
 
     return json.dumps(answer)
+
 
 @app.route('/graph', methods=['GET'])
 def graph():
@@ -1594,6 +1629,7 @@ def medicine_done(uid):
 
     return MESS_THANKS
 
+
 @app.route('/medicines', methods=['GET'])
 def medicines():
     contract_id = quard()
@@ -1620,6 +1656,7 @@ def medicines():
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
+
 
 @app.route('/medicine/add', methods=['POST'])
 def medicine_done_post():
@@ -1696,7 +1733,7 @@ def action_pull(pull):
     return render_template('measurement.html', tmpl=pull, constants=constants)
 
 
-# POST ROUTES
+# ROUTES POST
 
 @app.route('/status', methods=['POST'])
 def status():
@@ -1911,6 +1948,7 @@ def setting_save():
 
     return "ok"
 
+
 @app.route('/init', methods=['POST'])
 def init():
     new_contract = True
@@ -1939,6 +1977,8 @@ def init():
                     contract = query.first()
                     contract.actual = True
                     db.session.commit()
+
+                    initTasks(contract_id)
 
                     out_green_light("Activate contract")
                 else:
@@ -2154,7 +2194,6 @@ def init():
                 }
             }
 
-            init_task(contract_id, 'Записать давление', '/frame/pressure')
             delayed(1, post_request, [data])
 
             try:
@@ -2284,7 +2323,6 @@ def init():
                     }
                 }
 
-                init_task(contract_id, 'Записать вес', '/frame/weight')
                 delayed(1, post_request, [data])
             else:
                 show = False
@@ -2342,7 +2380,6 @@ def init():
                     }
                 }
 
-                init_task(contract_id, 'Записать окружность талии', '/frame/waist')
                 delayed(1, post_request, [data])
             else:
                 params = {}
@@ -2447,7 +2484,6 @@ def init():
                     }
                 }
 
-                init_task(contract_id, 'Записать размеры обхвата голеней', '/frame/shin')
                 delayed(1, post_request, [data])
             else:
                 show = False
@@ -2505,6 +2541,7 @@ def init():
 
     return 'ok'
 
+
 @app.route('/remove', methods=['POST'])
 def remove():
     try:
@@ -2526,17 +2563,17 @@ def remove():
                     contract.actual = False
                     db.session.commit()
 
-                    out_yellow("Deactivate contract")
+                    info_yellow('Deactivate contract')
                 else:
-                    out_red_light('contract not found')
+                    info_cyan('Contract not found')
 
             except Exception as e:
-                out_red('ERROR CONNECTION')
+                error('Error ActualBots connection')
                 print(e)
                 raise
 
     except Exception as e:
-        out_red_light('ERROR REMOVE')
+        error('Error remove()')
         print(e)
         return 'ERROR REMOVE'
 
@@ -2551,7 +2588,7 @@ def action_pull_save(pull):
     contract_id = quard()
 
     if (contract_id in ERRORS):
-        return contract_id
+        return ERRORS[contract_id]
 
     if (pull in AVAILABLE_MEASUREMENTS):
         param = pull
@@ -2584,18 +2621,23 @@ def action_pull_save(pull):
         try:
             query = CategoryParams.query.filter_by(contract_id=contract_id, category='leg_circumference_left')
 
-            print('query shin', query)
-
             if query.count() != 0:
                 contract = query.first()
                 params = contract.params
+
+            q = ContractTasks.query.filter_by(action_link='frame/' + pull)
+
+            if q.count() != 0:
+                task = q.first()
+                task_id = task.task_id
+
+                print('task_id = ', pull, task_id)
         except Exception as e:
-            out_red_light('ERROR CONNECTION')
+            error('Error frame/<pull> post')
             print(e)
 
-        info_cyan('START TEST shin')
         info_yellow(pull)
-        print('params = ', params)
+        # print('params = ', params)
 
         try:
             max_shin = int(params['max'])
@@ -2603,7 +2645,7 @@ def action_pull_save(pull):
         except Exception as e:
             max_shin = MAX_SHIN
             min_shin = MIN_SHIN
-            out_yellow("WARNING_NOT_INT")
+            info_yellow("WARNING_NOT_INT")
 
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             error('Сигналим врачу по голени')
@@ -2611,7 +2653,7 @@ def action_pull_save(pull):
 
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
-
+        make_task(contract_id, task_id)
     elif (pull == 'pressure'):
         systolic = request.form.get('systolic', '')
         diastolic = request.form.get('diastolic', '')
@@ -2651,6 +2693,14 @@ def action_pull_save(pull):
             if query.count() != 0:
                 contract = query.first()
                 params = contract.params
+
+            q = ContractTasks.query.filter_by(action_link='frame/' + pull)
+
+            if q.count() != 0:
+                task = q.first()
+                task_id = task.task_id
+
+                print('task_id = ', pull, task_id)
         except Exception as e:
             out_red_light('ERROR CONNECTION')
             print(e)
@@ -2684,6 +2734,7 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
 
+        make_task(contract_id, task_id)
     else:
         if check_float(param_value) == False:
             return ERROR_FORM
@@ -2707,12 +2758,24 @@ def action_pull_save(pull):
         try:
             q = CategoryParams.query.filter_by(contract_id=contract_id, category=category)
 
-            print(q)
+            # print(q)
 
             if q.count() != 0:
                 contract = q.first()
                 params = contract.params
                 print('params = ', params)
+
+            action_link = 'frame/' + str(pull)
+            q_ = ContractTasks.query.filter_by(action_link=action_link)
+            print('action_link = ', action_link)
+            print('q_ = ', q_)
+
+            if q_.count() != 0:
+                task = q_.first()
+                print('task = ', task)
+                task_id = task.task_id
+
+                print('task_id = ', pull, task_id)
         except Exception as e:
             error('ERROR CONNECTION')
             print(e)
@@ -2772,6 +2835,7 @@ def action_pull_save(pull):
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
+        make_task(contract_id, task_id)
 
     return MESS_THANKS
 

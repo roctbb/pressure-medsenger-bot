@@ -24,7 +24,7 @@ def add_task(contract_id, text, target_number=1, date=None, important=False, act
         print('add_task answer = ', answer)
         return answer['task_id']
     except Exception as e:
-        print('connection error', e)
+        print('Error', e)
 
 def make_task(contract_id, task_id):
     data = {
@@ -56,15 +56,15 @@ def delete_task(contract_id, task_id):
     except Exception as e:
         print('error delete_task', e)
 
-def delete_all_task(contract_id):
-    data = {
-        "contract_id": contract_id,
-        "api_key": APP_KEY,
-        "task_id": task_id,
-    }
-
-    try:
-        requests.post(MAIN_HOST + '/api/agents/tasks/delete', json=data)
-        print('success delete_task')
-    except Exception as e:
-        print('error delete_task', e)
+# def delete_all_task(contract_id):
+#     data = {
+#         "contract_id": contract_id,
+#         "api_key": APP_KEY,
+#         "task_id": task_id,
+#     }
+#
+#     try:
+#         requests.post(MAIN_HOST + '/api/agents/tasks/delete', json=data)
+#         print('success delete_task')
+#     except Exception as e:
+#         print('error delete_task', e)
