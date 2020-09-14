@@ -1165,7 +1165,34 @@ def graph():
             "name": category['description']
         }
 
+        constants = {'max_shin_right': 35, 'min_waist': 30, 'min_shin_right': 10, 'min_diastolic': 30, 'max_pain': 7,
+         'max_pulse': 80, 'max_spo2': 100, 'max_diastolic': 99, 'max_waist': 150, 'min_pain': 0, 'max_shin_left': 35,
+         'min_systolic': 90, 'min_weight': 45, 'max_systolic': 140, 'max_temperature': 37, 'min_pulse': 50,
+         'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
+         'min_spo2': 93}
+
+        print('constants = ', constants)
+
         weight_series = weight_dic
+
+        weight_series = {
+            'date_max': '2020-09-11 19:15:47',
+            'name': 'Вес',
+            'x': [
+                '2020-09-11 19:15:47',
+                '2020-09-11 19:06:38',
+                '2020-09-11 12:29:27',
+                '2020-09-11 11:08:31',
+                '2020-09-07 14:03:31',
+                '2020-09-07 14:03:04',
+                '2020-09-04 12:40:10',
+                '2020-08-13 13:42:35',
+                '2020-07-21 16:17:36'
+            ],
+            'comments': [],
+            'date_min': '2020-09-07 10:30:12',
+            'y': [80, 80, 80, 80, 88.3, 88.2, 88, 90, 90]
+        }
 
         print('weight_series = ', weight_series)
 
@@ -1572,8 +1599,9 @@ def medicines():
     contract_id = quard()
 
     query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(contract_id) + Aux.quote() + ' AND show = true'
-
+    print('query_str = ', query_str)
     records = DB.select(query_str)
+    print('records = ', records)
 
     medicine_data = {}
 
@@ -1599,19 +1627,6 @@ def medicine_done_post():
 
     return result
 
-    # if result in ERRORS:
-    #     return result
-    #
-    # query_str = "INSERT INTO medicines_results VALUES(nextval('medicines_results$id$seq')," + \
-    #             Aux.quote() + str(uid) + Aux.quote() + \
-    #             ",(select * from now()), (select * from now()), (select * from now()))"
-    #
-    # result = DB.query(query_str)
-    #
-    # if (result != 'SUCCESS_QUERY'):
-    #     return result
-    #
-    # return MESS_THANKS
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
