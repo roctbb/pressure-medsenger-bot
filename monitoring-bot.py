@@ -791,7 +791,7 @@ def dayTaskPlanning(tasks):
 
             # task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
 
-            print('dayTaskPlanning = ', contract_id, task_id)
+            print('dayTaskPlanning = ', contract_id)
 
             contract_task = ContractTasks(contract_id=contract_id,
                                           task_id=task_id,
