@@ -361,7 +361,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 13 and current_datetime.minute == 31 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 13 and current_datetime.minute == 59 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -582,8 +582,10 @@ def sender():
 
         # print('megaTask = ', megaTask)
 
-        for task in megaTask:
-            print('task = ', task)
+        # for task in megaTask:
+        #     print('task = ', task)
+
+        dayTaskPlanning(megaTask)
 
         print(Debug.delimiter())
 
@@ -769,6 +771,28 @@ def transformMeasurementName(name):
 
     return str(name)
 
+
+def dayTaskPlanning(tasks):
+    for task in tasks:
+        try:
+            task_id = add_task(task.contract_id, task.text, task.target_number, action_link=task.action_link)
+
+            print('dayTaskPlanning = ', task.contract_id, task_id)
+
+            contract_task = ContractTasks(contract_id=task.contract_id,
+                                          task_id=task_id,
+                                          last_task_push=now(),
+                                          created_at=now(),
+                                          updated_at=now(),
+                                          action_link=task.action_link)
+            db.session.add(contract_task)
+            db.session.commit()
+
+        except Exception as e:
+            db.session.rollback()
+            error('Error in method dayTaskPlanning()')
+            print(e)
+            raise
 
 def initTasks(contract_id):
     # tasks = getTasks(contract_id)
