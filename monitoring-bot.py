@@ -373,7 +373,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 14 and current_datetime.minute == 31 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 14 and current_datetime.minute == 35 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -779,15 +779,14 @@ def dayTaskPlanning(tasks):
 
             print('dayTaskPlanning = ', contract_id, task_id)
 
-            if (int(task_id) > 0):
-                contract_task = ContractTasks(contract_id=contract_id,
-                                              task_id=task_id,
-                                              last_task_push=now(),
-                                              created_at=now(),
-                                              updated_at=now(),
-                                              action_link=task['action_link'])
-                db.session.add(contract_task)
-                db.session.commit()
+            contract_task = ContractTasks(contract_id=contract_id,
+                                          task_id=task_id,
+                                          last_task_push=now(),
+                                          created_at=now(),
+                                          updated_at=now(),
+                                          action_link=task['action_link'])
+            db.session.add(contract_task)
+            db.session.commit()
 
         except Exception as e:
             db.session.rollback()
