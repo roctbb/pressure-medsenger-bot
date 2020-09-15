@@ -379,7 +379,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 16 and (current_datetime.minute > 44 and current_datetime.minute < 50)
+            go_task = current_datetime.hour == 16 and (current_datetime.minute > 44 and current_datetime.minute < 52)
 
             if (go_task):
                 initTaskStart = True
@@ -405,7 +405,7 @@ def sender():
                         megaTask.append({
                             'contract_id': contract_id,
                             'text': text,
-                            'target_number': len(hours),
+                            'target_number': len(hours__),
                             'action_link': action_link
                         })
 
