@@ -343,17 +343,60 @@ def quard():
 
 
 def sender():
-    initTasksDone = []
-
     while True:
         # MEASUREMENTS
+
+        info_yellow(current_datetime)
+
+        initTasksDone = []
+        initTaskStart = False
 
         records = DB.select('SELECT * FROM category_params')
 
         for record in records:
+            current_datetime = datetime.datetime.now()
+
             id = record[0]
             contract_id = record[1]
             name = record[2]
+
+            go_task = current_datetime.hour == 12 and current_datetime.minute == 52 and (current_datetime.second > 1 and current_datetime.second < 23)
+
+            if (go_task):
+                initTaskStart = True
+
+                if (initTaskStart == True):
+                    if (name not in STOP_LIST):
+                        text = CATEGORY_TEXT[name]
+                        name = transformMeasurementName(name)
+                        action_link = 'frame/' + name
+                        task_id = add_task(contract_id, text, len(hours), action_link=action_link)
+
+                        print('transformMeasurementName | task_id', name, task_id)
+
+                        try:
+                            contract_task = ContractTasks(contract_id=contract_id,
+                                                          task_id=task_id,
+                                                          last_task_push=now(),
+                                                          created_at=now(),
+                                                          updated_at=now(),
+                                                          action_link=action_link)
+                            db.session.add(contract_task)
+                            db.session.commit()
+
+                            initTasksDone.append(hash)
+
+                        except Exception as e:
+                            db.session.rollback()
+                            error('Error insert into table contract_task')
+                            print(e)
+                            raise
+
+                    # initTasks(contract_id)
+                    # initTasksDone.append(str(contract_id) + action_link)
+
+                # if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
+                #     initTasksDone = []
 
             if (name in STOP_LIST):
                 continue
@@ -655,17 +698,17 @@ def sender():
 
         info_yellow(now())
 
-        current_datetime = datetime.datetime.now()
+        # current_datetime = datetime.datetime.now()
 
-        if (current_datetime.hour == 10 and current_datetime.minute == 9 and (current_datetime.second > 1 and current_datetime.second < 23)):
-            if (contract_id not in initTasksDone):
-                initTasks(contract_id)
-                initTasksDone.append(contract_id)
+        # if (current_datetime.hour == 10 and current_datetime.minute == 9 and (current_datetime.second > 1 and current_datetime.second < 23)):
+        #     if (contract_id not in initTasksDone):
+        #         initTasks(contract_id)
+        #         initTasksDone.append(contract_id)
+        #
+        #     if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
+        #         initTasksDone = []
 
-            if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
-                initTasksDone = []
-
-            info_green(now())
+        # info_green(now())
 
         # print(current_datetime.hour)
         # print(current_datetime.minute)
@@ -698,7 +741,7 @@ def transformMeasurementName(name):
     if (name == 'waist_circumference'):
         name = 'waist'
 
-    return name
+    return str(name)
 
 
 def initTasks(contract_id):
