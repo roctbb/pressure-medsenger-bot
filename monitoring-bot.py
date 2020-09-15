@@ -72,13 +72,17 @@ def dropAllTasks():
 def drop_tasks(contract_id):
     if contract_id:
         try:
-            q = ContractTasks.query.filter_by(contract_id=contract_id)
-            q.delete()
-            db.session.commit()
-            out_green_light('success drop_tasks() on contract_id = ' + contract_id)
+            q2 = ContractTasks.query.filter_by(contract_id=contract_id)
+            print('q2.count() = ', q2.count())
+
+            if (q2.count() > 0):
+                q2.delete()
+                out_green_light('success drop_tasks() on contract_id = ' + str(contract_id))
+                db.session.commit()
 
         except Exception as e:
-            print('error drop_tasks()', e)
+            error('error drop_tasks()')
+            print(e)
 
 
 # def init_task(contract_id, text, action_link):
@@ -368,26 +372,23 @@ def sender():
 
         for record in records:
             current_datetime = datetime.datetime.now()
-
-            # go_task_2 = current_datetime.hour == 16 and (current_datetime.minute > 30 and current_datetime.minute < 20)
-
-            # print('go_task_2 = ', go_task_2)
-
             id = record[0]
             contract_id = record[1]
             name = record[2]
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 16 and (current_datetime.minute > 44 and current_datetime.minute < 52)
+            go_task = current_datetime.hour > 17 and (current_datetime.minute > 1 and current_datetime.minute < 60)
 
             if (go_task):
                 initTaskStart = True
 
                 if (initTaskStart == True):
                     if (name not in STOP_LIST):
-                        drop_tasks(contract_id)
+                        # drop_tasks(contract_id)
                         category = name
+
+                        # print('name = ', name)
 
                         category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
 
@@ -400,7 +401,7 @@ def sender():
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
-                        task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
+                        # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
 
                         megaTask.append({
                             'contract_id': contract_id,
@@ -409,28 +410,30 @@ def sender():
                             'action_link': action_link
                         })
 
-                        print('transformMeasurementName | task_id', name, task_id)
 
-                        try:
-                            contract_task = ContractTasks(contract_id=contract_id,
-                                                          task_id=task_id,
-                                                          last_task_push=now(),
-                                                          created_at=now(),
-                                                          updated_at=now(),
-                                                          action_link=action_link)
-                            db.session.add(contract_task)
-                            db.session.commit()
 
-                            initTasksDone.append(hash)
+                        # try:
+                        #     contract_task = ContractTasks(contract_id=contract_id,
+                        #                                   task_id=task_id,
+                        #                                   last_task_push=now(),
+                        #                                   created_at=now(),
+                        #                                   updated_at=now(),
+                        #                                   action_link=action_link)
+                        #     db.session.add(contract_task)
+                        #     print('transformMeasurementName XXX | task_id', name, task_id)
+                        #     db.session.commit()
+                        #     print('transformMeasurementName ZZZ | task_id', name, task_id)
 
-                        except Exception as e:
-                            db.session.rollback()
-                            error('Error insert into table contract_task')
-                            print(e)
-                            raise
+                            # initTasksDone.append(hash)
 
-                    initTasks(contract_id)
-                    initTasksDone.append(str(contract_id) + action_link)
+                        # except Exception as e:
+                        #     # db.session.rollback()
+                        #     error('Error --')
+                        #     print(e)
+                        #     raise
+
+                    # initTasks(contract_id)
+                    # initTasksDone.append(str(contract_id) + action_link)
 
                 # if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
                 #     initTasksDone = []
@@ -563,7 +566,7 @@ def sender():
                                         if query.count() != 0:
                                             contract = query.first()
                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
-                                            db.session.commit()
+                                            # db.session.commit()
                                     except Exception as e:
                                         out_red_light('ERROR CONNECTION')
                                         print(e)
@@ -598,13 +601,15 @@ def sender():
                                     time.sleep(1)
                                     break
 
+        # db.session.commit()
+
         # print('megaTask = ', megaTask)
 
         # for task in megaTask:
         #     print('task = ', task)
 
 
-        # dayTaskPlanning(megaTask)
+        dayTaskPlanning(megaTask)
 
         print(Debug.delimiter())
 
@@ -781,7 +786,10 @@ def dayTaskPlanning(tasks):
     for task in tasks:
         try:
             contract_id = task['contract_id']
-            task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
+
+            # drop_tasks(contract_id)
+
+            # task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
 
             print('dayTaskPlanning = ', contract_id, task_id)
 
@@ -2089,7 +2097,7 @@ def init():
 
                     initTasks(contract_id)
 
-                    out_green_light("Activate contract")
+                    out_green_light('Activate contract')
                 else:
                     out_red_light('contract not found')
 
