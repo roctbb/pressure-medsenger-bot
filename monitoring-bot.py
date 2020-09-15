@@ -57,13 +57,25 @@ def drop_task(contract_id, task_id):
             print('error drop_tasks()', e)
 
 
+def dropAllTasks():
+    try:
+        q = ContractTasks.query
+        q.delete()
+        db.session.commit()
+        out_green_light('success dropAllTasks()')
+
+    except Exception as e:
+        error('error dropAllTasks()')
+        print(e)
+
+
 def drop_tasks(contract_id):
     if contract_id:
         try:
             q = ContractTasks.query.filter_by(contract_id=contract_id)
             q.delete()
             db.session.commit()
-            out_green_light('success drop_tasks()')
+            out_green_light('success drop_tasks() on contract_id = ' + contract_id)
 
         except Exception as e:
             print('error drop_tasks()', e)
@@ -361,7 +373,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 13 and current_datetime.minute == 59 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 14 and current_datetime.minute == 31 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -585,6 +597,7 @@ def sender():
         # for task in megaTask:
         #     print('task = ', task)
 
+
         dayTaskPlanning(megaTask)
 
         print(Debug.delimiter())
@@ -726,22 +739,6 @@ def sender():
 
         info_yellow(now())
 
-        # current_datetime = datetime.datetime.now()
-
-        # if (current_datetime.hour == 10 and current_datetime.minute == 9 and (current_datetime.second > 1 and current_datetime.second < 23)):
-        #     if (contract_id not in initTasksDone):
-        #         initTasks(contract_id)
-        #         initTasksDone.append(contract_id)
-        #
-        #     if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
-        #         initTasksDone = []
-
-        # info_green(now())
-
-        # print(current_datetime.hour)
-        # print(current_datetime.minute)
-        # print(current_datetime.second)
-
         time.sleep(40)
 
 
@@ -773,20 +770,24 @@ def transformMeasurementName(name):
 
 
 def dayTaskPlanning(tasks):
+    dropAllTasks()
+
     for task in tasks:
         try:
-            task_id = add_task(task.contract_id, task.text, task.target_number, action_link=task.action_link)
+            contract_id = task['contract_id']
+            task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
 
-            print('dayTaskPlanning = ', task.contract_id, task_id)
+            print('dayTaskPlanning = ', contract_id, task_id)
 
-            contract_task = ContractTasks(contract_id=task.contract_id,
-                                          task_id=task_id,
-                                          last_task_push=now(),
-                                          created_at=now(),
-                                          updated_at=now(),
-                                          action_link=task.action_link)
-            db.session.add(contract_task)
-            db.session.commit()
+            if (int(task_id) > 0):
+                contract_task = ContractTasks(contract_id=contract_id,
+                                              task_id=task_id,
+                                              last_task_push=now(),
+                                              created_at=now(),
+                                              updated_at=now(),
+                                              action_link=task['action_link'])
+                db.session.add(contract_task)
+                db.session.commit()
 
         except Exception as e:
             db.session.rollback()
