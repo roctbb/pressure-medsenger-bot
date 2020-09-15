@@ -388,8 +388,6 @@ def sender():
                         # drop_tasks(contract_id)
                         category = name
 
-                        # print('name = ', name)
-
                         category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
 
                         for category_param in category_params:
