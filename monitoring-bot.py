@@ -361,7 +361,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 13 and current_datetime.minute == 27 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 13 and current_datetime.minute == 28 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -391,7 +391,7 @@ def sender():
                             'action_link': action_link
                         })
 
-                        print('transformMeasurementName | task_id', name, task_id)
+                        # print('transformMeasurementName | task_id', name, task_id)
 
                         # try:
                         #     contract_task = ContractTasks(contract_id=contract_id,
