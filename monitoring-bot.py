@@ -814,6 +814,9 @@ def initTasks(contract_id):
     for category_param in category_params:
         name = category_param.category
         timetable = category_param.timetable
+
+        print('timetable = ', timetable)
+
         hours = timetable['hours']
         show = category_param.show
 
