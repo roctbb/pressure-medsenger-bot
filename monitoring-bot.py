@@ -378,7 +378,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 19 and (current_datetime.minute > 40 and current_datetime.minute < 43)
+            go_task = current_datetime.hour == 0 and (current_datetime.minute > 1 and current_datetime.minute < 4)
 
             if (go_task):
                 initTaskStart = True
