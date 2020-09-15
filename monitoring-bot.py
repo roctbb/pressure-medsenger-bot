@@ -379,7 +379,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 16 and (current_datetime.minute > 34 and current_datetime.minute < 40)
+            go_task = current_datetime.hour == 16 and (current_datetime.minute > 44 and current_datetime.minute < 50)
 
             if (go_task):
                 initTaskStart = True
@@ -394,13 +394,13 @@ def sender():
                         for category_param in category_params:
                             name = category_param.category
                             timetable = category_param.timetable
-                            hours = timetable['hours']
+                            hours__ = timetable['hours']
                             # show = category_param.show
 
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
-                        task_id = add_task(contract_id, text, len(hours), action_link=action_link)
+                        task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
 
                         megaTask.append({
                             'contract_id': contract_id,
