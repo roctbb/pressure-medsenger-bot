@@ -346,7 +346,7 @@ def sender():
     while True:
         # MEASUREMENTS
 
-        info_yellow(current_datetime)
+        # info_yellow(current_datetime)
 
         initTasksDone = []
         initTaskStart = False
