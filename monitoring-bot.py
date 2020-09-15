@@ -369,18 +369,24 @@ def sender():
         for record in records:
             current_datetime = datetime.datetime.now()
 
+            # go_task_2 = current_datetime.hour == 16 and (current_datetime.minute > 30 and current_datetime.minute < 20)
+
+            # print('go_task_2 = ', go_task_2)
+
             id = record[0]
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 14 and current_datetime.minute == 47 and (current_datetime.second > 1 and current_datetime.second < 43)
+            # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
+
+            go_task = current_datetime.hour == 16 and (current_datetime.minute > 34 and current_datetime.minute < 40)
 
             if (go_task):
                 initTaskStart = True
 
                 if (initTaskStart == True):
                     if (name not in STOP_LIST):
-                        # drop_tasks(contract_id)
+                        drop_tasks(contract_id)
                         category = name
 
                         category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
@@ -394,7 +400,7 @@ def sender():
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
-                        # task_id = add_task(contract_id, text, len(hours), action_link=action_link)
+                        task_id = add_task(contract_id, text, len(hours), action_link=action_link)
 
                         megaTask.append({
                             'contract_id': contract_id,
@@ -403,28 +409,28 @@ def sender():
                             'action_link': action_link
                         })
 
-                        # print('transformMeasurementName | task_id', name, task_id)
+                        print('transformMeasurementName | task_id', name, task_id)
 
-                        # try:
-                        #     contract_task = ContractTasks(contract_id=contract_id,
-                        #                                   task_id=task_id,
-                        #                                   last_task_push=now(),
-                        #                                   created_at=now(),
-                        #                                   updated_at=now(),
-                        #                                   action_link=action_link)
-                        #     db.session.add(contract_task)
-                        #     db.session.commit()
-                        #
-                        #     initTasksDone.append(hash)
-                        #
-                        # except Exception as e:
-                        #     db.session.rollback()
-                        #     error('Error insert into table contract_task')
-                        #     print(e)
-                        #     raise
+                        try:
+                            contract_task = ContractTasks(contract_id=contract_id,
+                                                          task_id=task_id,
+                                                          last_task_push=now(),
+                                                          created_at=now(),
+                                                          updated_at=now(),
+                                                          action_link=action_link)
+                            db.session.add(contract_task)
+                            db.session.commit()
 
-                    # initTasks(contract_id)
-                    # initTasksDone.append(str(contract_id) + action_link)
+                            initTasksDone.append(hash)
+
+                        except Exception as e:
+                            db.session.rollback()
+                            error('Error insert into table contract_task')
+                            print(e)
+                            raise
+
+                    initTasks(contract_id)
+                    initTasksDone.append(str(contract_id) + action_link)
 
                 # if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
                 #     initTasksDone = []
@@ -598,7 +604,7 @@ def sender():
         #     print('task = ', task)
 
 
-        dayTaskPlanning(megaTask)
+        # dayTaskPlanning(megaTask)
 
         print(Debug.delimiter())
 
