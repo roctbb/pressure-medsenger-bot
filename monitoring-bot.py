@@ -361,14 +361,14 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 13 and current_datetime.minute == 28 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 13 and current_datetime.minute == 31 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
 
                 if (initTaskStart == True):
                     if (name not in STOP_LIST):
-                        drop_tasks(contract_id)
+                        # drop_tasks(contract_id)
                         category = name
 
                         category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
@@ -580,7 +580,12 @@ def sender():
                                     time.sleep(1)
                                     break
 
-        print('megaTask = ', megaTask)
+        # print('megaTask = ', megaTask)
+
+        for task in megaTask:
+            print('task = ', task)
+
+        print(Debug.delimiter())
 
         # MEDICINES
 
