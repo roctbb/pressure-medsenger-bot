@@ -365,7 +365,7 @@ def sender():
         # info_yellow(current_datetime)
 
         initTasksDone = []
-        initTaskStart = False
+        go_task = False
         megaTask = []
 
         records = DB.select('SELECT * FROM category_params')
@@ -378,7 +378,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 19 and (current_datetime.minute > 25 and current_datetime.minute < 28)
+            go_task = current_datetime.hour == 19 and (current_datetime.minute > 33 and current_datetime.minute < 36)
 
             if (go_task):
                 initTaskStart = True
@@ -608,6 +608,7 @@ def sender():
 
 
         dayTaskPlanning(megaTask)
+        go_task = False
 
         print(Debug.delimiter())
 
