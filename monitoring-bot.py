@@ -378,7 +378,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 19 and (current_datetime.minute > 20 and current_datetime.minute < 32)
+            go_task = current_datetime.hour == 19 and (current_datetime.minute > 25 and current_datetime.minute < 28)
 
             if (go_task):
                 initTaskStart = True
@@ -748,7 +748,7 @@ def sender():
 
         info_yellow(now())
 
-        time.sleep(10 * 60)
+        time.sleep(2 * 60)
 
 
 def getTasks(contract_id):
