@@ -787,14 +787,14 @@ def dayTaskPlanning(tasks):
         try:
             contract_id = task['contract_id']
 
-            # drop_tasks(contract_id)
+            task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
 
-            # task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
-
-            print('dayTaskPlanning = ', contract_id)
+            print('contract_id = ', contract_id)
+            print('task_id = ', task_id)
+            print('*********************')
 
             contract_task = ContractTasks(contract_id=contract_id,
-                                          task_id=779,
+                                          task_id=task_id,
                                           last_task_push=now(),
                                           created_at=now(),
                                           updated_at=now(),
