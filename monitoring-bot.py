@@ -360,13 +360,24 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 12 and current_datetime.minute == 55 and (current_datetime.second > 1 and current_datetime.second < 23)
+            go_task = current_datetime.hour == 13 and current_datetime.minute == 11 and (current_datetime.second > 1 and current_datetime.second < 23)
 
             if (go_task):
                 initTaskStart = True
 
                 if (initTaskStart == True):
                     if (name not in STOP_LIST):
+                        drop_tasks(contract_id)
+                        category = name
+
+                        category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
+
+                        for category_param in category_params:
+                            name = category_param.category
+                            timetable = category_param.timetable
+                            hours = timetable['hours']
+                            # show = category_param.show
+
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
