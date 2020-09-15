@@ -350,6 +350,7 @@ def sender():
 
         initTasksDone = []
         initTaskStart = False
+        megaTask = []
 
         records = DB.select('SELECT * FROM category_params')
 
@@ -360,7 +361,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 13 and current_datetime.minute == 11 and (current_datetime.second > 1 and current_datetime.second < 23)
+            go_task = current_datetime.hour == 13 and current_datetime.minute == 27 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -381,27 +382,34 @@ def sender():
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
-                        task_id = add_task(contract_id, text, len(hours), action_link=action_link)
+                        # task_id = add_task(contract_id, text, len(hours), action_link=action_link)
+
+                        megaTask.append({
+                            'contract_id': contract_id,
+                            'text': text,
+                            'target_number': len(hours),
+                            'action_link': action_link
+                        })
 
                         print('transformMeasurementName | task_id', name, task_id)
 
-                        try:
-                            contract_task = ContractTasks(contract_id=contract_id,
-                                                          task_id=task_id,
-                                                          last_task_push=now(),
-                                                          created_at=now(),
-                                                          updated_at=now(),
-                                                          action_link=action_link)
-                            db.session.add(contract_task)
-                            db.session.commit()
-
-                            initTasksDone.append(hash)
-
-                        except Exception as e:
-                            db.session.rollback()
-                            error('Error insert into table contract_task')
-                            print(e)
-                            raise
+                        # try:
+                        #     contract_task = ContractTasks(contract_id=contract_id,
+                        #                                   task_id=task_id,
+                        #                                   last_task_push=now(),
+                        #                                   created_at=now(),
+                        #                                   updated_at=now(),
+                        #                                   action_link=action_link)
+                        #     db.session.add(contract_task)
+                        #     db.session.commit()
+                        #
+                        #     initTasksDone.append(hash)
+                        #
+                        # except Exception as e:
+                        #     db.session.rollback()
+                        #     error('Error insert into table contract_task')
+                        #     print(e)
+                        #     raise
 
                     # initTasks(contract_id)
                     # initTasksDone.append(str(contract_id) + action_link)
@@ -572,6 +580,8 @@ def sender():
                                     time.sleep(1)
                                     break
 
+        print('megaTask = ', megaTask)
+
         # MEDICINES
 
         query_str = "SELECT * FROM medicines WHERE show = true"
@@ -725,7 +735,7 @@ def sender():
         # print(current_datetime.minute)
         # print(current_datetime.second)
 
-        time.sleep(20)
+        time.sleep(40)
 
 
 def getTasks(contract_id):
