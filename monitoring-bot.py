@@ -793,14 +793,14 @@ def dayTaskPlanning(tasks):
 
             print('dayTaskPlanning = ', contract_id)
 
-            # contract_task = ContractTasks(contract_id=contract_id,
-            #                               task_id=779,
-            #                               last_task_push=now(),
-            #                               created_at=now(),
-            #                               updated_at=now(),
-            #                               action_link=task['action_link'])
-            # db.session.add(contract_task)
-            # db.session.commit()
+            contract_task = ContractTasks(contract_id=contract_id,
+                                          task_id=779,
+                                          last_task_push=now(),
+                                          created_at=now(),
+                                          updated_at=now(),
+                                          action_link=task['action_link'])
+            db.session.add(contract_task)
+            db.session.commit()
 
         except Exception as e:
             db.session.rollback()
