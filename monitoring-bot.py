@@ -794,7 +794,7 @@ def dayTaskPlanning(tasks):
             print('dayTaskPlanning = ', contract_id)
 
             contract_task = ContractTasks(contract_id=contract_id,
-                                          task_id=task_id,
+                                          task_id=779,
                                           last_task_push=now(),
                                           created_at=now(),
                                           updated_at=now(),
