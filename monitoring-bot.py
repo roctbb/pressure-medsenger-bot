@@ -343,6 +343,8 @@ def quard():
 
 
 def sender():
+    initTasksDone = []
+
     while True:
         # MEASUREMENTS
 
@@ -655,8 +657,13 @@ def sender():
 
         current_datetime = datetime.datetime.now()
 
-        if (current_datetime.hour == 10 and current_datetime.minute == 55 and (current_datetime.second > 1 and current_datetime.second < 23)):
-            initTasks(contract_id)
+        if (current_datetime.hour == 10 and current_datetime.minute == 9 and (current_datetime.second > 1 and current_datetime.second < 23)):
+            if (contract_id not in initTasksDone):
+                initTasks(contract_id)
+                initTasksDone.append(contract_id)
+
+            if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
+                initTasksDone = []
 
             info_green(now())
 
