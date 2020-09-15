@@ -378,7 +378,7 @@ def sender():
 
             # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
 
-            go_task = current_datetime.hour == 19 and (current_datetime.minute > 33 and current_datetime.minute < 36)
+            go_task = current_datetime.hour == 19 and (current_datetime.minute > 40 and current_datetime.minute < 43)
 
             if (go_task):
                 initTaskStart = True
@@ -607,7 +607,9 @@ def sender():
         #     print('task = ', task)
 
 
-        dayTaskPlanning(megaTask)
+        if (go_task):
+            dayTaskPlanning(megaTask)
+
         go_task = False
 
         print(Debug.delimiter())
