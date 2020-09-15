@@ -655,7 +655,7 @@ def sender():
 
         current_datetime = datetime.datetime.now()
 
-        if (current_datetime.hour == 10 and current_datetime.minute == 49 and (current_datetime.second > 1 and current_datetime.second < 23)):
+        if (current_datetime.hour == 10 and current_datetime.minute == 55 and (current_datetime.second > 1 and current_datetime.second < 23)):
             initTasks(contract_id)
 
             info_green(now())
