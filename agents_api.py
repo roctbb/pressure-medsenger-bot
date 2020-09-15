@@ -1,5 +1,6 @@
 from config import *
 import requests
+from classes.colorok import *
 # from init import db
 
 def add_task(contract_id, text, target_number=1, date=None, important=False, action_link=None):
@@ -17,6 +18,8 @@ def add_task(contract_id, text, target_number=1, date=None, important=False, act
     if action_link:
         data['action_link'] = action_link
 
+    print('data = ', MAIN_HOST, data)
+
     try:
         response = requests.post(MAIN_HOST + '/api/agents/tasks/add', json=data)
         print('add_task response = ', response)
@@ -24,7 +27,8 @@ def add_task(contract_id, text, target_number=1, date=None, important=False, act
         print('add_task answer = ', answer)
         return answer['task_id']
     except Exception as e:
-        print('Error', e)
+        error('Error in method add_task()')
+        print(e)
 
 def make_task(contract_id, task_id):
     data = {

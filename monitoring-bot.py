@@ -373,7 +373,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 14 and current_datetime.minute == 35 and (current_datetime.second > 1 and current_datetime.second < 43)
+            go_task = current_datetime.hour == 14 and current_datetime.minute == 47 and (current_datetime.second > 1 and current_datetime.second < 43)
 
             if (go_task):
                 initTaskStart = True
