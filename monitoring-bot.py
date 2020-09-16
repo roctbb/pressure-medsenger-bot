@@ -462,7 +462,6 @@ def sender():
                         hours = timetable[item]
 
                         hours_array = []
-                        # hour_value = ''
 
                         for hour in hours:
                             hour_value = hour['value']
@@ -483,8 +482,15 @@ def sender():
 
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    print('Запись измерения в messages')
+                                    info_green('Запись измерения в messages')
                                     print('contract_id = ', contract_id)
+                                    print('name = ', name)
+                                    print('diff_current_control = ', diff_current_control)
+                                    print('last_push = ', toDate(last_push))
+                                    print('current_time = ', toDate(current_time))
+                                    print('control_time = ', toDate(control_time))
+                                    print('END')
+                                    print('')
 
                                     out_cyan_light(name)
 
@@ -585,8 +591,10 @@ def sender():
                                         out_yellow(name)
                                         values = res['values']
 
+                                        print('values = ', values)
+
                                         for value in values:
-                                            date = datetime.datetime.fromtimestamp(value['timestamp'])
+                                            date = toDate(value['timestamp'])
                                             print('value = ', date)
                                             delta = (control_time - value['timestamp']) / 60
                                             print('delta = ', delta)
@@ -615,15 +623,25 @@ def sender():
 
                                             break
 
-                                    print('no_message', no_message)
+                                    info_green('no_message = ', no_message)
 
                                     if (no_message == False):
-                                        print('data = ', data)
+                                        print('data for messages = ', data)
                                         print(Debug.delimiter())
                                         post_request(data)
 
                                     time.sleep(1)
                                     break
+                            else:
+                                print('Параметры для для определения возможности записи измерения в messages')
+                                print('contract_id = ', contract_id)
+                                print('name = ', name)
+                                print('diff_current_control = ', diff_current_control)
+                                print('last_push = ', toDate(last_push))
+                                print('current_time = ', toDate(current_time))
+                                print('control_time = ', toDate(control_time))
+                                print('END')
+                                print('')
 
         if (go_task):
             delayed(1, dayTaskPlanning, [megaTask])
@@ -823,6 +841,7 @@ def dayTaskPlanning(tasks):
             print(e)
             raise
 
+
 def initTasks(contract_id):
     # tasks = getTasks(contract_id)
     #
@@ -877,6 +896,14 @@ def initTasks(contract_id):
 # ******************************************
 # ************** Testing place *************
 # ******************************************
+
+q = ContractTasks.query.filter_by(contract_id=2)
+
+if q.count() != 0:
+    contract_tasks = q.all()
+
+    for task in contract_tasks:
+        print(task.task_id)
 
 
 
@@ -2678,6 +2705,7 @@ def remove():
 
         if id > 0:
             try:
+                # megaTask = []
                 query = ActualBots.query.filter_by(contract_id=contract_id)
 
                 if query.count() != 0:
@@ -2686,8 +2714,42 @@ def remove():
                     db.session.commit()
 
                     info_yellow('Deactivate contract')
+
+                    q = ContractTasks.query.filter_by(contract_id=contract_id)
+
+                    if q.count() != 0:
+                        contract_tasks = q.all()
+
+                        for task in contract_tasks:
+                            print(task.task_id)
+
+                    drop_tasks(contract_id)
+
+                    # category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
+                    #
+                    # for category_param in category_params:
+                    #     name = category_param.category
+                    #     timetable = category_param.timetable
+                    #     hours__ = timetable['hours']
+                    #     show = category_param.show
+                    #
+                    #     text = CATEGORY_TEXT[name]
+                    #     name = transformMeasurementName(name)
+                    #     action_link = 'frame/' + name
+                        # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
+
+                        # if (show):
+                        #     megaTask.append({
+                        #         'contract_id': contract_id,
+                        #         'text': text,
+                        #         'target_number': len(hours__),
+                        #         'action_link': action_link
+                        #     })
+
                 else:
                     info_cyan('Contract not found')
+
+
 
             except Exception as e:
                 error('Error ActualBots connection')
