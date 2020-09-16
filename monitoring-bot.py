@@ -376,9 +376,7 @@ def sender():
             contract_id = record[1]
             name = record[2]
 
-            # go_task = current_datetime.hour == 16 and current_datetime.minute == 7 and (current_datetime.second > 1 and current_datetime.second < 43)
-
-            go_task = current_datetime.hour == 0 and (current_datetime.minute > 1 and current_datetime.minute < 4)
+            go_task = current_datetime.hour == 11 and (current_datetime.minute > 1 and current_datetime.minute < 3)
 
             if (go_task):
                 initTaskStart = True
@@ -1098,9 +1096,6 @@ def graph():
                     constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
                     constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
-        print('constants = ', contract_id, constants)
-        print(Debug.delimiter())
-
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
         y = []
@@ -1125,10 +1120,6 @@ def graph():
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
         date_min = delta
         date_max = time.strftime('%Y-%m-%d', dt)
-
-        print('delta systolic = ', delta)
-        print('date_max systolic = ', date_max)
-        print('date_min systolic = ', date_min)
 
         systolic_dic = {
             "x": x,
@@ -1301,9 +1292,6 @@ def graph():
             x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
-            print('date = ', date)
-            print(Debug.delimiter())
-
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
@@ -1324,7 +1312,7 @@ def graph():
          'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
          'min_spo2': 93}
 
-        print('constants = ', constants)
+        # print('constants = ', constants)
 
         weight_series = weight_dic
 
