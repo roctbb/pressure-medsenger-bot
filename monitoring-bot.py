@@ -377,11 +377,14 @@ def sender():
             id = record[0]
             contract_id = record[1]
             name = record[2]
+            show = record[9]
+
+            print('test show = ', contract_id, name, show)
 
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
 
-            go_task = current_datetime.hour == 13 and (current_datetime.minute > 32 and current_datetime.minute < 34)
+            go_task = current_datetime.hour == 13 and (current_datetime.minute > 44 and current_datetime.minute < 46)
 
             if (go_task):
                 initTaskStart = True
@@ -404,12 +407,14 @@ def sender():
                         action_link = 'frame/' + name
                         # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
 
-                        megaTask.append({
-                            'contract_id': contract_id,
-                            'text': text,
-                            'target_number': len(hours__),
-                            'action_link': action_link
-                        })
+
+                        if (show):
+                            megaTask.append({
+                                'contract_id': contract_id,
+                                'text': text,
+                                'target_number': len(hours__),
+                                'action_link': action_link
+                            })
 
 
 
