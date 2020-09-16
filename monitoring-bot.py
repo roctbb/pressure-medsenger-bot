@@ -379,7 +379,7 @@ def sender():
             name = record[2]
             show = record[9]
 
-            print('test show = ', contract_id, name, show)
+            # print('test show = ', contract_id, name, show)
 
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
