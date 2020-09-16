@@ -482,7 +482,7 @@ def sender():
 
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    if (contract_id == 1417 || contract_id == 2):
+                                    if (contract_id == 1417 or contract_id == 2):
                                         info_green('Запись измерения в messages')
                                         print('contract_id = ', contract_id)
                                         print('name = ', name)
@@ -634,7 +634,7 @@ def sender():
                                     time.sleep(1)
                                     break
                             else:
-                                if (contract_id == 1417 || contract_id == 2):
+                                if (contract_id == 1417 or contract_id == 2):
                                     print('Параметры для для определения возможности записи измерения в messages')
                                     print('contract_id = ', contract_id)
                                     print('name = ', name)
