@@ -624,7 +624,7 @@ def sender():
 
                                             break
 
-                                    info_green('no_message = ', no_message)
+                                    info_green(no_message)
 
                                     if (no_message == False):
                                         print('data for messages = ', data)
