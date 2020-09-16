@@ -384,7 +384,7 @@ def sender():
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
 
-            go_task = current_datetime.hour == 13 and (current_datetime.minute > 44 and current_datetime.minute < 46)
+            go_task = current_datetime.hour == 14 and (current_datetime.minute > 10 and current_datetime.minute < 12)
 
             if (go_task):
                 initTaskStart = True
