@@ -482,15 +482,16 @@ def sender():
 
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    info_green('Запись измерения в messages')
-                                    print('contract_id = ', contract_id)
-                                    print('name = ', name)
-                                    print('diff_current_control = ', diff_current_control)
-                                    print('last_push = ', toDate(last_push))
-                                    print('current_time = ', toDate(current_time))
-                                    print('control_time = ', toDate(control_time))
-                                    print('END')
-                                    print('')
+                                    if (contract_id == 1417 | | contract_id == 2):
+                                        info_green('Запись измерения в messages')
+                                        print('contract_id = ', contract_id)
+                                        print('name = ', name)
+                                        print('diff_current_control = ', diff_current_control)
+                                        print('last_push = ', toDate(last_push))
+                                        print('current_time = ', toDate(current_time))
+                                        print('control_time = ', toDate(control_time))
+                                        print('END')
+                                        print('')
 
                                     out_cyan_light(name)
 
@@ -633,15 +634,16 @@ def sender():
                                     time.sleep(1)
                                     break
                             else:
-                                print('Параметры для для определения возможности записи измерения в messages')
-                                print('contract_id = ', contract_id)
-                                print('name = ', name)
-                                print('diff_current_control = ', diff_current_control)
-                                print('last_push = ', toDate(last_push))
-                                print('current_time = ', toDate(current_time))
-                                print('control_time = ', toDate(control_time))
-                                print('END')
-                                print('')
+                                if (contract_id == 1417 || contract_id == 2):
+                                    print('Параметры для для определения возможности записи измерения в messages')
+                                    print('contract_id = ', contract_id)
+                                    print('name = ', name)
+                                    print('diff_current_control = ', diff_current_control)
+                                    print('last_push = ', toDate(last_push))
+                                    print('current_time = ', toDate(current_time))
+                                    print('control_time = ', toDate(control_time))
+                                    print('END')
+                                    print('')
 
         info_yellow(nowDate())
 
