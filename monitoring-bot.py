@@ -751,7 +751,7 @@ def sender():
 
         info_yellow(now())
 
-        time.sleep(2 * 60)
+        time.sleep(60)
 
 
 def getTasks(contract_id):
