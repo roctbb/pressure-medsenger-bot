@@ -643,6 +643,8 @@ def sender():
                                 print('END')
                                 print('')
 
+        info_yellow(nowDate())
+
         if (go_task):
             delayed(1, dayTaskPlanning, [megaTask])
 
