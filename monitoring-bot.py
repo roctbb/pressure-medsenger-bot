@@ -206,7 +206,7 @@ def add_record(contract_id, category_name, value, record_time=None):
 
 def post_request(data, query='/api/agents/message'):
     try:
-        print('data = ', data)
+        print('/api/agents/message')
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
         print('error post_request()', e)
@@ -583,6 +583,7 @@ def sender():
                                             print(Debug.delimiter())
 
                                             if (delta < 60):
+                                                out_yellow('no_message = True')
                                                 no_message = True
 
                                             break
