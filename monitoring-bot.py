@@ -2891,7 +2891,7 @@ def action_pull_save(pull):
                 print('params = ', params)
 
             action_link = 'frame/' + str(pull)
-            q_ = ContractTasks.query.filter_by(action_link=action_link)
+            q_ = ContractTasks.query.filter_by(contract_id=contract_id, action_link=action_link)
             print('action_link = ', action_link)
             print('q_ = ', q_)
 
