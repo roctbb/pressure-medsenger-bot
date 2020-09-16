@@ -379,7 +379,14 @@ def sender():
             name = record[2]
             show = record[9]
 
-            # print('test show = ', contract_id, name, show)
+            test_out = (contract_id == 1417 or contract_id == 2)
+
+            # if test_out:
+            #     print('mode daily name = ', contract_id, name)
+            #     # print('timetable = ', timetable)
+            #     print('--')
+            #
+            # continue
 
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
@@ -405,8 +412,6 @@ def sender():
                         text = CATEGORY_TEXT[name]
                         name = transformMeasurementName(name)
                         action_link = 'frame/' + name
-                        # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
-
 
                         if (show):
                             megaTask.append({
@@ -415,34 +420,6 @@ def sender():
                                 'target_number': len(hours__),
                                 'action_link': action_link
                             })
-
-
-
-                        # try:
-                        #     contract_task = ContractTasks(contract_id=contract_id,
-                        #                                   task_id=task_id,
-                        #                                   last_task_push=now(),
-                        #                                   created_at=now(),
-                        #                                   updated_at=now(),
-                        #                                   action_link=action_link)
-                        #     db.session.add(contract_task)
-                        #     print('transformMeasurementName XXX | task_id', name, task_id)
-                        #     db.session.commit()
-                        #     print('transformMeasurementName ZZZ | task_id', name, task_id)
-
-                            # initTasksDone.append(hash)
-
-                        # except Exception as e:
-                        #     # db.session.rollback()
-                        #     error('Error --')
-                        #     print(e)
-                        #     raise
-
-                    # initTasks(contract_id)
-                    # initTasksDone.append(str(contract_id) + action_link)
-
-                # if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
-                #     initTasksDone = []
 
             if (name in STOP_LIST):
                 continue
@@ -457,6 +434,7 @@ def sender():
                 continue
 
             if mode == 'daily':
+
                 for item in timetable:
                     if (item == 'hours'):
                         hours = timetable[item]
@@ -466,6 +444,9 @@ def sender():
                         for hour in hours:
                             hour_value = hour['value']
                             hours_array.append(hour_value)
+
+                        if test_out:
+                            print('hours_array = ', hours_array)
 
                         for hour in hours:
                             date = datetime.date.fromtimestamp(time.time())
@@ -482,7 +463,7 @@ def sender():
 
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    if (contract_id == 1417 or contract_id == 2):
+                                    if test_out:
                                         info_green('Запись измерения в messages')
                                         print('contract_id = ', contract_id)
                                         print('name = ', name)
@@ -500,10 +481,14 @@ def sender():
 
                                     pattern = hour_value
 
+                                    if test_out:
+                                        print('pattern = ', pattern)
+
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
                                             if (pattern < hours_array[0]):
                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+
                                                 break
 
                                             if (pattern == hours_array[0]):
@@ -537,7 +522,13 @@ def sender():
                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
 
                                     action_deadline = action_deadline * 60 * 60
-                                    data_deadline = int(time.time()) + action_deadline
+                                    date_deadline = int(time.time()) + action_deadline
+
+
+                                    if test_out:
+                                        print('action_deadline = ', action_deadline)
+                                        print('date_deadline = ', toDate(date_deadline))
+
 
                                     route_name = name
 
@@ -564,7 +555,7 @@ def sender():
                                         "message": {
                                             "text": MESS_MEASUREMENT[route_name]['text'],
                                             "action_link": "frame/" + route_name,
-                                            "action_deadline": data_deadline - 300,
+                                            "action_deadline": date_deadline - 300,
                                             "action_name": MESS_MEASUREMENT[route_name]['action_name'],
                                             "action_onetime": True,
                                             "only_doctor": False,
@@ -592,14 +583,15 @@ def sender():
                                         out_yellow(name)
                                         values = res['values']
 
-                                        print('values = ', values)
+                                        # print('values = ', values)
 
                                         for value in values:
-                                            date = toDate(value['timestamp'])
-                                            print('value = ', date)
                                             delta = (control_time - value['timestamp']) / 60
-                                            print('delta = ', delta)
-                                            print(Debug.delimiter())
+
+                                            if test_out:
+                                                print('value = ', toDate(value['timestamp']))
+                                                print('delta = ', delta)
+                                                print(Debug.delimiter())
 
                                             if (delta < 60):
                                                 no_message = True
@@ -624,7 +616,8 @@ def sender():
 
                                             break
 
-                                    info_green(no_message)
+                                    if test_out:
+                                        info_green(no_message)
 
                                     if (no_message == False):
                                         print('data for messages = ', data)
