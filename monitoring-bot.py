@@ -524,7 +524,6 @@ def sender():
                                     action_deadline = action_deadline * 60 * 60
                                     date_deadline = int(time.time()) + action_deadline
 
-
                                     if test_out:
                                         print('action_deadline = ', action_deadline)
                                         print('date_deadline = ', toDate(date_deadline))
@@ -563,6 +562,9 @@ def sender():
                                         },
                                         "hour_value": hour_value
                                     }
+
+                                    if test_out:
+                                        print('date_deadline - 300 = ', toDate(date_deadline - 300))
 
                                     try:
                                         query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
