@@ -36,7 +36,10 @@ class CategoryParams(db.Model):
 
 # METHODS
 
-def now():
+def toDate(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp)
+
+def nowDate():
     date_now = datetime.datetime.now()
     return date_now.strftime(DATE_HOUR_FORMAT)
 
@@ -103,7 +106,7 @@ def dateMaxMin(date):
         date_max = date
     except Exception as e:
         out_red_light(e)
-        date_max = now()
+        date_max = nowDate()
 
     delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
     date_min = delta
@@ -362,9 +365,7 @@ def sender():
     while True:
         # MEASUREMENTS
 
-        # info_yellow(current_datetime)
-
-        initTasksDone = []
+        # initTasksDone = []
         go_task = False
         megaTask = []
 
@@ -372,11 +373,15 @@ def sender():
 
         for record in records:
             current_datetime = datetime.datetime.now()
+
             id = record[0]
             contract_id = record[1]
             name = record[2]
 
-            go_task = current_datetime.hour == 11 and (current_datetime.minute > 1 and current_datetime.minute < 3)
+            if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
+                continue
+
+            go_task = current_datetime.hour == 13 and (current_datetime.minute > 22 and current_datetime.minute < 24)
 
             if (go_task):
                 initTaskStart = True
@@ -438,7 +443,7 @@ def sender():
                 continue
 
             mode = record[3]
-            # params = record[4]
+            params = record[4]
             timetable = record[5]
             last_push = record[8].timestamp()
             show = record[9]
@@ -562,7 +567,7 @@ def sender():
                                         if query.count() != 0:
                                             contract = query.first()
                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
-                                            # db.session.commit()
+                                            db.session.commit()
                                     except Exception as e:
                                         out_red_light('ERROR CONNECTION')
                                         print(e)
@@ -577,18 +582,35 @@ def sender():
 
                                         for value in values:
                                             date = datetime.datetime.fromtimestamp(value['timestamp'])
-                                            print('date = ', date)
+                                            print('value = ', date)
                                             delta = (control_time - value['timestamp']) / 60
                                             print('delta = ', delta)
                                             print(Debug.delimiter())
 
                                             if (delta < 60):
-                                                out_yellow('no_message = True')
                                                 no_message = True
+
+                                                # contracts = Contract.query.all()
+                                                # now = datetime.datetime.now()
+                                                # hour = now.hour
+                                                # for contract in contracts:
+                                                #     if hour > 0 and hour < 8 and time.time() - contract.last_task_push > get_delta(
+                                                #             contract.mode) - 8 * 60 * 60:
+                                                #         print("{}: Init task to {}".format(gts(), contract.id))
+                                                #         init_task(contract)
+                                                #
+                                                #     if contract.last_task_id != None and time.time() - contract.last_push > get_delta(
+                                                #             contract.mode):
+                                                #         send(contract.id)
+                                                #         print("{}: Sending form to {}".format(gts(), contract.id))
+                                                #         contract.last_push = int(time.time())
+                                                #
+                                                # db.session.commit()
+                                                # time.sleep(60 * 5)
 
                                             break
 
-                                    # print('no_message', no_message)
+                                    print('no_message', no_message)
 
                                     if (no_message == False):
                                         print('data = ', data)
@@ -598,27 +620,17 @@ def sender():
                                     time.sleep(1)
                                     break
 
-        # db.session.commit()
-
-        # print('megaTask = ', megaTask)
-
-        # for task in megaTask:
-        #     print('task = ', task)
-
-
-        if (go_task):
-            dayTaskPlanning(megaTask)
-
-        go_task = False
-
-        print(Debug.delimiter())
-
         # MEDICINES
 
         query_str = "SELECT * FROM medicines WHERE show = true"
 
         records = DB.select(query_str)
         medicines = records
+
+        if (go_task):
+            dayTaskPlanning(megaTask)
+
+        go_task = False
 
         for medicine in medicines:
             id = str(medicine[0])
@@ -748,9 +760,409 @@ def sender():
 
                                     post_request(data)
 
-        info_yellow(now())
-
         time.sleep(60)
+
+
+# def sender():
+#     while True:
+#         # MEASUREMENTS
+#
+#         # info_yellow(current_datetime)
+#
+#         initTasksDone = []
+#         go_task = False
+#         megaTask = []
+#
+#         records = DB.select('SELECT * FROM category_params')
+#
+#         for record in records:
+#             current_datetime = datetime.datetime.now()
+#             id = record[0]
+#             contract_id = record[1]
+#             name = record[2]
+#
+#             go_task = current_datetime.hour == 11 and (current_datetime.minute > 1 and current_datetime.minute < 3)
+#
+#             if (go_task):
+#                 initTaskStart = True
+#
+#                 if (initTaskStart == True):
+#                     if (name not in STOP_LIST):
+#                         # drop_tasks(contract_id)
+#                         category = name
+#
+#                         category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
+#
+#                         for category_param in category_params:
+#                             name = category_param.category
+#                             timetable = category_param.timetable
+#                             hours__ = timetable['hours']
+#                             # show = category_param.show
+#
+#                         text = CATEGORY_TEXT[name]
+#                         name = transformMeasurementName(name)
+#                         action_link = 'frame/' + name
+#                         # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
+#
+#                         megaTask.append({
+#                             'contract_id': contract_id,
+#                             'text': text,
+#                             'target_number': len(hours__),
+#                             'action_link': action_link
+#                         })
+#
+#
+#
+#                         # try:
+#                         #     contract_task = ContractTasks(contract_id=contract_id,
+#                         #                                   task_id=task_id,
+#                         #                                   last_task_push=now(),
+#                         #                                   created_at=now(),
+#                         #                                   updated_at=now(),
+#                         #                                   action_link=action_link)
+#                         #     db.session.add(contract_task)
+#                         #     print('transformMeasurementName XXX | task_id', name, task_id)
+#                         #     db.session.commit()
+#                         #     print('transformMeasurementName ZZZ | task_id', name, task_id)
+#
+#                             # initTasksDone.append(hash)
+#
+#                         # except Exception as e:
+#                         #     # db.session.rollback()
+#                         #     error('Error --')
+#                         #     print(e)
+#                         #     raise
+#
+#                     # initTasks(contract_id)
+#                     # initTasksDone.append(str(contract_id) + action_link)
+#
+#                 # if (current_datetime.hour == 10 and current_datetime.minute == 14 and (current_datetime.second > 1 and current_datetime.second < 23)):
+#                 #     initTasksDone = []
+#
+#             if (name in STOP_LIST):
+#                 continue
+#
+#             mode = record[3]
+#             # params = record[4]
+#             timetable = record[5]
+#             last_push = record[8].timestamp()
+#             show = record[9]
+#
+#             if (show == False):
+#                 continue
+#
+#             if mode == 'daily':
+#                 for item in timetable:
+#                     if (item == 'hours'):
+#                         hours = timetable[item]
+#
+#                         hours_array = []
+#                         # hour_value = ''
+#
+#                         for hour in hours:
+#                             hour_value = hour['value']
+#                             hours_array.append(hour_value)
+#
+#                         for hour in hours:
+#                             date = datetime.date.fromtimestamp(time.time())
+#                             hour_value = hour['value']
+#
+#                             if (hour_value == 24):
+#                                 hour_value = 0
+#
+#                             measurement_date = datetime.datetime(date.year, date.month, date.day, int(hour_value), 0, 0)
+#                             control_time = measurement_date.timestamp()
+#                             current_time = time.time()
+#                             push_time = last_push
+#                             diff_current_control = current_time - control_time
+#
+#                             info_green(name)
+#                             print('current_time = ', current_time)
+#                             print('control_time = ', control_time)
+#                             print(Debug.delimiter())
+#
+#                             if diff_current_control > 0:
+#                                 if control_time > push_time:
+#                                     print('Запись измерения в messages')
+#                                     print('contract_id = ', contract_id)
+#
+#                                     out_cyan_light(name)
+#
+#                                     len_hours_array = len(hours_array)
+#                                     action_deadline = 1
+#
+#                                     pattern = hour_value
+#
+#                                     for i in range(len_hours_array):
+#                                         if (len_hours_array == 1):
+#                                             if (pattern < hours_array[0]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = 24
+#                                                 break
+#
+#                                             if (pattern > hours_array[0]):
+#                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
+#                                                 break
+#
+#                                         if (len_hours_array == 2):
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = int(hours_array[1]) - int(pattern)
+#                                                 break
+#
+#                                             if (pattern == hours_array[1]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                         if (len_hours_array > 2):
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
+#                                                 break
+#
+#                                             if (pattern == hours_array[len_hours_array - 1]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                             if (i > 0):
+#                                                 if (hours_array[i] == pattern):
+#                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
+#
+#                                     action_deadline = action_deadline * 60 * 60
+#                                     data_deadline = int(time.time()) + action_deadline
+#
+#                                     route_name = name
+#
+#                                     if (name == 'systolic_pressure'):
+#                                         route_name = 'pressure'
+#
+#                                     if (name == 'shin_volume_left'):
+#                                         route_name = 'shin'
+#
+#                                     if (name == 'leg_circumference_left'):
+#                                         route_name = 'shin'
+#
+#                                     if (name == 'leg_circumference_right'):
+#                                         route_name = 'shin'
+#
+#                                     if (name == 'waist_circumference'):
+#                                         route_name = 'waist'
+#
+#                                     out_magenta_light(id)
+#
+#                                     data = {
+#                                         "contract_id": contract_id,
+#                                         "api_key": APP_KEY,
+#                                         "message": {
+#                                             "text": MESS_MEASUREMENT[route_name]['text'],
+#                                             "action_link": "frame/" + route_name,
+#                                             "action_deadline": data_deadline - 300,
+#                                             "action_name": MESS_MEASUREMENT[route_name]['action_name'],
+#                                             "action_onetime": True,
+#                                             "only_doctor": False,
+#                                             "only_patient": True,
+#                                         },
+#                                         "hour_value": hour_value
+#                                     }
+#
+#                                     try:
+#                                         query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
+#
+#                                         if query.count() != 0:
+#                                             contract = query.first()
+#                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
+#                                             # db.session.commit()
+#                                     except Exception as e:
+#                                         out_red_light('ERROR CONNECTION')
+#                                         print(e)
+#
+#                                     no_message = False
+#
+#                                     res = getRecords(contract_id, name)
+#
+#                                     if (res != 404):
+#                                         out_yellow(name)
+#                                         values = res['values']
+#
+#                                         for value in values:
+#                                             date = datetime.datetime.fromtimestamp(value['timestamp'])
+#                                             date_control_time = datetime.datetime.fromtimestamp(control_time)
+#                                             print('date = ', date)
+#                                             print('date_control_time = ', date_control_time)
+#                                             delta = (control_time - value['timestamp']) / 60
+#                                             print('delta = ', delta)
+#                                             print(Debug.delimiter())
+#
+#                                             if (delta < 60):
+#                                                 out_yellow('no_message = True')
+#                                                 no_message = True
+#
+#                                             break
+#
+#                                     # print('no_message', no_message)
+#
+#                                     if (no_message == False):
+#                                         print('data = ', data)
+#                                         print(Debug.delimiter())
+#                                         post_request(data)
+#
+#                                     time.sleep(1)
+#                                     break
+#
+#         # db.session.commit()
+#
+#         # print('megaTask = ', megaTask)
+#
+#         # for task in megaTask:
+#         #     print('task = ', task)
+#
+#
+#         if (go_task):
+#             dayTaskPlanning(megaTask)
+#
+#         go_task = False
+#
+#         print(Debug.delimiter())
+#
+#         # MEDICINES
+#
+#         query_str = "SELECT * FROM medicines WHERE show = true"
+#
+#         records = DB.select(query_str)
+#         medicines = records
+#
+#         for medicine in medicines:
+#             id = str(medicine[0])
+#             contract_id = medicine[1]
+#             name = medicine[2]
+#             mode = medicine[3]
+#             dosage = medicine[4]
+#             amount = medicine[5]
+#             timetable = medicine[6]
+#             show = medicine[7]
+#             last_push = medicine[8].timestamp()
+#
+#             if (show == False):
+#                 continue
+#
+#             if mode == 'daily':
+#                 for item in timetable:
+#                     if (item == 'hours'):
+#                         hours = timetable[item]
+#
+#                         hours_array = []
+#
+#                         for hour in hours:
+#                             hours_array.append(hour['value'])
+#
+#                         for hour in hours:
+#                             date = datetime.date.fromtimestamp(time.time())
+#                             hour_value = hour['value']
+#
+#                             if (hour_value == 24):
+#                                 hour_value = 0
+#
+#                             medicine_date = datetime.datetime(date.year, date.month, date.day, int(hour_value), 0, 0)
+#
+#                             control_time = medicine_date.timestamp()
+#                             current_time = time.time()
+#                             push_time = last_push
+#                             diff_current_control = current_time - control_time
+#
+#                             if diff_current_control > 0:
+#                                 if control_time > push_time:
+#                                     print('Запись лекарства в messages', name)
+#
+#                                     len_hours_array = len(hours_array)
+#                                     action_deadline = 1
+#
+#                                     pattern = hour_value
+#
+#                                     for i in range(len_hours_array):
+#                                         if (len_hours_array == 1):
+#                                             if (pattern < hours_array[0]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = 24
+#                                                 break
+#
+#                                             if (pattern > hours_array[0]):
+#                                                 action_deadline = (24 + int(pattern)) - int(hours_array[0])
+#                                                 break
+#
+#                                         if (len_hours_array == 2):
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = int(hours_array[1]) - int(pattern)
+#                                                 break
+#
+#                                             if (pattern == hours_array[1]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                         if (len_hours_array > 2):
+#
+#                                             if (pattern == hours_array[0]):
+#                                                 action_deadline = int(hours_array[1]) - int(hours_array[0])
+#                                                 break
+#
+#                                             if (pattern == hours_array[len_hours_array - 1]):
+#                                                 action_deadline = (24 - int(pattern)) + int(hours_array[0])
+#                                                 break
+#
+#                                             if (i > 0):
+#                                                 if (hours_array[i] == pattern):
+#                                                     action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
+#
+#                                     data_deadline = int(time.time()) + (action_deadline * 60 * 60)
+#
+#                                     data = {
+#                                         "contract_id": contract_id,
+#                                         "api_key": APP_KEY,
+#                                         "message": {
+#                                             "text": MESS_MEDICINE['text'].format(name),
+#                                             "action_link": MESS_MEDICINE['action_link'].format(id),
+#                                             "action_name": MESS_MEDICINE['action_name'].format(name, dosage),
+#                                             "action_onetime": True,
+#                                             "action_deadline": data_deadline - 600,
+#                                             "only_doctor": False,
+#                                             "only_patient": True,
+#                                         }
+#                                     }
+#
+#                                     data_update_deadline = int(time.time()) - (4 * 60 * 60)
+#
+#                                     data_update = {
+#                                         "contract_id": contract_id,
+#                                         "api_key": APP_KEY,
+#                                         "action_link": "medicine/" + id,
+#                                         "action_deadline": data_update_deadline
+#                                     }
+#
+#                                     try:
+#                                         query = '/api/agents/correct_action_deadline'
+#
+#                                         response = requests.post(MAIN_HOST + query, json=data_update)
+#                                     except Exception as e:
+#                                         print('error requests.post', e)
+#
+#                                     query_str = "UPDATE medicines set last_push = '" + \
+#                                                 str(datetime.datetime.fromtimestamp(
+#                                                     current_time).isoformat()) + Aux.quote() + \
+#                                                 " WHERE id = '" + str(id) + Aux.quote()
+#
+#                                     DB.query(query_str)
+#
+#                                     print('data medicines', data)
+#                                     print(Debug.delimiter())
+#
+#                                     post_request(data)
+#
+#         info_yellow(now())
+#
+#         time.sleep(60)
 
 
 def getTasks(contract_id):
@@ -795,9 +1207,9 @@ def dayTaskPlanning(tasks):
 
             contract_task = ContractTasks(contract_id=contract_id,
                                           task_id=task_id,
-                                          last_task_push=now(),
-                                          created_at=now(),
-                                          updated_at=now(),
+                                          last_task_push=nowDate(),
+                                          created_at=nowDate(),
+                                          updated_at=nowDate(),
                                           action_link=task['action_link'])
             db.session.add(contract_task)
             db.session.commit()
@@ -1115,7 +1527,7 @@ def graph():
             date_max = x[0]
         except Exception as e:
             out_red(e)
-            date_max = now()
+            date_max = nowDate()
 
         dt = time.strptime(date_max, DATE_HOUR_FORMAT)
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
@@ -1269,7 +1681,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         pain_assessment_dic = {
             "x": x,
@@ -1296,7 +1708,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         weight_dic = {
             "x": x,
@@ -1354,7 +1766,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         temperature_dic = {
             "x": x,
@@ -1383,7 +1795,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         glukose_dic = {
             "x": x,
@@ -1412,7 +1824,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         spo2_dic = {
             "x": x,
@@ -1441,7 +1853,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         waist_dic = {
             "x": x,
@@ -1470,7 +1882,7 @@ def graph():
         try:
             date_max_min = dateMaxMin(x[0])
         except Exception as e:
-            date_max_min = now()
+            date_max_min = nowDate()
 
         shin_left_dic = {
             "x": x,
