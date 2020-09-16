@@ -44,11 +44,11 @@ def nowDate():
     return date_now.strftime(DATE_HOUR_FORMAT)
 
 
-def submit_task(contract_id, task_id):
-    if contract_id:
-        make_task(contract_id, task_id)
-
-    contract_last_task_id = None
+# def submit_task(contract_id, task_id):
+#     if contract_id:
+#         make_task(contract_id, task_id)
+#
+#     contract_last_task_id = None
 
 
 def drop_task(contract_id, task_id):
@@ -2753,7 +2753,7 @@ def action_pull_save(pull):
                 task = q.first()
                 task_id = task.task_id
 
-                print('task_id = ', pull, task_id)
+                # print('task_id = ', pull, task_id)
         except Exception as e:
             error('Error frame/<pull> post')
             print(e)
@@ -2775,6 +2775,8 @@ def action_pull_save(pull):
 
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
+
+        print('make_task 1 | pull | task_id = ', pull, task_id)
         make_task(contract_id, task_id)
     elif (pull == 'pressure'):
         systolic = request.form.get('systolic', '')
@@ -2856,6 +2858,7 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
 
+        print('make_task 2 | pull | task_id = ', pull, task_id)
         make_task(contract_id, task_id)
     else:
         if check_float(param_value) == False:
@@ -2913,9 +2916,9 @@ def action_pull_save(pull):
         min = float(min)
         param_value = float(param_value)
 
-        print('param = ', param)
-        print('param_value = ', param_value)
-        print(Debug.delimiter())
+        # print('param = ', param)
+        # print('param_value = ', param_value)
+        # print(Debug.delimiter())
 
         if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             param_value_int = int(param_value)
@@ -2950,13 +2953,15 @@ def action_pull_save(pull):
         if (param_value < min or param_value > max):
             # Сигналим врачу
             out_yellow('Сигналим врачу')
-            print('param = ', param)
-            print('param_value', param_value)
-            print('min = ', min)
-            print('max = ', max)
+            # print('param = ', param)
+            # print('param_value', param_value)
+            # print('min = ', min)
+            # print('max = ', max)
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
+
+        print('make_task 3 | pull | task_id = ', pull, task_id)
         make_task(contract_id, task_id)
 
     return MESS_THANKS
