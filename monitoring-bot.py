@@ -1170,7 +1170,7 @@ def graph():
             "x": x,
             "y": y,
             "date_max": date_max,
-            "date_min": date_min,
+            "date_min": '2020-10-01 14:37:48',
             # "sys_max_value": int(sys_max_value),
             "sys_max_value": max(y),
             # "sys_min_value": int(sys_min_value),
