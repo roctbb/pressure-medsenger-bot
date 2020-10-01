@@ -2812,7 +2812,7 @@ def action_pull_save(pull):
                 contract = query.first()
                 params = contract.params
 
-            q = ContractTasks.query.filter_by(action_link='frame/' + pull)
+            q = ContractTasks.query.filter_by(contract_id=contract_id, action_link='frame/' + pull)
 
             if q.count() != 0:
                 task = q.first()
