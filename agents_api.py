@@ -40,12 +40,14 @@ def make_task(contract_id, task_id):
     try:
         answer = requests.post(MAIN_HOST + '/api/agents/tasks/done', json=data).json()
 
-        print('success answer = ', answer)
+        info_green('success make_task()')
+        print(answer)
 
         return answer['is_done']
 
     except Exception as e:
-        print('error make_task: ', e)
+        error('Error function make_task()')
+        print(e)
 
 def delete_task(contract_id, task_id):
     data = {

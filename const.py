@@ -76,6 +76,8 @@ MIN_WAIST_DEFAULT = 30
 MAX_ASSESSMENT = 10
 MIN_ASSESSMENT = 0
 
+TASK_HOUR = 0
+
 ERROR_KEY = open_tag + "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой." + close_tag
 ERROR_CONTRACT = open_tag + "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой." + close_tag
 ERROR_FORM = open_tag + "<strong>Ошибки при заполнении формы.<br></strong> Пожалуйста, проверьте, что все поля заполнены." + close_tag + backhistory

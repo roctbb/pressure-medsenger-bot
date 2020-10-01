@@ -391,7 +391,7 @@ def sender():
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
 
-            go_task = current_datetime.hour == 0 and (current_datetime.minute > 1 and current_datetime.minute < 3)
+            go_task = current_datetime.hour == int(TASK_HOUR) and (current_datetime.minute > 1 and current_datetime.minute < 3)
 
             if (go_task):
                 initTaskStart = True
@@ -445,8 +445,8 @@ def sender():
                             hour_value = hour['value']
                             hours_array.append(hour_value)
 
-                        if test_out:
-                            print('hours_array = ', hours_array)
+                        # if test_out:
+                        #     print('hours_array = ', hours_array)
 
                         for hour in hours:
                             date = datetime.date.fromtimestamp(time.time())
@@ -628,17 +628,17 @@ def sender():
 
                                     time.sleep(1)
                                     break
-                            else:
-                                if (contract_id == 1417 or contract_id == 2):
-                                    print('Параметры для для определения возможности записи измерения в messages')
-                                    print('contract_id = ', contract_id)
-                                    print('name = ', name)
-                                    print('diff_current_control = ', diff_current_control)
-                                    print('last_push = ', toDate(last_push))
-                                    print('current_time = ', toDate(current_time))
-                                    print('control_time = ', toDate(control_time))
-                                    print('END')
-                                    print('')
+                            # else:
+                            #     if (contract_id == 1417 or contract_id == 2):
+                            #         print('Параметры для для определения возможности записи измерения в messages')
+                            #         print('contract_id = ', contract_id)
+                            #         print('name = ', name)
+                            #         print('diff_current_control = ', diff_current_control)
+                            #         print('last_push = ', toDate(last_push))
+                            #         print('current_time = ', toDate(current_time))
+                            #         print('control_time = ', toDate(control_time))
+                            #         print('END')
+                            #         print('')
 
         info_yellow(nowDate())
 
@@ -821,6 +821,7 @@ def dayTaskPlanning(tasks):
 
             task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
 
+            info_yellow('Call dayTaskPlanning()')
             print('contract_id = ', contract_id)
             print('task_id = ', task_id)
             print('************************')
@@ -856,7 +857,7 @@ def initTasks(contract_id):
         name = category_param.category
         timetable = category_param.timetable
 
-        print('timetable = ', timetable)
+        # print('timetable = ', timetable)
 
         hours = timetable['hours']
         show = category_param.show
@@ -871,7 +872,7 @@ def initTasks(contract_id):
 
             task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
 
-            print('task_id = ', task_id)
+            # print('task_id = ', task_id)
 
             try:
                 contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=now(),
@@ -886,7 +887,7 @@ def initTasks(contract_id):
                 raise
 
 
-            info_yellow(name)
+            # info_yellow(name)
             # info_cyan(hours)
             # info_magenta(len(hours))
 
@@ -896,13 +897,15 @@ def initTasks(contract_id):
 # ************** Testing place *************
 # ******************************************
 
-q = ContractTasks.query.filter_by(contract_id=2)
-
-if q.count() != 0:
-    contract_tasks = q.all()
-
-    for task in contract_tasks:
-        print(task.task_id)
+# q = ContractTasks.query.filter_by(contract_id=2)
+#
+# if q.count() != 0:
+#     contract_tasks = q.all()
+#
+#     print('test')
+#
+#     for task in contract_tasks:
+#         print(task.task_id)
 
 
 
@@ -2765,6 +2768,7 @@ def remove():
 
 @app.route('/frame/<string:pull>', methods=['POST'])
 def action_pull_save(pull):
+    # info_cyan(pull)
     param = ''
     param_value = ''
 
@@ -2837,7 +2841,10 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
 
-        print('make_task 1 | pull | task_id = ', pull, task_id)
+        print('pull = ', pull)
+        print('make_task 1 | pull | task_id = ', task_id)
+        print(Debug.delimiter())
+
         make_task(contract_id, task_id)
     elif (pull == 'pressure'):
         systolic = request.form.get('systolic', '')
@@ -2919,7 +2926,9 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
 
-        print('make_task 2 | pull | task_id = ', pull, task_id)
+        print('pull = ', pull)
+        print('make_task 2 | pull | task_id = ', task_id)
+        print(Debug.delimiter())
         make_task(contract_id, task_id)
     else:
         if check_float(param_value) == False:
@@ -2953,15 +2962,15 @@ def action_pull_save(pull):
 
             action_link = 'frame/' + str(pull)
             q_ = ContractTasks.query.filter_by(contract_id=contract_id, action_link=action_link)
-            print('action_link = ', action_link)
-            print('q_ = ', q_)
+            # print('action_link = ', action_link)
+            # print('q_ = ', q_)
 
             if q_.count() != 0:
                 task = q_.first()
-                print('task = ', task)
+                # print('task = ', task)
                 task_id = task.task_id
 
-                print('task_id = ', pull, task_id)
+                # print('task_id = ', pull, task_id)
         except Exception as e:
             error('ERROR CONNECTION')
             print(e)
@@ -3022,7 +3031,10 @@ def action_pull_save(pull):
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
 
-        print('make_task 3 | pull | task_id = ', pull, task_id)
+        print('pull = ', pull)
+        print('make_task 3 | pull | task_id = ', task_id)
+        print(Debug.delimiter())
+
         make_task(contract_id, task_id)
 
     return MESS_THANKS
