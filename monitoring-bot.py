@@ -2768,7 +2768,7 @@ def remove():
 
 @app.route('/frame/<string:pull>', methods=['POST'])
 def action_pull_save(pull):
-    # info_cyan(pull)
+    task_id = 0
     param = ''
     param_value = ''
 
@@ -2845,7 +2845,8 @@ def action_pull_save(pull):
         print('make_task 1 | pull | task_id = ', task_id)
         print(Debug.delimiter())
 
-        make_task(contract_id, task_id)
+        if task_id > 0:
+            make_task(contract_id, task_id)
     elif (pull == 'pressure'):
         systolic = request.form.get('systolic', '')
         diastolic = request.form.get('diastolic', '')
@@ -2929,18 +2930,12 @@ def action_pull_save(pull):
         print('pull = ', pull)
         print('make_task 2 | pull | task_id = ', task_id)
         print(Debug.delimiter())
-        make_task(contract_id, task_id)
+
+        if (task_id > 0):
+            make_task(contract_id, task_id)
     else:
         if check_float(param_value) == False:
             return ERROR_FORM
-
-        # query_str = "select params from measurements where contract_id = " + Aux.quote() + str(
-        #     contract_id) + Aux.quote() + " and name = " + Aux.quote() + str(pull) + Aux.quote()
-        #
-        # records = DB.select(query_str)
-        #
-        # for row in records:
-        #     params = row[0]
 
         category = pull
 
@@ -2953,24 +2948,17 @@ def action_pull_save(pull):
         try:
             q = CategoryParams.query.filter_by(contract_id=contract_id, category=category)
 
-            # print(q)
-
             if q.count() != 0:
                 contract = q.first()
                 params = contract.params
-                print('params = ', params)
 
             action_link = 'frame/' + str(pull)
             q_ = ContractTasks.query.filter_by(contract_id=contract_id, action_link=action_link)
-            # print('action_link = ', action_link)
-            # print('q_ = ', q_)
 
             if q_.count() != 0:
                 task = q_.first()
-                # print('task = ', task)
                 task_id = task.task_id
 
-                # print('task_id = ', pull, task_id)
         except Exception as e:
             error('ERROR CONNECTION')
             print(e)
@@ -2985,10 +2973,6 @@ def action_pull_save(pull):
         max = float(max)
         min = float(min)
         param_value = float(param_value)
-
-        # print('param = ', param)
-        # print('param_value = ', param_value)
-        # print(Debug.delimiter())
 
         if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             param_value_int = int(param_value)
@@ -3023,10 +3007,6 @@ def action_pull_save(pull):
         if (param_value < min or param_value > max):
             # Сигналим врачу
             out_yellow('Сигналим врачу')
-            # print('param = ', param)
-            # print('param_value', param_value)
-            # print('min = ', min)
-            # print('max = ', max)
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
@@ -3035,7 +3015,8 @@ def action_pull_save(pull):
         print('make_task 3 | pull | task_id = ', task_id)
         print(Debug.delimiter())
 
-        make_task(contract_id, task_id)
+        if (task_id > 0):
+            make_task(contract_id, task_id)
 
     return MESS_THANKS
 
