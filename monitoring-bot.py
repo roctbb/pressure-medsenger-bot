@@ -1194,6 +1194,8 @@ def graph():
 
         systolic = systolic_dic
 
+        print('systolic', systolic)
+
         response = getRecords(contract_id, 'diastolic_pressure')
 
         x = []
@@ -1357,8 +1359,6 @@ def graph():
          'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
          'min_spo2': 93}
 
-        # print('constants = ', constants)
-
         weight_series = weight_dic
 
         weight_series = {
@@ -1380,7 +1380,7 @@ def graph():
             'y': [80, 80, 80, 80, 88.3, 88.2, 88, 90, 90]
         }
 
-        print('weight_series = ', weight_series)
+        # print('weight_series = ', weight_series)
 
         # temperature
 
