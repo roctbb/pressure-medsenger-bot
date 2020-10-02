@@ -1141,17 +1141,24 @@ def graph():
         date_max = time.strftime('%Y-%m-%d', dt)
         zoomToDates = 'off'
 
-        # if (len(x) > 0):
-        #     d1 = x[len(x)-1]
-        #     d2 = date_min
-        #
-        #     if (d2 > d1):
-        #         zoomToDates = 'on'
-        #
-        #     print(d1)
-        #     print(d2)
-        #     print("d2 is less than d1 : ", d2 < d1)
-        #     print('------- test')
+        if (len(x) > 0):
+            d1 = x[len(x)-1]
+            d2 = date_min
+
+            if (d2 > d1):
+                zoomToDates = 'on'
+
+            print(d1)
+            print(d2)
+            print("d2 is less than d1 : ", d2 < d1)
+            print('------- test')
+
+        if (len(y) > 0):
+            max_y = max(y)
+            min_Y = min(y)
+        else:
+            max_y = 0
+            min_y = 0
 
         systolic_dic = {
             "zoomToDates": zoomToDates,
@@ -1160,9 +1167,9 @@ def graph():
             "date_max": date_max,
             "date_min": date_min,
             # "sys_max_value": int(sys_max_value),
-            "sys_max_value": max(y),
+            "sys_max_value": max_y,
             # "sys_min_value": int(sys_min_value),
-            "sys_min_value": min(y),
+            "sys_min_value": min_y,
             # "sys_avg_value": sum(sys_avg_value),
             # "sys_slice_normal": int(sys_slice_normal),
             # "sys_slice_critical": int(sys_slice_critical),
