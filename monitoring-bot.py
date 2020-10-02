@@ -1195,6 +1195,7 @@ def graph():
         systolic = systolic_dic
 
         print('systolic', systolic)
+        print('-------')
 
         response = getRecords(contract_id, 'diastolic_pressure')
 
@@ -1216,6 +1217,9 @@ def graph():
 
         diastolic = diastolic_dic
 
+        print('diastolic', diastolic)
+        print('-------')
+
         # pulse
 
         response = getRecords(contract_id, 'pulse')
@@ -1236,6 +1240,9 @@ def graph():
         }
 
         pulse = pulse_dic
+
+        print('pulse', pulse)
+        print('-------')
 
         # medicines
 
