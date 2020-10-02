@@ -560,7 +560,7 @@ def sender():
                                             contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
                                             db.session.commit()
                                     except Exception as e:
-                                        out_red_light('ERROR CONNECTION')
+                                        error('Error CategoryParams.query')
                                         print(e)
 
                                     no_message = False
@@ -1036,7 +1036,7 @@ def graph():
 
                 params = CategoryParamsObj.params
             except Exception as e:
-                out_magenta_light('ERROR CONNECTION')
+                out_magenta_light('Error CategoryParams.query | ' + category)
                 print(e)
 
             if (category == 'systolic_pressure'):
