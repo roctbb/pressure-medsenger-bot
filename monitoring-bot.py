@@ -93,7 +93,8 @@ def dateMaxMin(date):
     try:
         date_max = date
     except Exception as e:
-        info_magenta(e)
+        error('dateMaxMin(date)')
+        print(e)
         date_max = nowDate()
 
     delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
@@ -1150,7 +1151,7 @@ def graph():
 
             print(d1)
             print(d2)
-            print("d2 is less than d1 : ", d2 < d1)
+            print("systolic d2 is less than d1 : ", d2 < d1)
             print('------- test')
 
         if (len(y) > 0):
@@ -1346,11 +1347,32 @@ def graph():
         except Exception as e:
             date_max_min = nowDate()
 
+        zoomToDates = 'off'
+
+        if (len(x) > 0):
+            date_max = date_max_min[0]
+            date_min = date_max_min[1]
+            d1 = x[len(x)-1]
+            d2 = date_min
+
+            if (d2 > d1):
+                zoomToDates = 'on'
+
+            # print(d1)
+            # print(d2)
+            # print("d2 is less than d1 : ", d2 < d1)
+            # print('------- test')
+        else:
+            date_max = nowDate()
+            date_min = nowDate()
+
+
         weight_dic = {
+            "zoomToDates": zoomToDates,
             "x": x,
             "y": y,
-            "date_max": date_max_min[0],
-            "date_min": date_max_min[1],
+            "date_max": date_max,
+            "date_min": date_min,
             "comments": comments,
             "name": category['description']
         }
