@@ -1375,6 +1375,10 @@
                 {#let bullet = series.bullets.push(new am4charts.CircleBullet())#}
                 {#bullet.circle.stroke = am4core_glukose.color(config.color)#}
                 {#bullet.circle.strokeWidth = config.strokeWidth#}
+
+                bullet.circle.fill = "#fff";
+                bullet.circle.strokeWidth = 2;
+
                 {#bullet.propertyFields.fill = config.color_danger#}
                 bullet.disabled = "disabled"
                 bullet.propertyFields.disabled = config.disabled
