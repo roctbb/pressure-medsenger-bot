@@ -1155,7 +1155,7 @@ def graph():
 
         if (len(y) > 0):
             max_y = max(y)
-            min_Y = min(y)
+            min_y = min(y)
         else:
             max_y = 0
             min_y = 0
