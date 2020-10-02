@@ -1139,19 +1139,19 @@ def graph():
         delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
         date_min = delta
         date_max = time.strftime('%Y-%m-%d', dt)
+        zoomToDates = 'off'
 
-        d1 = x[len(x)-1]
-        d2 = date_min
+        if (len(x) > 0):
+            d1 = x[len(x)-1]
+            d2 = date_min
 
-        print(d1)
-        print(d2)
-        print("d2 is less than d1 : ", d2 < d1)
-        print('------- test')
+            if (d2 > d1):
+                zoomToDates = 'on'
 
-        if (d2 > d1):
-            zoomToDates = 'on'
-        else:
-            zoomToDates = 'off'
+            print(d1)
+            print(d2)
+            print("d2 is less than d1 : ", d2 < d1)
+            print('------- test')
 
         systolic_dic = {
             "zoomToDates": zoomToDates,
