@@ -1141,17 +1141,17 @@ def graph():
         date_max = time.strftime('%Y-%m-%d', dt)
         zoomToDates = 'off'
 
-        if (len(x) > 0):
-            d1 = x[len(x)-1]
-            d2 = date_min
-
-            if (d2 > d1):
-                zoomToDates = 'on'
-
-            print(d1)
-            print(d2)
-            print("d2 is less than d1 : ", d2 < d1)
-            print('------- test')
+        # if (len(x) > 0):
+        #     d1 = x[len(x)-1]
+        #     d2 = date_min
+        #
+        #     if (d2 > d1):
+        #         zoomToDates = 'on'
+        #
+        #     print(d1)
+        #     print(d2)
+        #     print("d2 is less than d1 : ", d2 < d1)
+        #     print('------- test')
 
         systolic_dic = {
             "zoomToDates": zoomToDates,
