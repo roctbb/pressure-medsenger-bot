@@ -2819,7 +2819,7 @@ def action_pull_save(pull):
                 task = q.first()
                 task_id = task.task_id
         except Exception as e:
-            out_red_light('ERROR CONNECTION')
+            error('Error CategoryParams.query')
             print(e)
 
         try:
