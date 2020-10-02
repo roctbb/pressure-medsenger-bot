@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>графики</title>
+    <title>Графики измерений</title>
 </head>
     <!-- Resources -->
 
@@ -19,7 +19,7 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <body>
-    <!-- style -->
+    <!-- Styles -->
 
     <style >
         @import url("https://fonts.googleapis.com/css?family=Archivo+Narrow");
@@ -97,7 +97,6 @@
 
     </style>
 
-    <!-- Styles -->
     <style>
         #sys-stat-week, #sys-stat-month, #sys-stat-donat, #dia-stat-donat, #dia-stat-week, #dia-stat-month {
             width: 100%;
@@ -328,7 +327,6 @@
             <li><a id="spo2_button" href="#">Насыщение крови кислородом</a></li>
             <li><a id="waist_button" href="#">Окружность талии</a></li>
             <li><a id="shin_button" href="#">Обхват голени</a></li>
-{#            <li><a id="stat_button" href="#">Статистика измерения давления</a></li>#}
 
 		</ul>
 	</nav>
@@ -343,17 +341,9 @@
             <option value="light">Светлая</option>
             <option value="dark">Темная</option>
         </select>
-
     </div>
 
-{#    <div>#}
-{#        <p style="margin-top: 10px; margin-bottom: -25px; margin-left: 50px; font-size: small; color: #666666;">На графиках красными точками обозначены измерения, выходящие за диапазон допустимых значений.</p>#}
-{#        #}
-{#    </div>#}
-
     <div id="chartdiv__" class="chartdiv height-530__ dark" style="width: 100%; height: 800px; min-height: 600px;"></div>
-{#     <div id="chartdiv-more" class="chartdiv height-530 dark"></div>#}
-
     <div id="chartdiv_spo2" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_waist" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_glukose" class="chartdiv height-530 dark"></div>
@@ -361,282 +351,6 @@
     <div id="chartdiv_temperature" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_pain" class="chartdiv height-530 dark"></div>
     <div id="chartdiv_shin" class="chartdiv height-530 dark"></div>
-
-{#    <div id="stat">#}
-{#        <h1 class="item-center font-base dark-green">Статистика измерений давления</h1>#}
-{##}
-{#        <!-- SYS -->#}
-{##}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Систолическое давление - за полный период</h2>#}
-{#            <div id="sys-stat" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ systolic['sys_max_value'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ systolic['sys_min_value'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ systolic['sys_avg_value'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="sys-stat-donat" class="font-base"></div>#}
-{#        </div>#}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Систолическое давление - за месяц</h2>#}
-{#            <div id="" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ systolic['sys_max_month'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ systolic['sys_min_month'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ systolic['sys_avg_month'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="sys-stat-month" class="font-base"></div>#}
-{#        </div>#}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Систолическое давление - за неделю</h2>#}
-{#            <div id="" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ systolic['sys_max_week'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ systolic['sys_min_week'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ systolic['sys_avg_week'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="sys-stat-week" class="font-base"></div>#}
-{#        </div>#}
-{##}
-{##}
-{#        <!-- DIA -->#}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Диастолическое давление - за полный период</h2>#}
-{#            <div id="sys-stat" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ diastolic['dia_max_value'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ diastolic['dia_min_value'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ diastolic['dia_avg_value'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="dia-stat-donat" class="font-base"></div>#}
-{#        </div>#}
-{##}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Диастолическое давление - за месяц</h2>#}
-{#            <div id="sys-stat" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ diastolic['dia_max_month'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ diastolic['dia_min_month'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ diastolic['dia_avg_month'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="dia-stat-month" class="font-base"></div>#}
-{#        </div>#}
-{##}
-{#        <div class="item-border">#}
-{#            <h2 class="item-center dark-green">Диастолическое давление - за неделю</h2>#}
-{#            <div id="sys-stat" class="row font-base">#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                       максимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                       <span class="bold">{{ diastolic['dia_max_week'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        минимальное#}
-{#                    </p>#}
-{#                    <p>#}
-{#                        <span class="bold">{{ diastolic['dia_min_week'] }}</span>#}
-{#                    </p>#}
-{#                </div>#}
-{##}
-{#                <div class="row_cell">#}
-{#                    <p>#}
-{#                        среднее#}
-{#                    </p>#}
-{#                    <span class="bold">{{ diastolic['dia_avg_week'] }}</span>#}
-{#                </div>#}
-{##}
-{#            </div>#}
-{#            <div id="dia-stat-week" class="font-base"></div>#}
-{#        </div>#}
-{##}
-{#        <figure class="highcharts-figure font-base">#}
-{#            <div id="container"></div>#}
-    {#        <p class="highcharts-description">#}
-    {#            Графики давления и пульса пациента.#}
-    {#        </p>#}
-{#        </figure>#}
-{#    </div>#}
-
-{#    <!-- Chart code -->#}
-{#    <script>#}
-{#        zzz = am4core#}
-        {#shinArray = {{ shin_left, safe }}#}
-{##}
-{#        zzz.ready(function() {#}
-{#            console.log('start')#}
-{##}
-{#            // Themes begin#}
-{#            zzz.useTheme(am4themes_animated);#}
-{#            // Themes end#}
-{##}
-{#            // Create chart instance#}
-{#            var chart = zzz.create("chartdiv-more", am4charts.XYChart);#}
-{##}
-{#            shinData = []#}
-            {#shinArray = {{ shin_left, safe }}#}
-{##}
-{#            console.log('shinArray', shinArray)#}
-{##}
-{#            shinArray.forEach((item) => {#}
-{#                console.log('item', item)#}
-{#            })#}
-{##}
-{#            // Add data#}
-{#            chart.data = [#}
-{#              {date:new Date(2019,5,12), value1:50, value2:48, previousDate:new Date(2019, 5, 5)},#}
-{#              {date:new Date(2019,5,13), value1:53, value2:51, previousDate:new Date(2019, 5, 6)},#}
-{#              {date:new Date(2019,5,14), value1:56, value2:58, previousDate:new Date(2019, 5, 7)},#}
-{#              {date:new Date(2019,5,15), value1:52, value2:53, previousDate:new Date(2019, 5, 8)},#}
-{#              {date:new Date(2019,5,16), value1:48, value2:44, previousDate:new Date(2019, 5, 9)},#}
-{#              {date:new Date(2019,5,17), value1:47, value2:42, previousDate:new Date(2019, 5, 10)},#}
-{#              {date:new Date(2019,5,18), value1:59, value2:55, previousDate:new Date(2019, 5, 11)}#}
-{#            ]#}
-{##}
-{#            // Create axes#}
-{#            var dateAxis = chart.xAxes.push(new zzz.DateAxis());#}
-{#            dateAxis.renderer.minGridDistance = 50;#}
-{##}
-{#            var valueAxis = chart.yAxes.push(new zzz.ValueAxis());#}
-{##}
-{#            // Create series#}
-{#            var series = chart.series.push(new zzz.LineSeries());#}
-{#            series.dataFields.valueY = "value1";#}
-{#            series.dataFields.dateX = "date";#}
-{#            series.strokeWidth = 2;#}
-{#            series.minBulletDistance = 10;#}
-{#            series.tooltipText = "[bold]{date.formatDate()}:[/] {value1}\n[bold]{previousDate.formatDate()}:[/] {value2}";#}
-{#            series.tooltip.pointerOrientation = "vertical";#}
-{##}
-{#            // Create series#}
-{#            var series2 = chart.series.push(new zzz.LineSeries());#}
-{#            series2.dataFields.valueY = "value2";#}
-{#            series2.dataFields.dateX = "date";#}
-{#            series2.strokeWidth = 2;#}
-{#            series2.strokeDasharray = "3,4";#}
-{#            series2.stroke = series.stroke;#}
-{##}
-{#            // Add cursor#}
-{#            chart.cursor = new zzz.XYCursor();#}
-{#            chart.cursor.xAxis = dateAxis;#}
-{##}
-{#        }); // end am4core.ready()#}
-{#    </script>#}
 
     <!-- Chart systolic-diastolic-pulse-medicines -->
     <script>
@@ -658,11 +372,8 @@
         const theme = document.getElementById('theme')
         const chartdiv_pain = document.getElementById('chartdiv_pain')
         const chartdiv_spo2 = document.getElementById('chartdiv_spo2')
-        {#const stat = document.getElementById('stat')#}
         const chartdiv_waist = document.getElementById('chartdiv_waist')
         const chartdiv_shin = document.getElementById('chartdiv_shin')
-
-        {#console.log('chartdiv_pain', chartdiv_pain)#}
 
         const allDiv = [chartdiv__, chartdiv_glukose, chartdiv_weight, chartdiv_temperature, chartdiv_pain, chartdiv_spo2, chartdiv_waist, chartdiv_shin]
 
@@ -872,8 +583,6 @@
                 }
             },
              "dataTransform": function (data) {
-                {#console.log('in data', data)#}
-
                 let dataObject = []
                 let x = data['x']
                 let y = data['y']
@@ -889,15 +598,12 @@
 
                     } catch(e) {
                         comment = ''
-                        {#console.log('error', e)#}
                     }
 
                     let date_format = this.str2date(dateOut)
                     let tooltip_date = this.dateFormat(dateOut)
                     dataObject.push({"comments": comment, "date": dateOut, "dates": dateOut, "dates_format": date_format, "tooltip_date": tooltip_date, "y": value_y})
                 }
-
-                {#console.log('out data', dataObject)#}
 
                 return dataObject
             },
@@ -915,7 +621,7 @@
         }
 
         function dump(data) {
-            console.log('dump', data)
+            console.log('dump = ', data)
         }
 
         // Create models
@@ -924,16 +630,13 @@
         pain_assessment = createModel('pain_assessment', {{ pain_assessment | safe }})
         diastolic = createModel('diastolic', {{ diastolic | safe }})
         pulse_ = createModel('pulse_', {{ pulse_ | safe }})
-
-        {#console.log('constants', constants)#}
-        {#console.log('systolic', systolic)#}
-        {#console.log('diastolic', diastolic)#}
-        {#console.log('pulse', pulse_)#}
-        {#console.log('pain_assessment', pain_assessment)#}
-
         weight_model = createModel('weight', {{ weight | safe }})
         medicine = createModel('medicine', {{ medicine | safe }})
         medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
+
+        dump(systolic)
+        dump(diastolic)
+        dump(pulse_)
 
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
@@ -963,10 +666,8 @@
             var diastolic_down_color = ''
             var pulse_up_color = ''
             var pulse_down_color = ''
-            {#var disabled_systolic = true#}
-            systolic['disabled_systolic'] = true
 
-            {#console.log('systolic', systolic)#}
+            systolic['disabled_systolic'] = true
 
             var disabled_diastolic = true
             var disabled_pulse = true
@@ -974,13 +675,6 @@
             var systolic_dates = systolic['x']
             var systolic_values = systolic['y']
             var systolic_comments = systolic['comments']
-
-            {#var pain_dates = pain_assessment['x']#}
-            {#var pain_values = pain_assessment['y']#}
-            {#var pain_comments = pain_assessment['comments']#}
-
-            {#console.warn('systolic_values', systolic_values)#}
-
             var diastolic_dates = diastolic['x']
             var diastolic_values = diastolic['y']
             var pulse_dates = pulse_['x']
@@ -1010,7 +704,6 @@
             let color_index = 0
             let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"]
 
-            {#am4core__.useTheme(am4themes_dark)#}
             am4core__.useTheme(am4themes_animated)
 
             var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
@@ -1031,12 +724,9 @@
             let dateOut = ''
             let date_tooltip = ''
 
-            {#let pain_date_tooltip = ''#}
             let systolic_normal = 0
 
             valueAxis.renderer.minGridDistance = 100
-
-            {#console.log('diastolic_values', diastolic_values)#}
 
             // Add data
             systolic_dates.forEach(function() {
@@ -1083,9 +773,6 @@
 
                 if (i > 0 && systolic_value < constants.max_systolic) {
                     systolic_normal++
-
-                    {#console.log('i, systolic_normal', i, systolic_normal, i/systolic_normal)#}
-
                     dynamic_data_x.push(dateOut)
                     dynamic_data_y.push(i/systolic_normal)
                 }
@@ -1114,47 +801,36 @@
                 date: new Date()
             }
 
-            {#console.log('data.length', data.length)#}
-            {##}
-            {#console.log('data', data)#}
-            {##}
-            {#console.log('new Date()',new Date())#}
-
             dynamic_data['x'] = dynamic_data_x
             dynamic_data['y'] = dynamic_data_y
             dynamic_data['name'] = 'Динамика роста давления'
-
-            {#dataStorage.set('data', data)#}
-            {#dataStorage.set('dynamic_data', dynamic_data)#}
-
-            {#console.log('dynamic_data', dataStorage.get('dynamic_data'))#}
-
-            console.log('data.length = ', data.length)
-
-            {#var date1 = new Date('12-09-2020');#}
-            {#var date2 = new Date('12-10-2020');#}
-            {#var daysLag = Math.ceil(Math.abs(date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));#}
-            {#console.log('daysLag = ', daysLag)#}
-            {#console.log('data = ', data)#}
-
-            {#categoryAxis.start = 0.79;#}
-            {#categoryAxis.keepSelection = true;#}
-
             chart.data = data.reverse();
 
-            let date_max = new Date(systolic['date_max']);
-            let date_min = new Date(systolic['date_min']);
-
-            console.log('date_max = ', date_max);
-            console.log('date_min = ', date_min);
+            let date_max = new Date(systolic['date_max'])
+            let date_min = new Date(systolic['date_min'])
+            let zoomToDates = systolic['zoomToDates']
 
             // Pre-zoom the chart
-            chart.events.on("ready", function () {
-                categoryAxis.zoomToDates(
-                    date_min,
-                    date_max
-                );
-            });
+
+            dump(date_min)
+            dump(date_max)
+            dump(zoomToDates)
+
+            if (zoomToDates == 'on') {
+                chart.events.on("ready", function () {
+                    categoryAxis.zoomToDates(
+                        date_min,
+                        date_max
+                    );
+                });
+            }
+
+            {#chart.events.on("ready", function () {#}
+            {#    categoryAxis.zoomToDates(#}
+            {#        date_min,#}
+            {#        date_max#}
+            {#    );#}
+            {#});#}
 
             // Create series Medicine
             function createSeriesMedicine(field, data, series_name, color, config) {
@@ -1314,7 +990,6 @@
 
         //  ************************************* END am4core.ready()
 
-        {#console.log('1');#}
     </script>
 
     <!-- Chart pain -->
@@ -1369,10 +1044,6 @@
                 pain_date_tooltip = dataObject.format(pain_dateOut)
 
                 if (pain_value >= constants.max_pain || pain_value < constants.min_pain) {
-                    {#console.log('ain_value', pain_value)#}
-                    {#console.log('constants.max_pain', constants.max_pain)#}
-                    {#console.log('constants.min_pain', constants.min_pain)#}
-
                     pain_up_color = "red"
                     disabled_pain = false
                 } else {
@@ -1398,8 +1069,6 @@
 
                 iterator_pain_dates++
             })
-
-            {#console.log('data_pain', data_pain)#}
 
             // *********************************************
             // ******* Create chart instance pain_assessment
@@ -1434,9 +1103,6 @@
 
             let date_max = new Date(pain_assessment['date_max']);
             let date_min = new Date(pain_assessment['date_min']);
-
-            console.log('date_max pain = ', date_max);
-            console.log('date_min pian = ', date_min);
 
             // Pre-zoom the chart
             chart_pain.events.on("ready", function () {
@@ -1552,8 +1218,6 @@
 
                 }
 
-                {#console.log('data_medicines_out', data_medicines_out)#}
-
                 if (data_medicines_out.length > 0) {
                     createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index])
                 }
@@ -1570,7 +1234,6 @@
             // Enable export
             chart_pain.exporting.menu = new am4core_pain.ExportMenu()
 
-            {#console.log('2');#}
             // End *******
 
         })
@@ -1638,9 +1301,6 @@
                 let date_max = new Date(params.model['date_max']);
                 let date_min = new Date(params.model['date_min']);
 
-                console.log('date_max model = ', params.model.name, date_max);
-                console.log('date_min model = ', params.model.name, date_min);
-
                 // Pre-zoom the chart
                 chart.events.on("ready", function () {
                     dateAxis.zoomToDates(
@@ -1668,8 +1328,6 @@
                 }
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-                {#console.log('tooltipText', tooltipText)#}
 
                 config = {
                     "name": model.name,
@@ -1755,7 +1413,7 @@
         i = 0
         shin_left.x.forEach(function(date) {
             shinData.push({'date': new Date(date), 'value1': shin_left.y[i], 'value2': shin_right.y[i], 'previousDate': new Date(shin_right.x[i])});
-            {#console.log('item', item)#}
+
             i++
         })
 
@@ -1771,9 +1429,6 @@
 
         date_max = new Date(shin_left['date_max']);
         date_min = new Date(shin_left['date_min']);
-
-        console.log('date_max shin = ', date_max);
-        console.log('date_min shin = ', date_min);
 
         // Pre-zoom the chart
         chart.events.on("ready", function () {
@@ -1838,8 +1493,6 @@
             "model": model
         }
 
-        console.log('params waist', params)
-
         {#am4Core.makeGraph(params)#}
 
 
@@ -1853,9 +1506,6 @@
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
-
-                console.log('date_max model = ', params.model.name, date_max);
-                console.log('date_min model = ', params.model.name, date_min);
 
                 // Pre-zoom the chart
                 chart_waist.events.on("ready", function () {
@@ -1884,8 +1534,6 @@
                 }
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-                {#console.log('tooltipText', tooltipText)#}
 
                 config = {
                     "name": model.name,
@@ -1939,8 +1587,6 @@
             "model": model
         }
 
-        console.log('params spo2', params)
-
         //am4Core.makeGraph(params)
 
 
@@ -1955,9 +1601,6 @@
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
-
-                console.log('date_max model = ', params.model.name, date_max);
-                console.log('date_min model = ', params.model.name, date_min);
 
                 // Pre-zoom the chart
                 chart_spo2.events.on("ready", function () {
@@ -1986,8 +1629,6 @@
                 }
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-                {#console.log('tooltipText', tooltipText)#}
 
                 config = {
                     "name": model.name,
@@ -2051,9 +1692,6 @@
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
 
-                console.log('date_max model = ', params.model.name, date_max);
-                console.log('date_min model = ', params.model.name, date_min);
-
                 // Pre-zoom the chart
                 chart_temperature.events.on("ready", function () {
                     dateAxis_temperature.zoomToDates(
@@ -2082,8 +1720,6 @@
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
 
-                {#console.log('tooltipText', tooltipText)#}
-
                 config = {
                     "name": model.name,
                     "field": "y",
@@ -2096,8 +1732,6 @@
                     "disabled": "disabled",
                     "chart": chart_temperature
                 }
-
-                {#console.warn('config', config)#}
 
                 am4Core.createSeries(data, config)
 
@@ -2146,9 +1780,6 @@
         date_max = new Date(params.model['date_max']);
         date_min = new Date(params.model['date_min']);
 
-        console.log('date_max model = ', params.model.name, date_max);
-        console.log('date_min model = ', params.model.name, date_min);
-
         // Pre-zoom the chart
         chart_glukose.events.on("ready", function () {
             dateAxis_glukose.zoomToDates(
@@ -2176,8 +1807,6 @@
         }
 
         tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-        {#console.log('tooltipText', tooltipText)#}
 
         config = {
             "name": model.name,
@@ -2241,9 +1870,6 @@
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
 
-                console.log('date_max weight = ', date_max);
-                console.log('date_min weight = ', date_min);
-
                 // Pre-zoom the chart
                 chart_weight.events.on("ready", function () {
                     dateAxis_weight.zoomToDates(
@@ -2272,8 +1898,6 @@
 
                 tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}";
 
-                {#console.log('tooltipText', tooltipText)#}
-
                 config = {
                     "name": model.name,
                     "field": "y",
@@ -2301,221 +1925,6 @@
                 chart_weight.exporting.menu = new am4core.ExportMenu();
     </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Chart donat -->
-    <script>
-        {#let model_donat = {};#}
-        {##}
-        {#am4core.ready(function() {#}
-        {#    // COMMON DONAT DIAGRAM SYS#}
-        {#    model_donat['systolic'] = {{ systolic | safe }};#}
-        {#    // Themes begin#}
-            {#am4core.useTheme(am4themes_dark);#}
-        {#    am4core.useTheme(am4themes_animated);#}
-        {#    // Themes end#}
-        {##}
-        {#    // Create chart instance#}
-        {#    var chart = am4core.create("sys-stat-donat", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {##}
-        {#    let stat =  model_donat['systolic']#}
-        {##}
-            {#console.log('stat', stat['sys_slice_normal'], stat['sys_slice_critical']);#}
-        {##}
-        {#    // Add data#}
-        {#    chart.data = [ {#}
-        {#        "country": "Нормальное",#}
-        {#        "amount": stat['sys_slice_normal'],#}
-        {#    }, {#}
-        {#      "country": "Высокое",#}
-        {#      "amount": stat['sys_slice_critical'],#}
-        {#    }#}
-        {#    ];#}
-        {##}
-        {#    // Set inner radius#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {##}
-        {#    // Add and configure Series#}
-        {#    var pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {##}
-        {#    var colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#      return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {##}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {##}
-        {#    // This creates initial animation#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {#    // COMMON DONAT DIAGRAM DIA#}
-        {#    chart = am4core.create("dia-stat-donat", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {#    stat =  {{ diastolic | safe }};#}
-        {#    chart.data = [#}
-        {#        {#}
-        {#            "country": "Нормальное",#}
-        {#            "amount": stat['dia_slice_normal'],#}
-        {#        }, {#}
-        {#            "country": "Высокое",#}
-        {#            "amount": stat['dia_slice_critical'],#}
-        {#        }#}
-        {#    ];#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {#    colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#      return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {#    // MONTH DONAT DIAGRAM DIA#}
-        {#    chart = am4core.create("dia-stat-month", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {#    stat =  {{ diastolic | safe }};#}
-        {#    chart.data = [#}
-        {#        {#}
-        {#            "country": "Нормальное",#}
-        {#            "amount": stat['dia_slice_normal_month'],#}
-        {#        }, {#}
-        {#            "country": "Высокое",#}
-        {#            "amount": stat['dia_slice_critical_month'],#}
-        {#        }#}
-        {#    ];#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {#    colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#      return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {#    // WEEK DONAT DIAGRAM DIA#}
-        {#    chart = am4core.create("dia-stat-week", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {#    stat =  {{ diastolic | safe }};#}
-        {#    chart.data = [#}
-        {#        {#}
-        {#            "country": "Нормальное",#}
-        {#            "amount": stat['dia_slice_normal_week'],#}
-        {#        }, {#}
-        {#            "country": "Высокое",#}
-        {#            "amount": stat['dia_slice_critical_week'],#}
-        {#        }#}
-        {#    ];#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {#    colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#      return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {#    // WEEK DONAT DIAGRAM SYS 3#}
-        {#    chart = am4core.create("sys-stat-week", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {#    stat =  model_donat['systolic'];#}
-        {#    chart.data = [#}
-        {#        {#}
-        {#            "country": "Нормальное",#}
-        {#            "amount": stat['sys_slice_normal_week'],#}
-        {#        }, {#}
-        {#            "country": "Высокое",#}
-        {#            "amount": stat['sys_slice_critical_week'],#}
-        {#        }#}
-        {#    ];#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {#    colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#        return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {#    // MONTH DONAT DIAGRAM SYS 4#}
-        {#    chart = am4core.create("sys-stat-month", am4charts.PieChart);#}
-        {#    chart.language.locale = am4lang_ru_RU;#}
-        {#    stat =  model_donat['systolic'];#}
-        {#    chart.data = [#}
-        {#        {#}
-        {#            "country": "Нормальное",#}
-        {#            "amount": stat['sys_slice_normal_month'],#}
-        {#        }, {#}
-        {#            "country": "Высокое",#}
-        {#            "amount": stat['sys_slice_critical_month'],#}
-        {#        }#}
-        {#    ];#}
-        {#    chart.innerRadius = am4core.percent(50);#}
-        {#    pieSeries = chart.series.push(new am4charts.PieSeries());#}
-        {#    colorSet = new am4core.ColorSet();#}
-        {#    colorSet.list = ["#009933", "#e62e00"].map(function(color) {#}
-        {#        return new am4core.color(color);#}
-        {#    });#}
-        {#    pieSeries.colors = colorSet;#}
-        {#    pieSeries.dataFields.value = "amount";#}
-        {#    pieSeries.dataFields.category = "country";#}
-        {#    pieSeries.slices.template.stroke = am4core.color("#fff");#}
-        {#    pieSeries.slices.template.strokeWidth = 2;#}
-        {#    pieSeries.slices.template.strokeOpacity = 1;#}
-        {#    pieSeries.hiddenState.properties.opacity = 1;#}
-        {#    pieSeries.hiddenState.properties.endAngle = -50;#}
-        {#    pieSeries.hiddenState.properties.startAngle = -50;#}
-        {##}
-        {##}
-        {#}); #}
-        // end am4core.ready()ready
-    </script>
-
     <!-- Chart pressure -->
     <script>
         let main = {};
@@ -2533,19 +1942,11 @@
         let timestamp_for_pressure = systolic.timestamp_for_pressure;
         let arr = []
 
-        {#console.log('constants', constants);#}
-
         let formatDate = function (timestamp_) {
-            {#console.warn('timestamp_', timestamp_)#}
-
-
-            {#console.log('timestamp', timestamp_)#}
             let date_ = new Date(timestamp_);
             let sep = '-';
             let sep_time = ':';
             let spacebar = ' ';
-
-            {#console.log('date_', date_);#}
 
             return num_day(date_.getDate()) + sep + num(date_.getMonth()) + sep + date_.getFullYear() + spacebar + num(date_.getHours()) + sep_time + num(date_.getMinutes()) + sep_time + num(date_.getSeconds());
         };
@@ -2569,16 +1970,12 @@
                 return param
             }
         };
-;
-        {#console.log('systolic', systolic);#}
 
         let zzz = {'i': 0};
         zzz.sep = ' | ';
         zzz.color_critical = 'orange';
 
         systolic['x'].forEach(function() {
-            {#console.log('zzz', zzz);#}
-
             main = {};
             main.sep = ' | ';
             main.color_critical = 'orange'; //'rgb(255, 0, 0)';
@@ -2620,8 +2017,6 @@
             };
 
             if (i > 0) {
-                {#console.log('1', i, j);#}
-
                 sum = 0;
                 arr = [];
 
@@ -2629,17 +2024,12 @@
                     for (j = 0; j < i; j++) {
                         arr.push(systolic.y[j])
                         sum += sum + systolic.y[j];
-                        {#console.log(i, j, systolic.y[j], sum, j+1, sum/(j+1))#}
-
                     }
                 }
 
                 arr.forEach(function(item){
                     sum += sum + item;
-                    {#console.log('item', item)#}
                 });
-
-                {#console.log('test', arr.length, sum);#}
 
                 averaged.push({'x': new Date(systolic.x[i]), 'y': (main.sys + systolic.y[i-1])/2, 'tooltip': 'SYS: ' + main.sys + main.sep + formatDate(systolic.x[i])});
             }
@@ -2653,183 +2043,9 @@
             data_dia.push(main.data);
 
             zzz.data = main.data
-
-            {#console.log('main', i, main);#}
-            {##}
-            {#console.log('zzz', i, zzz);#}
-
             i++;
         });
-
-        {#Highcharts.setOptions({#}
-        {#    lang: {#}
-        {#        loading: 'Загрузка...',#}
-        {#        months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],#}
-        {#        weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],#}
-        {#        shortMonths: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сент', 'Окт', 'Нояб', 'Дек'],#}
-        {#        exportButtonTitle: "Экспорт",#}
-        {#        printButtonTitle: "Печать",#}
-        {#        rangeSelectorFrom: "С",#}
-        {#        rangeSelectorTo: "По",#}
-        {#        rangeSelectorZoom: "Период",#}
-        {#        downloadPNG: 'Скачать PNG',#}
-        {#        downloadJPEG: 'Скачать JPEG',#}
-        {#        downloadPDF: 'Скачать PDF',#}
-        {#        downloadSVG: 'Скачать SVG',#}
-        {#        printChart: 'Напечатать график'#}
-        {#    }#}
-        {#});#}
-        {##}
-        {#Highcharts.chart('container', {#}
-        {#    chart: {#}
-        {#        type: 'spline',#}
-        {#        scrollablePlotArea: {#}
-        {#            minWidth: 600,#}
-        {#            scrollPositionX: 1#}
-        {#        }#}
-        {#    },#}
-        {#    title: {#}
-        {#        text: 'Графики давления',#}
-        {#        align: 'left'#}
-        {#    },#}
-        {#    subtitle: {#}
-        {#        text: 'Измерения тонометром CS',#}
-        {#        align: 'left'#}
-        {#    },#}
-        {#    xAxis: {#}
-        {#        type: 'datetime',#}
-        {#        labels: {#}
-        {#            overflow: 'justify'#}
-        {#        }#}
-        {#    },#}
-        {#    yAxis: {#}
-        {#        title: {#}
-        {#            text: 'Шкала давления (мм рт ст)'#}
-        {#        },#}
-        {#        minorGridLineWidth: 0,#}
-        {#        gridLineWidth: 0,#}
-        {#        alternateGridColor: null,#}
-        {#        plotBands: [{ // Light air#}
-        {#            from: 90,#}
-        {#            to: 140,#}
-        {#            color: 'rgb(255, 153, 0, 0.1)',#}
-        {#            label: {#}
-        {#                text: '',#}
-        {#                style: {#}
-        {#                    color: '#156449'#}
-        {#                }#}
-        {#            }#}
-        {#        }, { // High wind#}
-        {#            from: 60,#}
-        {#            to: 100,#}
-        {#            color: 'rgba(68, 170, 20, 0.1)',#}
-        {#            label: {#}
-        {#                text: '',#}
-        {#                style: {#}
-        {#                    color: '#635279'#}
-        {#                }#}
-        {#            }#}
-        {#        }]#}
-        {#    },#}
-        {#    tooltip: {#}
-        {#       formatter: function() {#}
-        {#           return this.point.tooltip;#}
-        {#       }#}
-        {#    },#}
-        {#    plotOptions: {#}
-        {#        series: {#}
-        {#            cursor: 'pointer',#}
-        {#            events: {#}
-        {#                click: function () {#}
-        {#                    alert('You just clicked the graph');#}
-        {#                }#}
-        {#            }#}
-        {#        },#}
-        {#        spline: {#}
-        {#            lineWidth: 2,#}
-        {#            states: {#}
-        {#                hover: {#}
-        {#                    lineWidth: 2#}
-        {#                }#}
-        {#            },#}
-        {#            marker: {#}
-        {#                enabled: true,#}
-        {#                fillColor: '#FFFFFF',#}
-        {#                lineWidth: 2,#}
-        {#                lineColor: null // inherit from series#}
-        {##}
-        {#            }#}
-        {#        }#}
-        {#    },#}
-        {#    series: [{#}
-        {#        color: 'orange',#}
-        {#        name: 'SYS',#}
-        {#        data: data_sys#}
-        {#    },#}
-        {#    {#}
-        {#        color: 'green',#}
-        {#        name: 'DIS',#}
-        {#        data: data_dia#}
-        {#    }],#}
-        {#    navigation: {#}
-        {#        menuItemStyle: {#}
-        {#            fontWeight: 'normal',#}
-        {#            background: 'none'#}
-        {#        },#}
-        {#        menuItemHoverStyle: {#}
-        {#            fontWeight: 'bold',#}
-        {#            background: 'none',#}
-        {#            color: 'black'#}
-        {#        }#}
-        {#    }#}
-        {#});#}
     </script>
-
-{#    <script>#}
-{#        let getSiblings = function (e) {#}
-{#            // for collecting siblings#}
-{#            let siblings = [];#}
-{#            // if no parent, return no sibling#}
-{#            if(!e.parentNode) {#}
-{#                return siblings;#}
-{#            }#}
-{#            // first child of the parent node#}
-{#            let sibling  = e.parentNode.firstChild;#}
-{#            // collecting siblings#}
-{#            while (sibling) {#}
-{#                if (sibling.nodeType === 1 && sibling !== e) {#}
-{#                    siblings.push(sibling);#}
-{#                }#}
-{#                sibling = sibling.nextSibling;#}
-{#            }#}
-{#            return siblings;#}
-{#        };#}
-{##}
-        {#const current = document.getElementsByClassName('current')#}
-        {##}
-        {#console.log('current', current)#}
-{##}
-{#        const nav = document.querySelector('.nav')#}
-{##}
-{#        nav.addEventListener('click', (event) => {#}
-{#            let siblings = getSiblings(document.querySelector('.current'))#}
-{##}
-            {#console.log('siblings', siblings)#}
-{##}
-{#            siblingText = siblings.map(e =>#}
-{#                {#}
-{#                    e.innerHTML#}
-{#                    e.display = 'none'#}
-{#                    console.log('e', e)#}
-{#                }#}
-{#            )#}
-{##}
-{##}
-{##}
-            {#console.log(siblingText)#}
-{#        })#}
-{##}
-{#    </script>#}
 
 </body>
 </html>

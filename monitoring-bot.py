@@ -39,16 +39,10 @@ class CategoryParams(db.Model):
 def toDate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp)
 
+
 def nowDate():
     date_now = datetime.datetime.now()
     return date_now.strftime(DATE_HOUR_FORMAT)
-
-
-# def submit_task(contract_id, task_id):
-#     if contract_id:
-#         make_task(contract_id, task_id)
-#
-#     contract_last_task_id = None
 
 
 def drop_task(contract_id, task_id):
@@ -57,7 +51,8 @@ def drop_task(contract_id, task_id):
             delete_task(contract_id, task_id)
 
         except Exception as e:
-            print('error drop_tasks()', e)
+            error('Error drop_tasks()')
+            print(e)
 
 
 def dropAllTasks():
@@ -68,7 +63,7 @@ def dropAllTasks():
         out_green_light('success dropAllTasks()')
 
     except Exception as e:
-        error('error dropAllTasks()')
+        error('Error dropAllTasks()')
         print(e)
 
 
@@ -76,21 +71,14 @@ def drop_tasks(contract_id):
     if contract_id:
         try:
             q2 = ContractTasks.query.filter_by(contract_id=contract_id)
-            print('q2.count() = ', q2.count())
 
             if (q2.count() > 0):
                 q2.delete()
-                out_green_light('success drop_tasks() on contract_id = ' + str(contract_id))
                 db.session.commit()
 
         except Exception as e:
-            error('error drop_tasks()')
+            error('Error drop_tasks()')
             print(e)
-
-
-# def init_task(contract_id, text, action_link):
-#     drop_tasks(contract_id)
-#     contract_last_task_id = add_task(contract_id, text, action_link)
 
 
 def getTaskCount(contract_id):
@@ -105,7 +93,7 @@ def dateMaxMin(date):
     try:
         date_max = date
     except Exception as e:
-        out_red_light(e)
+        info_magenta(e)
         date_max = nowDate()
 
     delta = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime(DATE_HOUR_FORMAT)
@@ -127,7 +115,8 @@ def getBotCategories():
 
 
     except Exception as e:
-        print('ERROR CONNECTION', e)
+        error('Error getBotCategories()')
+        print(e)
         return 'ERROR CONNECTION'
 
 
@@ -165,7 +154,8 @@ def getCategories():
 
 
     except Exception as e:
-        print('error: ', e)
+        error('Error getCategories()')
+        print(e)
 
 
 def getRecords(contract_id, category_name):
@@ -181,12 +171,11 @@ def getRecords(contract_id, category_name):
         if (response.status_code == 200):
             return json.loads(response.text)
 
-        print('response.status_code = ', response.status_code)
-
         return response.status_code
 
     except Exception as e:
-        print('error: ', e)
+        error('Error getRecords()')
+        print(e)
 
 
 def add_record(contract_id, category_name, value, record_time=None):
@@ -204,15 +193,16 @@ def add_record(contract_id, category_name, value, record_time=None):
         requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
 
     except Exception as e:
-        print('error requests.post', e)
+        error('Error add_record()')
+        print(e)
 
 
 def post_request(data, query='/api/agents/message'):
     try:
-        print('/api/agents/message')
         return requests.post(MAIN_HOST + query, json=data)
     except Exception as e:
-        print('error post_request()', e)
+        error('Error post_request()')
+        print(e)
 
 
 def warning(contract_id, param, param_value, param_value_2=''):
@@ -307,8 +297,6 @@ def warning(contract_id, param, param_value, param_value_2=''):
 
         post_request(data_patient)
         post_request(data_doctor)
-        print('warning')
-        print(Debug.delimiter())
 
 
 def quard_data_json(data):
@@ -473,8 +461,6 @@ def sender():
                                         print('control_time = ', toDate(control_time))
                                         print('END')
                                         print('')
-
-                                    out_cyan_light(name)
 
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
@@ -886,11 +872,6 @@ def initTasks(contract_id):
                 print(e)
                 raise
 
-
-            # info_yellow(name)
-            # info_cyan(hours)
-            # info_magenta(len(hours))
-
     info_green('Success initTask()')
 
 # ******************************************
@@ -951,16 +932,13 @@ def actions():
     try:
         data = request.json
         contract_id = quard_data_json(data)
-
-        out_cyan_light(contract_id)
     except Exception as e:
-        print('ERROR actions: ', e)
+        error('Error actions()')
+        print(e)
 
     type = 'patient'
 
     query_str = 'SELECT count(id) as cnt FROM medicines m WHERE contract_id = ' + str(contract_id) + ' AND show = true'
-
-    print('query_str = ', query_str)
 
     records = DB.select(query_str)
 
@@ -968,8 +946,6 @@ def actions():
 
     for row in records:
         cnt = row[0]
-
-    print('cnt = ', cnt)
 
     answer = []
 
@@ -1054,8 +1030,6 @@ def graph():
 
         for item in medical_record_categories:
             category = item['name']
-
-            out_cyan_light(category)
 
             try:
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
@@ -1166,7 +1140,21 @@ def graph():
         date_min = delta
         date_max = time.strftime('%Y-%m-%d', dt)
 
+        d1 = x[len(x)-1]
+        d2 = date_min
+
+        print(d1)
+        print(d2)
+        print("d2 is less than d1 : ", d2 < d1)
+        print('------- test')
+
+        if (d2 > d1):
+            zoomToDates = 'on'
+        else:
+            zoomToDates = 'off'
+
         systolic_dic = {
+            "zoomToDates": zoomToDates,
             "x": x,
             "y": y,
             "date_max": date_max,
@@ -1194,8 +1182,8 @@ def graph():
 
         systolic = systolic_dic
 
-        print('systolic', systolic)
-        print('-------')
+        # print('systolic', systolic)
+        # print('-------')
 
         response = getRecords(contract_id, 'diastolic_pressure')
 
@@ -1217,8 +1205,8 @@ def graph():
 
         diastolic = diastolic_dic
 
-        print('diastolic', diastolic)
-        print('-------')
+        # print('diastolic', diastolic)
+        # print('-------')
 
         # pulse
 
@@ -1241,8 +1229,8 @@ def graph():
 
         pulse = pulse_dic
 
-        print('pulse', pulse)
-        print('-------')
+        # print('pulse', pulse)
+        # print('-------')
 
         # medicines
 
@@ -2098,8 +2086,6 @@ def init():
         data = request.json
         contract_id = quard_data_json(data)
 
-        out_cyan_light(contract_id)
-
         actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
         actual_contract = 0
 
@@ -2137,7 +2123,7 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                out_cyan_light('ERROR CONNECTION')
+                error('db.session.add(actual_bots)')
                 print(e)
                 raise
 
@@ -2207,8 +2193,6 @@ def init():
                 }
 
                 if 'current_systolic' in preset_params:
-                    print('current_systolic in preset_params')
-
                     try:
                         current_systolic = preset_params['current_systolic']
                     except Exception as e:
@@ -2296,26 +2280,6 @@ def init():
                 ]
             }
             mode = 'daily'
-
-            # if (preset == 'heartfailure' or preset == 'stenocardia' or preset == 'fibrillation' or preset == 'hypertensia'):
-            #     params = {
-            #         "max_systolic": max_systolic,
-            #         "min_systolic": min_systolic,
-            #         "max_diastolic": max_diastolic,
-            #         "min_diastolic": min_diastolic,
-            #         "max_pulse": max_pulse,
-            #         "min_pulse": min_pulse
-            #     }
-            # else:
-            #     if (preset_params == None):
-            #         params = {
-            #             "max_systolic": MAX_SYSTOLIC_DEFAULT,
-            #             "min_systolic": MIN_SYSTOLIC_DEFAULT,
-            #             "max_diastolic": MAX_DIASTOLIC_DEFAULT,
-            #             "min_diastolic": MIN_DIASTOLIC_DEFAULT,
-            #             "max_pulse": MAX_PULSE,
-            #             "min_pulse": MIN_PULSE
-            #         }
 
             name = 'pressure'
 
