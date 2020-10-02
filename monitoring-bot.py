@@ -2638,7 +2638,7 @@ def init():
             # *************************************************************** next parameter
 
     except Exception as e:
-        out_red_light('ERROR INIT')
+        error('Error init')
         print(e)
         return 'ERROR INIT'
 
@@ -2674,31 +2674,10 @@ def remove():
                     if q.count() != 0:
                         contract_tasks = q.all()
 
-                        for task in contract_tasks:
-                            print(task.task_id)
+                        # for task in contract_tasks:
+                        #     print(task.task_id)
 
                     drop_tasks(contract_id)
-
-                    # category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
-                    #
-                    # for category_param in category_params:
-                    #     name = category_param.category
-                    #     timetable = category_param.timetable
-                    #     hours__ = timetable['hours']
-                    #     show = category_param.show
-                    #
-                    #     text = CATEGORY_TEXT[name]
-                    #     name = transformMeasurementName(name)
-                    #     action_link = 'frame/' + name
-                        # task_id = add_task(contract_id, text, len(hours__), action_link=action_link)
-
-                        # if (show):
-                        #     megaTask.append({
-                        #         'contract_id': contract_id,
-                        #         'text': text,
-                        #         'target_number': len(hours__),
-                        #         'action_link': action_link
-                        #     })
 
                 else:
                     info_cyan('Contract not found')
@@ -2706,7 +2685,7 @@ def remove():
 
 
             except Exception as e:
-                error('Error ActualBots connection')
+                error('Error ActualBots.query')
                 print(e)
                 raise
 
@@ -2769,14 +2748,9 @@ def action_pull_save(pull):
             if q.count() != 0:
                 task = q.first()
                 task_id = task.task_id
-
-                # print('task_id = ', pull, task_id)
         except Exception as e:
-            error('Error frame/<pull> post')
+            error('Error frame/pull POST')
             print(e)
-
-        info_yellow(pull)
-        # print('params = ', params)
 
         try:
             max_shin = int(params['max'])
@@ -2844,8 +2818,6 @@ def action_pull_save(pull):
             if q.count() != 0:
                 task = q.first()
                 task_id = task.task_id
-
-                # print('task_id = ', pull, task_id)
         except Exception as e:
             out_red_light('ERROR CONNECTION')
             print(e)
@@ -2894,9 +2866,6 @@ def action_pull_save(pull):
         if (pull == 'waist'):
             category = 'waist_circumference'
 
-        info_cyan('START TEST')
-        info_yellow(pull)
-
         try:
             q = CategoryParams.query.filter_by(contract_id=contract_id, category=category)
 
@@ -2912,7 +2881,7 @@ def action_pull_save(pull):
                 task_id = task.task_id
 
         except Exception as e:
-            error('ERROR CONNECTION')
+            error('Error CategoryParams.query.filter_by(contract_id=contract_id, category=category)')
             print(e)
 
         try:
