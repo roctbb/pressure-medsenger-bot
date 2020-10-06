@@ -2367,6 +2367,8 @@ def init():
                 db.session.add(category_params)
 
                 db.session.commit()
+
+                info_green('db.session.commit()')
             except Exception as e:
                 db.session.rollback()
                 print('ERROR add pressure in category_params >> )', e)
