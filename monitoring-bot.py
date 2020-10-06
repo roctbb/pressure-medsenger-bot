@@ -2329,15 +2329,16 @@ def init():
             delayed(1, post_request, [data])
 
             try:
+                show = True
                 category_params = CategoryParams(contract_id=contract_id,
                                                  category='systolic_pressure',
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
-                                                 show=True)
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
+                                                 show=show)
 
                 db.session.add(category_params)
 
@@ -2346,9 +2347,10 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
+                                                 show=show)
 
                 db.session.add(category_params)
 
@@ -2357,9 +2359,10 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push = datetime.datetime.now())
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
+                                                 show=show)
 
                 db.session.add(category_params)
 
@@ -2385,9 +2388,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2414,9 +2417,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2472,9 +2475,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2533,9 +2536,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2561,9 +2564,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2589,9 +2592,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2638,9 +2641,9 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now(),
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
                                                  show=show)
 
                 db.session.add(category_params)
@@ -2663,9 +2666,10 @@ def init():
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
-                                                 created_at=datetime.datetime.now(),
-                                                 updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 created_at=nowDate(),
+                                                 updated_at=nowDate(),
+                                                 last_push=nowDate(),
+                                                 show=show)
 
                 db.session.add(category_params)
                 db.session.commit()
