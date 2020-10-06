@@ -2371,6 +2371,9 @@ def init():
 
             # *************************************************************** temperature
 
+            name = 'temperature'
+            show = False
+
             params = {
                 "max": MAX_TEMPERATURE_DEFAULT,
                 "min": MIN_TEMPERATURE_DEFAULT
@@ -2378,13 +2381,14 @@ def init():
 
             try:
                 category_params = CategoryParams(contract_id=contract_id,
-                                                 category='temperature',
+                                                 category=name,
                                                  mode=mode,
                                                  params=params,
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=show)
 
                 db.session.add(category_params)
 
@@ -2398,6 +2402,7 @@ def init():
 
             try:
                 name = 'glukose'
+                show = False
 
                 params = {
                     "max": MAX_GLUKOSE_DEFAULT,
@@ -2411,7 +2416,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=show)
 
                 db.session.add(category_params)
 
@@ -2543,6 +2549,7 @@ def init():
 
             try:
                 name = 'spo2'
+                show = False
 
                 params = {
                     "max": MAX_SPO2_DEFAULT,
@@ -2556,7 +2563,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=show)
 
                 db.session.add(category_params)
                 db.session.commit()
@@ -2569,6 +2577,7 @@ def init():
 
             try:
                 name = 'pain_assessment'
+                show = False
 
                 params = {
                     "max": MAX_PAIN_DEFAULT,
@@ -2582,7 +2591,8 @@ def init():
                                                  timetable=timetable,
                                                  created_at=datetime.datetime.now(),
                                                  updated_at=datetime.datetime.now(),
-                                                 last_push=datetime.datetime.now())
+                                                 last_push=datetime.datetime.now(),
+                                                 show=show)
 
                 db.session.add(category_params)
                 db.session.commit()
