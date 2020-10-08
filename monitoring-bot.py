@@ -332,7 +332,7 @@ def quard():
     try:
         contract_id = int(request.args.get('contract_id', ''))
     except Exception as e:
-        out_red_light('ERROR_CONTRACT')
+        error('ERROR_CONTRACT')
         print(e)
         return 'ERROR_CONTRACT'
 
@@ -343,9 +343,9 @@ def quard():
             return actual_bot.contract_id
 
     except Exception as e:
-        out_red_light('ERROR_QUARD')
+        error('ERROR_QUARD')
         print(e)
-        return 'ERROR QUARD'
+        return 'ERROR_QUARD'
 
     return contract_id
 
@@ -369,13 +369,6 @@ def sender():
             show = record[9]
 
             test_out = (contract_id == 1417 or contract_id == 2)
-
-            # if test_out:
-            #     print('mode daily name = ', contract_id, name)
-            #     # print('timetable = ', timetable)
-            #     print('--')
-            #
-            # continue
 
             if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
                 continue
@@ -434,9 +427,6 @@ def sender():
                             hour_value = hour['value']
                             hours_array.append(hour_value)
 
-                        # if test_out:
-                        #     print('hours_array = ', hours_array)
-
                         for hour in hours:
                             date = datetime.date.fromtimestamp(time.time())
                             hour_value = hour['value']
@@ -452,24 +442,10 @@ def sender():
 
                             if diff_current_control > 0:
                                 if control_time > push_time:
-                                    if test_out:
-                                        info_green('Запись измерения в messages')
-                                        print('contract_id = ', contract_id)
-                                        print('name = ', name)
-                                        print('diff_current_control = ', diff_current_control)
-                                        print('last_push = ', toDate(last_push))
-                                        print('current_time = ', toDate(current_time))
-                                        print('control_time = ', toDate(control_time))
-                                        print('END')
-                                        print('')
-
                                     len_hours_array = len(hours_array)
                                     action_deadline = 1
 
                                     pattern = hour_value
-
-                                    if test_out:
-                                        print('pattern = ', pattern)
 
                                     for i in range(len_hours_array):
                                         if (len_hours_array == 1):
@@ -511,11 +487,6 @@ def sender():
                                     action_deadline = action_deadline * 60 * 60
                                     date_deadline = int(time.time()) + action_deadline
 
-                                    if test_out:
-                                        print('action_deadline = ', action_deadline)
-                                        print('date_deadline = ', toDate(date_deadline))
-
-
                                     route_name = name
 
                                     if (name == 'systolic_pressure'):
@@ -533,8 +504,6 @@ def sender():
                                     if (name == 'waist_circumference'):
                                         route_name = 'waist'
 
-                                    out_magenta_light(id)
-
                                     data = {
                                         "contract_id": contract_id,
                                         "api_key": APP_KEY,
@@ -549,9 +518,6 @@ def sender():
                                         },
                                         "hour_value": hour_value
                                     }
-
-                                    if test_out:
-                                        print('date_deadline - 300 = ', toDate(date_deadline - 300))
 
                                     try:
                                         query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
@@ -572,36 +538,11 @@ def sender():
                                         out_yellow(name)
                                         values = res['values']
 
-                                        # print('values = ', values)
-
                                         for value in values:
                                             delta = (control_time - value['timestamp']) / 60
 
-                                            if test_out:
-                                                print('value = ', toDate(value['timestamp']))
-                                                print('delta = ', delta)
-                                                print(Debug.delimiter())
-
                                             if (delta < 60):
                                                 no_message = True
-
-                                                # contracts = Contract.query.all()
-                                                # now = datetime.datetime.now()
-                                                # hour = now.hour
-                                                # for contract in contracts:
-                                                #     if hour > 0 and hour < 8 and time.time() - contract.last_task_push > get_delta(
-                                                #             contract.mode) - 8 * 60 * 60:
-                                                #         print("{}: Init task to {}".format(gts(), contract.id))
-                                                #         init_task(contract)
-                                                #
-                                                #     if contract.last_task_id != None and time.time() - contract.last_push > get_delta(
-                                                #             contract.mode):
-                                                #         send(contract.id)
-                                                #         print("{}: Sending form to {}".format(gts(), contract.id))
-                                                #         contract.last_push = int(time.time())
-                                                #
-                                                # db.session.commit()
-                                                # time.sleep(60 * 5)
 
                                             break
 
@@ -615,17 +556,6 @@ def sender():
 
                                     time.sleep(1)
                                     break
-                            # else:
-                            #     if (contract_id == 1417 or contract_id == 2):
-                            #         print('Параметры для для определения возможности записи измерения в messages')
-                            #         print('contract_id = ', contract_id)
-                            #         print('name = ', name)
-                            #         print('diff_current_control = ', diff_current_control)
-                            #         print('last_push = ', toDate(last_push))
-                            #         print('current_time = ', toDate(current_time))
-                            #         print('control_time = ', toDate(control_time))
-                            #         print('END')
-                            #         print('')
 
         info_yellow(nowDate())
 
@@ -764,9 +694,6 @@ def sender():
 
                                     DB.query(query_str)
 
-                                    print('data medicines', data)
-                                    print(Debug.delimiter())
-
                                     post_request(data)
 
         time.sleep(60)
@@ -805,14 +732,7 @@ def dayTaskPlanning(tasks):
     for task in tasks:
         try:
             contract_id = task['contract_id']
-
             task_id = add_task(contract_id, task['text'], task['target_number'], action_link=task['action_link'])
-
-            info_yellow('Call dayTaskPlanning()')
-            print('contract_id = ', contract_id)
-            print('task_id = ', task_id)
-            print('************************')
-
             contract_task = ContractTasks(contract_id=contract_id,
                                           task_id=task_id,
                                           last_task_push=nowDate(),
@@ -821,21 +741,14 @@ def dayTaskPlanning(tasks):
                                           action_link=task['action_link'])
             db.session.add(contract_task)
             db.session.commit()
-
         except Exception as e:
             db.session.rollback()
-            error('Error in method dayTaskPlanning()')
+            error('Error dayTaskPlanning()')
             print(e)
             raise
 
 
 def initTasks(contract_id):
-    # tasks = getTasks(contract_id)
-    #
-    # for task in tasks:
-        # delete_task(contract_id, task.id)
-        # print('delete_task = ', task.id)
-
     drop_tasks(contract_id)
 
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
@@ -843,8 +756,6 @@ def initTasks(contract_id):
     for category_param in category_params:
         name = category_param.category
         timetable = category_param.timetable
-
-        # print('timetable = ', timetable)
 
         hours = timetable['hours']
         show = category_param.show
@@ -859,8 +770,6 @@ def initTasks(contract_id):
 
             task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
 
-            # print('task_id = ', task_id)
-
             try:
                 contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=now(),
                                               created_at=now(), updated_at=now(), action_link='frame/' + str(name))
@@ -869,7 +778,7 @@ def initTasks(contract_id):
 
             except Exception as e:
                 db.session.rollback()
-                error('Error insert into table contract_task')
+                error('Error initTask()')
                 print(e)
                 raise
 
@@ -878,16 +787,6 @@ def initTasks(contract_id):
 # ******************************************
 # ************** Testing place *************
 # ******************************************
-
-# q = ContractTasks.query.filter_by(contract_id=2)
-#
-# if q.count() != 0:
-#     contract_tasks = q.all()
-#
-#     print('test')
-#
-#     for task in contract_tasks:
-#         print(task.task_id)
 
 
 
@@ -998,8 +897,6 @@ def actions():
 def graph():
     contract_id = quard()
 
-    print('/graph')
-
     constants = {}
     systolic = []
     diastolic = []
@@ -1037,7 +934,7 @@ def graph():
 
                 params = CategoryParamsObj.params
             except Exception as e:
-                out_magenta_light('Error CategoryParams.query | ' + category)
+                out_magenta_light('Error CategoryParams' + category)
                 print(e)
 
             if (category == 'systolic_pressure'):
@@ -1149,11 +1046,6 @@ def graph():
             if (d2 > d1):
                 zoomToDates = 'on'
 
-            print(d1)
-            print(d2)
-            print("systolic d2 is less than d1 : ", d2 < d1)
-            print('------- test')
-
         if (len(y) > 0):
             max_y = max(y)
             min_y = min(y)
@@ -1189,10 +1081,6 @@ def graph():
         }
 
         systolic = systolic_dic
-
-        # print('systolic', systolic)
-        # print('-------')
-
         response = getRecords(contract_id, 'diastolic_pressure')
 
         x = []
@@ -1212,9 +1100,6 @@ def graph():
         }
 
         diastolic = diastolic_dic
-
-        # print('diastolic', diastolic)
-        # print('-------')
 
         # pulse
 
@@ -1236,9 +1121,6 @@ def graph():
         }
 
         pulse = pulse_dic
-
-        # print('pulse', pulse)
-        # print('-------')
 
         # medicines
 
@@ -1358,10 +1240,6 @@ def graph():
             if (d2 > d1):
                 zoomToDates = 'on'
 
-            # print(d1)
-            # print(d2)
-            # print("d2 is less than d1 : ", d2 < d1)
-            # print('------- test')
         else:
             date_max = nowDate()
             date_min = nowDate()
@@ -1384,8 +1262,6 @@ def graph():
          'min_spo2': 93}
 
         weight_series = weight_dic
-
-        # print('weight_series = ', weight_series)
 
         # temperature
 
@@ -1582,9 +1458,8 @@ def graph():
 def settings():
     try:
         contract_id = quard()
-        # print('contract_id', contract_id)
     except Exception as e:
-        print('UNKNOWN ERROR')
+        error('Error settings()')
         return 'UNKNOWN ERROR'
 
     if (contract_id == ERROR_KEY):
@@ -1740,7 +1615,6 @@ def settings():
         results = DB.select(query_str)
 
         for item in results:
-            # print('item', name, item[2])
             date_ = item[2]
             times.append(date_.strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -1789,17 +1663,11 @@ def medicine_done(uid):
 @app.route('/medicines', methods=['GET'])
 def medicines():
     contract_id = quard()
-
     query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(contract_id) + Aux.quote() + ' AND show = true'
-    print('query_str = ', query_str)
     records = DB.select(query_str)
-    print('records = ', records)
-
     medicine_data = {}
-
     response = getAgentToken(contract_id)
     agent_token = response['agent_token']
-
     out_yellow(agent_token)
 
     for row in records:
@@ -1823,10 +1691,7 @@ def medicine_done_post():
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
-    print('pull', pull)
-
     quard()
-
     constants = {}
 
     if (pull == 'shin'):
@@ -1878,6 +1743,7 @@ def action_pull(pull):
     if (pull == 'spo2'):
         constants['spo2_max'] = MAX_SPO2
         constants['spo2_min'] = MIN_SPO2
+
         return render_template('spo2.html', tmpl=pull, constants=constants)
 
     if (pull == 'waist'):
@@ -1898,16 +1764,15 @@ def status():
     try:
         data = request.json
     except Exception as e:
-        print('error status()', e)
+        error('Error status()')
+        print(e)
         return 'error status'
 
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
     query_str = "SELECT contract_id FROM actual_bots"
-
     records = DB.select(query_str)
-
     tracked_contracts = []
 
     for row in records:
@@ -1932,7 +1797,8 @@ def setting_save():
     try:
         data = json.loads(request.form.get('json'))
     except Exception as e:
-        print('ERROR_JSON_LOADS', e)
+        error('Error json.loads()')
+        print(e)
         return 'ERROR_JSON_LOADS'
 
     for measurement in data['measurements_data']:
@@ -2030,9 +1896,6 @@ def setting_save():
         json__ = medicine['timetable'][0]
         timetable = json__
         show = medicine['show']
-
-        timetable_new = {}
-
         timetable_new = {}
 
         for item in timetable:
@@ -2109,8 +1972,6 @@ def setting_save():
 def init():
     new_contract = True
 
-    print('init')
-
     try:
         data = request.json
         contract_id = quard_data_json(data)
@@ -2136,14 +1997,12 @@ def init():
 
                     out_green_light('Activate contract')
                 else:
-                    out_red_light('contract not found')
+                    out_red_light('Contract not found')
 
             except Exception as e:
-                out_magenta_light('ERROR CONNECTION')
+                error('Error ActualBots')
                 print(e)
                 raise
-
-        out_yellow(new_contract)
 
         if (new_contract == True):
             try:
@@ -2160,8 +2019,6 @@ def init():
                 preset = data['preset']
             else:
                 preset = None
-
-            print('preset = ', preset)
 
             max_systolic = MAX_SYSTOLIC_DEFAULT
             min_systolic = MIN_SYSTOLIC_DEFAULT
@@ -2285,8 +2142,6 @@ def init():
             else:
                 preset_params = None
 
-            print('preset_params = ', preset_params)
-
             #  *************************************************************** systolic
 
             timetable = {
@@ -2365,13 +2220,11 @@ def init():
                                                  show=show)
 
                 db.session.add(category_params)
-
                 db.session.commit()
-
-                info_green('db.session.commit()')
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add pressure in category_params >> )', e)
+                error('Error add pressure in category_params')
+                print(e)
                 raise
 
             # *************************************************************** temperature
@@ -2396,11 +2249,11 @@ def init():
                                                  show=show)
 
                 db.session.add(category_params)
-
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
+                error('Error add temperature in category_params')
+                print(e)
                 raise
 
             # *************************************************************** glukose
@@ -2429,7 +2282,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
+                error('Error add temperature in category_params')
+                print(e)
                 raise
 
             name = 'weight'
@@ -2486,7 +2340,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add weight in category_params >> )', e)
+                error('Error add weight in category_params')
+                print(e)
                 raise
 
             # *************************************************************** waist_circumference
@@ -2547,7 +2402,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add waist in category_params >> )', e)
+                error('Error add waist in category_params')
+                print(e)
                 raise
 
             # *************************************************************** spo2
@@ -2575,7 +2431,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
+                error('Error add spo2 in category_params')
+                print(e)
                 raise
 
             # *************************************************************** pain_assessment
@@ -2603,7 +2460,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
+                error('Error add pain_assessment in category_params')
+                print(e)
                 raise
 
             params = {
@@ -2652,7 +2510,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add leg_circumference_left in category_params >> )', e)
+                error('Error add leg_circumference_left in category_params')
+                print(e)
                 raise
 
 
@@ -2677,7 +2536,8 @@ def init():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print('ERROR add temperature in category_params >> )', e)
+                error('Error add leg_circumference_right in category_params')
+                print(e)
                 raise
 
             # *************************************************************** next parameter
@@ -2704,7 +2564,6 @@ def remove():
 
         if id > 0:
             try:
-                # megaTask = []
                 query = ActualBots.query.filter_by(contract_id=contract_id)
 
                 if query.count() != 0:
@@ -2719,9 +2578,6 @@ def remove():
                     if q.count() != 0:
                         contract_tasks = q.all()
 
-                        # for task in contract_tasks:
-                        #     print(task.task_id)
-
                     drop_tasks(contract_id)
 
                 else:
@@ -2730,7 +2586,7 @@ def remove():
 
 
             except Exception as e:
-                error('Error ActualBots.query')
+                error('Error ActualBots in remove()')
                 print(e)
                 raise
 
@@ -2812,10 +2668,6 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
         delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
 
-        print('pull = ', pull)
-        print('make_task 1 | pull | task_id = ', task_id)
-        print(Debug.delimiter())
-
         if task_id > 0:
             make_task(contract_id, task_id)
     elif (pull == 'pressure'):
@@ -2864,7 +2716,7 @@ def action_pull_save(pull):
                 task = q.first()
                 task_id = task.task_id
         except Exception as e:
-            error('Error CategoryParams.query')
+            error('Error CategoryParams in action_pull_save()')
             print(e)
 
         try:
@@ -2896,10 +2748,6 @@ def action_pull_save(pull):
         delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
         delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
 
-        print('pull = ', pull)
-        print('make_task 2 | pull | task_id = ', task_id)
-        print(Debug.delimiter())
-
         if (task_id > 0):
             make_task(contract_id, task_id)
     else:
@@ -2926,7 +2774,7 @@ def action_pull_save(pull):
                 task_id = task.task_id
 
         except Exception as e:
-            error('Error CategoryParams.query.filter_by(contract_id=contract_id, category=category)')
+            error('Error CategoryParams')
             print(e)
 
         try:
@@ -2976,10 +2824,6 @@ def action_pull_save(pull):
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
-
-        print('pull = ', pull)
-        print('make_task 3 | pull | task_id = ', task_id)
-        print(Debug.delimiter())
 
         if (task_id > 0):
             make_task(contract_id, task_id)
