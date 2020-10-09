@@ -17,7 +17,7 @@
 
                 <div v-if="errors.length" class="form-group">
                     <strong>Пожалуйста исправьте:</strong><br />
-                    <span class="red" v-for="error in errors">[[ error ]]<br /></span>
+                    <span v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }" v-for="error in errors">[[ error ]]<br /></span>
                 </div>
 
                 <div class="form-group">
@@ -52,7 +52,9 @@
                     waist_min: constants['waist_min'],
                     errors: [],
                     waist: null,
-                    comments: null
+                    comments: null,
+                    activeColor: 'red',
+                    fontSize: 12
                 },
             methods: {
                 checkForm: function (e) {
