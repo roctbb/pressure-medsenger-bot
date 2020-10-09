@@ -1,116 +1,78 @@
 {% extends "base.html" %}
-
 {% block title %}Измерение уровня насыщения крови кислородом{% endblock %}
-
-{% block style %}
-    {{ super() }}
-    
-    <style>
-        .error {
-            display: none;
-            font-size: 11px;
-            line-height: 15px;
-            color: red;
-            padding-left: 1rem;
-            top: calc(100% + 8px);
-        }
-    </style>
-
-{% endblock %}
+{% block style %}{{ super() }}{% endblock %}
 
 {% block body %}
-<body onload="setFocus('spo2')">
-    <div id="app">
+<body onload="">
+    <div id="app-spo2">
         <div class="container mt15">
-            <h4>Какой у вас уровень насыщения?</h4>
+            <h4>Какой у вас уровень насыщения крови кислородом?</h4>
 
             {% for cat, msg in get_flashed_messages(True) %}
                 <span class="flash">{{msg}}</span><br />
                 <span class="fs12">Вы ввели значение {{ cat }}</span>
             {% endfor %}
 
-            <form method="POST" class="mt25" id="main-form">
-                <div class="form-group">
-                    <label for="spo2">Уровень насыщения крови кислородом:</label>
-                    <input type="number" class="form-control inline" name="spo2" id="spo2" autofocus>
-                    <span id="error-spo2" class="error"> </span>
+            <form id="app" @submit="checkForm" method="post" class="mt25">
+
+                <div v-if="errors.length" class="form-group">
+                    <strong>Пожалуйста исправьте:</strong><br />
+                    <span class="red" v-for="error in errors">[[ error ]]<br /></span>
                 </div>
 
                 <div class="form-group">
-                    <label class="w30" for="comments">Комментарии:</label>
-                    <input type="text" class="form-control w100" name="comments" id="comments">
-                    <span id="error-comments" class="error pl10"> </span>
+                    <label for="spo2">Уровень насыщения крови:</label>
+                    <input id="spo2" v-model="spo2" type="text" name="spo2" class="form-control inline" autofocus>
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" id="save" class="btn-success btn" value="Сохранить"/>
+                    <label for="comments">Комментарии:</label>
+                    <input id="comments" v-model="comments" type="text" name="comments" class="form-control w100">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Отправить" class="btn-success btn">
                 </div>
 
             </form>
         </div>
     </div>
 
-    {% block body_script %}
-        {{ super() }}
+    {% block vue_axios_cdn %}{{ super() }}{% endblock %}
 
-        <script>
-            ;(function() {
-                'use strict'
+    <script>
+        const constants = {{ constants | safe }};
 
-                const constants = {{ constants | safe }}
-                const spo2_max = constants.spo2_max
-                const spo2_min = constants.spo2_min
-                const error_message = 'Уровень насыщения крови кислородом не может быть'
-                const form = get('main-form')
+        const app = new Vue({
+                el: '#app-spo2',
+                data: {
+                    spo2_max: constants['spo2_max'],
+                    spo2_min: constants['spo2_min'],
+                    errors: [],
+                    spo2: null,
+                    comments: null
+                },
+            methods: {
+                checkForm: function (e) {
+                    this.errors = [];
 
-                if (!form) return
-
-                const error_spo2 = get('error-spo2')
-                const error_comments = get('error-comments')
-                const dom_error = [error_spo2, error_comments]
-
-                form.addEventListener('submit', function (event) {
-                    Validation.hide_error_all(dom_error)
-                    const spo2_value = form.spo2.value
-
-                    if (Validation.is_empty(spo2_value)) {
-                        Validation.actionError(error_spo2, errorMessages[2], event)
-                        return
+                    if (this.spo2) {
+                        if (this.spo2 > this.spo2_max || this.spo2 < this.spo2_min) {
+                            this.errors.push(('Допустимый диапазон измерения уровня насыщения крови: от ' + this.spo2_min + ' до ' + this.spo2_max + ' %'))
+                        }
                     } else {
-                        Aux.hide(error_spo2)
-                        Validation.test_integer(spo2_value, error_spo2, errorMessages[0], event)
+                        if (!this.spo2) {
+                            this.errors.push('Требуется указать значение уровня насыщения крови.');
+                        }
                     }
 
-                    const comments_value = form.comments.value
-
-                    if (!Validation.is_empty(comments_value)) {
-                        Validation.test_spam(comments_value, error_comments, errorMessages[1], event)
-                    }
-
-                    if (spo2_value > spo2_max) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(error_spo2, error_message + ' выше ' + spo2_max)
-                    }
-
-                    if (spo2_value < spo2_min) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(error_spo2, error_message + ' ниже ' + spo2_min)
-                    }
-
-                })
-
-                // коллекция полей формы из которой мы будем извлекать данные
-                {#const elementsAll = form.querySelectorAll('.form-control')#}
-
-                const errorMessages	= [
-                    'Удалите запрещенные символы из поля ввода значения',
-                    'Удалите запрещенные символы < > ][ из поля Комментарии',
-                    'Заполните поле ввода'
-                ]
-
-            })();
-        </script>
-    {% endblock %}
+                    if (this.errors.length > 0)
+                        e.preventDefault();
+                }
+            },
+            delimiters: ['[[' , ']]']
+        })
+    </script>
 
 </body>
 {% endblock %}

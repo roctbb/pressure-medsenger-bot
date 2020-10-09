@@ -27,6 +27,7 @@ def delayed(delay, f, args):
 
 def check_float(number):
     try:
+        number = number.replace(',', '.')
         float(number)
         return True
     except:

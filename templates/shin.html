@@ -1,87 +1,90 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Измерение объема голени левой и правой</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+{% extends "base.html" %}
+{% block title %}Измерение окружности левой и правой голеней{% endblock %}
+{% block style %}{{ super() }}{% endblock %}
 
-    <style>
-        .w20 {
-            width: 20%;
-        }
-
-        .w30 {
-            width: 30%;
-        }
-
-        .w100 {
-            width: 100% !important;
-        }
-
-        .mt15 {
-            margin-top: 15px;
-        }
-
-        .mt25 {
-            margin-top: 25px;
-        }
-
-        .inline {
-            width: 20%;
-            display: inline;
-        }
-
-        .focus {
-            /**/
-        }
-
-        .error {
-            /**/
-        }
-
-    </style>
-</head>
-<body onload="setFocus('shin_left')">
-    <div id="app">
+{% block body %}
+<body onload="">
+    <div id="app-shin">
         <div class="container mt15">
-            <h4>Какой у вас обхват голени?</h4>
+            <h4>Какая у вас окружность левой и правой голеней?</h4>
 
-            <form method="POST" class="mt25" id="main-form">
-                <div class="form-group">
-                    <label class="" for="shin">Обхват голени левой:</label>
-                    <input type="number" class="form-control inline" name="shin_left" id="shin_left">
-                    <span id="error-shin" class="error"> </span>
+            {% for cat, msg in get_flashed_messages(True) %}
+                <span class="flash">{{msg}}</span><br />
+                <span class="fs12">Вы ввели значение {{ cat }}</span>
+            {% endfor %}
+
+            <form id="app" @submit="checkForm" method="post" class="mt25">
+
+                <div v-if="errors.length" class="form-group">
+                    <strong>Пожалуйста исправьте:</strong><br />
+                    <span class="red" v-for="error in errors">[[ error ]]<br /></span>
                 </div>
 
                 <div class="form-group">
-                    <label class="" for="shin">Обхват голени правой:</label>
-                    <input type="number" class="form-control inline" name="shin_right" id="shin_right">
-                    <span id="error-shin" class="error"> </span>
+                    <label for="shin_left">Окружность левой голени:</label>
+                    <input id="shin_left" v-model="shin_left" type="text" name="shin_left" class="form-control inline" step="any" autofocus>
                 </div>
 
                 <div class="form-group">
-                    <label class="w30" for="comments">Комментарии:</label>
-                    <input type="text" class="form-control w100" name="comments" id="comments">
-                    <span id="error-comments" class="error"> </span>
+                    <label for="shin_right">Окружность правой голени:</label>
+                    <input id="shin_right" v-model="shin_right" type="text" name="shin_right" class="form-control inline" step="any">
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" id="save" class="btn-success btn" value="Сохранить"/>
+                    <label for="comments">Комментарии:</label>
+                    <input id="comments" v-model="comments" type="text" name="comments" class="form-control w100">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Отправить" class="btn-success btn">
                 </div>
 
             </form>
         </div>
     </div>
 
+    {% block vue_axios_cdn %}{{ super() }}{% endblock %}
+
     <script>
-        function setFocus(id) {
-            const focus_el = document.getElementById(id)
-            focus_el.focus()
+        const constants = {{ constants | safe }};
 
-            console.log('onload body', focus_el, document.activeElement)
-        }
+        const app = new Vue({
+                el: '#app-shin',
+                data: {
+                    shin_max: constants['shin_max'],
+                    shin_min: constants['shin_min'],
+                    errors: [],
+                    shin_left: null,
+                    shin_right: null,
+                    comments: null
+                },
+            methods: {
+                checkForm: function (e) {
+                    this.errors = [];
 
+                    if (this.shin_left) {
+                        if (this.shin_left > this.shin_max || this.shin_left < this.shin_min) {
+                            this.errors.push(('Допустимый диапазон окружности левой голени: от ' + this.shin_min + ' до ' + this.shin_max + ' см'))
+                        }
+                    } else {
+                        this.errors.push('Требуется указать значение окружности левой голени.');
+                    }
+
+                    if (this.shin_right) {
+                        if (this.shin_right > this.shin_max || this.shin_right < this.shin_min) {
+                            this.errors.push(('Допустимый диапазон окружности правой голени: от ' + this.shin_min + ' до ' + this.shin_max + ' см'))
+                        }
+                    } else {
+                        this.errors.push('Требуется указать значение окружности правой голени.');
+                    }
+
+                    if (this.errors.length > 0)
+                        e.preventDefault();
+                }
+            },
+            delimiters: ['[[' , ']]']
+        })
     </script>
+
 </body>
-</html>
+{% endblock %}

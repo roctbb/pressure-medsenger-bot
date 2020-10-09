@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Измерение окружность талии для сердечно-сосудистых пациентов{% endblock %}
+{% block title %}Измерение веса{% endblock %}
 {% block style %}{{ super() }}{% endblock %}
 
 {% block body %}
 <body onload="">
-    <div id="app-waist">
+    <div id="app-weight">
         <div class="container mt15">
-            <h4>Какая у вас окружность талии?</h4>
+            <h4>Какой у вас вес?</h4>
 
             {% for cat, msg in get_flashed_messages(True) %}
                 <span class="flash">{{msg}}</span><br />
@@ -21,8 +21,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="waist">Окружность талии:</label>
-                    <input id="waist" v-model="waist" type="text" name="waist" class="form-control inline" step="any" autofocus>
+                    <label for="weight">Вес:</label>
+                    <input id="weight" v-model="weight" type="text" name="weight" class="form-control inline" step="any" autofocus>
                 </div>
 
                 <div class="form-group">
@@ -43,27 +43,25 @@
     <script>
         const constants = {{ constants | safe }};
 
-        console.log('constants = ', constants);
-
         const app = new Vue({
-                el: '#app-waist',
+                el: '#app-weight',
                 data: {
-                    waist_max: constants['waist_max'],
-                    waist_min: constants['waist_min'],
+                    weight_max: constants['weight_max'],
+                    weight_min: constants['weight_min'],
                     errors: [],
-                    waist: null,
+                    weight: null,
                     comments: null
                 },
             methods: {
                 checkForm: function (e) {
                     this.errors = [];
 
-                    if (this.waist) {
-                        if (this.waist > this.waist_max || this.waist < this.waist_min) {
-                            this.errors.push(('Допустимый диапазон окружности талии: от ' + this.waist_min + ' до ' + this.waist_max + ' см'))
+                    if (this.weight) {
+                        if (this.weight > this.weight_max || this.weight < this.weight_min) {
+                            this.errors.push(('Допустимый диапазон измерения веса: от ' + this.weight_min + ' до ' + this.weight_max + ' кг'))
                         }
                     } else {
-                        this.errors.push('Требуется указать значение окружности талии.');
+                        this.errors.push('Требуется указать значение веса.');
                     }
 
                     if (this.errors.length > 0)
@@ -76,4 +74,3 @@
 
 </body>
 {% endblock %}
-

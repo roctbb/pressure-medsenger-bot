@@ -1,153 +1,106 @@
 {% extends "base.html" %}
-
 {% block title %}Измерение давления{% endblock %}
-
-{% block style %}
-    {{ super() }}
-
-{% endblock %}
+{% block style %}{{ super() }}{% endblock %}
 
 {% block body %}
-<body onload="setFocus('systolic')">
-    <div id="app">
-        <div class="container mt15 max-width-250">
-            <h4>Какое у вас давление?</h4>
+<body onload="">
+    <div id="app-pressure">
+        <div class="container mt15">
+            <h4>Какое у вас давления?</h4>
 
-            {% for msg in get_flashed_messages() %}
-            <p class="flash">{{msg}}</p>
+            {% for cat, msg in get_flashed_messages(True) %}
+                <span class="flash">{{msg}}</span><br />
+                <span class="fs12">Вы ввели значение {{ cat }}</span>
             {% endfor %}
 
-            <form method="POST" class="mt25" id="main-form">
-                <div class="form-group">
-                    <label class="w30" for="pressure">Давление:</label>
-                    <input type="number" class="form-control inline" name="systolic" id="systolic"> /
-                    <input type="number" class="form-control inline" name="diastolic" id="diastolic">
-                    <span id="error-sys" class="error"> </span>
-                    <span id="error-dia" class="error"> </span>
+            <form id="app" @submit="checkForm" method="post" class="mt25">
+
+                <div v-if="errors.length" class="form-group">
+                    <strong>Пожалуйста исправьте:</strong><br />
+                    <span class="red f-size-90" v-for="error in errors">[[ error ]]<br /></span>
                 </div>
 
                 <div class="form-group">
-                    <label class="w30" for="pulse">Пульс:</label>
-                    <input type="number" class="form-control inline" name="pulse_" id="pulse_">
-                    <span id="error-pulse" class="error"> </span>
+                    <label class="w100" for="pressure">Давление систолическое, диастолическое:</label><br />
+                    <input id="systolic" v-model="systolic" type="number" name="systolic" class="form-control inline" autofocus> /
+                    <input id="diastolic" v-model="diastolic" type="number" name="diastolic" class="form-control inline">
                 </div>
+
                 <div class="form-group">
-                    <label class="w30" for="comments">Комментарии:</label>
-                    <input type="text" class="form-control w100" name="comments" id="comments">
-                    <span id="error-comments" class="error"> </span>
+                    <label for="pulse">Пульс:</label><br />
+                    <input id="pulse_" v-model="pulse_" type="number" name="pulse_" class="form-control inline">
                 </div>
+
                 <div class="form-group">
-                    <input type="submit" id="save" class="btn-success btn" value="Сохранить"/>
+                    <label for="comments">Комментарии:</label>
+                    <input id="comments" v-model="comments" type="text" name="comments" class="form-control w100">
                 </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Отправить" class="btn-success btn">
+                </div>
+
             </form>
         </div>
     </div>
 
-    {% block body_script %}
-        {{ super() }}
+    {% block vue_axios_cdn %}{{ super() }}{% endblock %}
 
-        <script>
-            ;(function() {
-                'use strict'
+    <script>
+        const constants = {{ constants | safe }};
 
-                const constants = {{ constants | safe }}
+        console.log('constants = ', constants)
 
-                const getElement = function(el) {
-                    return document.getElementById(el)
+        const app = new Vue({
+                el: '#app-pressure',
+                data: {
+                    systolic_max: constants['sys_max'],
+                    systolic_min: constants['sys_min'],
+                    diastolic_max: constants['dia_max'],
+                    diastolic_min: constants['dia_min'],
+                    pulse_max: constants['pulse_max'],
+                    pulse_min: constants['pulse_min'],
+                    errors: [],
+                    systolic: null,
+                    diastolic: null,
+                    pulse_: null,
+                    comments: null
+                },
+            methods: {
+                checkForm: function (e) {
+                    this.errors = [];
+
+                    if (this.systolic) {
+                        if (this.systolic > this.systolic_max || this.systolic < this.systolic_min) {
+                            this.errors.push(('Допустимый диапазон измерения систолического давления: от ' + this.systolic_min + ' до ' + this.systolic_max + ' мм рт ст'))
+                        }
+                    } else {
+                        this.errors.push('Требуется указать значение систолического давления.');
+                    }
+
+                    if (this.diastolic) {
+                        if (this.diastolic > this.diastolic_max || this.diastolic < this.diastolic_min) {
+                            this.errors.push(('Допустимый диапазон измерения диастолического давления: от ' + this.diastolic_min + ' до ' + this.diastolic_max + ' мм рт ст'))
+                        }
+                    } else {
+                        this.errors.push('Требуется указать значение диастолического давления.');
+                    }
+
+                    if (this.pulse_) {
+                        if (this.pulse_ > this.pulse_max || this.pulse_ < this.pulse_min) {
+                            this.errors.push(('Допустимый диапазон измерения пульса: от ' + this.pulse_min + ' до ' + this.pulse_max + ' сокращений в минуту'))
+                        }
+                    } else {
+                        this.errors.push('Требуется указать значение пульса.');
+                    }
+
+                    if (this.errors.length > 0)
+                        e.preventDefault();
                 }
-
-                const form = document.getElementById('main-form')
-
-                if (!form) return
-
-                const dom = {
-                    sys: getElement('systolic'),
-                    dia: getElement('diastolic'),
-                    pulse: getElement('pulse_'),
-                    comments: getElement('comments'),
-                    error_sys: getElement('error-sys'),
-                    error_dia: getElement('error-dia'),
-                    error_pulse: getElement('error-pulse'),
-                    error_comments: getElement('error-comments')
-                }
-
-                form.addEventListener('submit', function (event) {
-                    Validation.hide_error_all([dom.error_sys, dom.error_dia, dom.error_pulse, dom.error_comments])
-
-                    if (!dom.sys.value) {
-                        Validation.validate(dom.error_sys, 'Заполните систолическое давление (слева)', event)
-                        return
-                    } else {
-                        Validation.hide(dom.error_sys)
-                    }
-
-                    if (!dom.dia.value) {
-                        Validation.validate(dom.error_dia, 'Заполните диастолическое давление (справа)', event)
-                        return
-                    } else {
-                        Validation.hide(dom.error_dia)
-                    }
-
-                    if (!dom.pulse.value) {
-                        Validation.validate(dom.error_pulse, 'Заполните пульс', event)
-                        console.log('pulse is blank')
-                        return
-                    } else {
-                        Validation.hide(dom.error_pulse)
-                    }
-
-                    Validation.test_integer(dom.sys.value, dom.error_sys, errorMess[0], event)
-                    Validation.test_integer(dom.dia.value, dom.error_dia, errorMess[1], event)
-                    Validation.test_integer(dom.pulse.value, dom.error_pulse, errorMess[2], event)
-
-                    if (Validation.is_empty(!dom.comments.value)) {
-                        Validation.test_spam(dom.comments.value, dom.error_comments, errorMess[3], event)
-                    }
-
-                    if (dom.sys.value > constants.sys_max) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_sys, 'Систолическое давление не может быть выше ' + constants.sys_max)
-                    }
-
-                    if (dom.sys.value < constants.sys_min) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_sys, 'Систолическое давление не может быть ниже ' + constants.sys_min)
-                    }
-
-                    if (dom.dia.value > constants.dia_max) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_dia, 'Диастолическое давление не может быть выше ' + constants.dia_max)
-                    }
-
-                    if (dom.dia.value < constants.dia_min) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_dia, 'Диастолическое давление не может быть ниже ' + constants.dia_min)
-                    }
-
-                    if (dom.pulse.value > constants.pulse_max) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_pulse, 'Пульс не может быть выше ' + constants.pulse_max)
-                    }
-
-                    if (dom.pulse.value < constants.pulse_min) {
-                        event.preventDefault()
-                        Validation.makeErrorHtml(dom.error_pulse, 'Пульс не может быть ниже ' + constants.pulse_min)
-                    }
-
-                })
-
-                // коллекция полей формы из которой мы будем извлекать данные
-                {#let	elements	= form.querySelectorAll('.form-control')#}
-
-                let errorMess	= [
-                    'Удалите запрещенные символы из полей Давление',
-                    'Удалите запрещенные символы из полей Давление',
-                    'Удалите запрещенные символы из поля Пульс',
-                    'Удалите запрещенные символы < > ][ из поля Комментарии'
-                ]
-            })();
-        </script>
-    {% endblock %}
+            },
+            delimiters: ['[[' , ']]']
+        })
+    </script>
 
 </body>
 {% endblock %}

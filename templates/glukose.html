@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Измерение окружность талии для сердечно-сосудистых пациентов{% endblock %}
+{% block title %}Измерение уровня глюкозы{% endblock %}
 {% block style %}{{ super() }}{% endblock %}
 
 {% block body %}
 <body onload="">
-    <div id="app-waist">
+    <div id="app-glukose">
         <div class="container mt15">
-            <h4>Какая у вас окружность талии?</h4>
+            <h4>Какой у вас уровень глюкозы?</h4>
 
             {% for cat, msg in get_flashed_messages(True) %}
                 <span class="flash">{{msg}}</span><br />
@@ -21,8 +21,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="waist">Окружность талии:</label>
-                    <input id="waist" v-model="waist" type="text" name="waist" class="form-control inline" step="any" autofocus>
+                    <label for="glukose">Глюкоза:</label>
+                    <input id="glukose" v-model="glukose" type="text" name="glukose" class="form-control inline" step="any">
                 </div>
 
                 <div class="form-group">
@@ -43,27 +43,29 @@
     <script>
         const constants = {{ constants | safe }};
 
-        console.log('constants = ', constants);
-
         const app = new Vue({
-                el: '#app-waist',
+                el: '#app-glukose',
                 data: {
-                    waist_max: constants['waist_max'],
-                    waist_min: constants['waist_min'],
+                    glukose_max: constants['glukose_max'],
+                    glukose_min: constants['glukose_min'] + 1,
                     errors: [],
-                    waist: null,
+                    glukose: null,
                     comments: null
                 },
             methods: {
                 checkForm: function (e) {
                     this.errors = [];
 
-                    if (this.waist) {
-                        if (this.waist > this.waist_max || this.waist < this.waist_min) {
-                            this.errors.push(('Допустимый диапазон окружности талии: от ' + this.waist_min + ' до ' + this.waist_max + ' см'))
+                    if (this.glukose) {
+                        if (this.glukose > this.glukose_max || this.glukose < this.glukose_min) {
+                            this.errors.push(('Допустимый диапазон уровня глюкозы: от ' + this.glukose_min + ' до ' + this.glukose_max + ' моль/литр'))
+                        } else {
+                            return true;
                         }
                     } else {
-                        this.errors.push('Требуется указать значение окружности талии.');
+                        if (!this.glukose) {
+                            this.errors.push('Требуется указать значение уровня глюкозы.');
+                        }
                     }
 
                     if (this.errors.length > 0)
@@ -76,4 +78,3 @@
 
 </body>
 {% endblock %}
-

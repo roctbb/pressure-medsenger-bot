@@ -550,8 +550,6 @@ def sender():
                                         info_green(no_message)
 
                                     if (no_message == False):
-                                        print('data for messages = ', data)
-                                        print(Debug.delimiter())
                                         post_request(data)
 
                                     time.sleep(1)
@@ -1696,7 +1694,7 @@ def action_pull(pull):
 
     if (pull == 'shin'):
         constants['shin_max'] = MAX_SHIN
-        constants['shint_min'] = MIN_SHIN
+        constants['shin_min'] = MIN_SHIN
 
         return render_template('shin.html', tmpl=pull, constants=constants)
 
@@ -1714,29 +1712,29 @@ def action_pull(pull):
         constants['weight_max'] = MAX_WEIGHT
         constants['weight_min'] = MIN_WEIGHT
 
-        return render_template('measurement.html', tmpl=pull, constants=constants)
+        # return render_template('measurement.html', tmpl=pull, constants=constants)
 
-        # return render_template('weight.html', tmpl=pull, constants=constants)
+        return render_template('weight.html', tmpl=pull, constants=constants)
 
     if (pull == 'temperature'):
         constants['temperature_max'] = MAX_TEMPERATURE
         constants['temperature_min'] = MIN_TEMPERATURE
 
-        return render_template('measurement.html', tmpl=pull, constants=constants)
+        # return render_template('measurement.html', tmpl=pull, constants=constants)
 
-        # return render_template('temperature.html', tmpl=pull, constants=constants)
+        return render_template('temperature.html', tmpl=pull, constants=constants)
 
     if (pull == 'glukose'):
         constants['glukose_max'] = MAX_GLUKOSE
         constants['glukose_min'] = MIN_GLUKOSE
 
-        return render_template('measurement.html', tmpl=pull, constants=constants)
+        # return render_template('measurement.html', tmpl=pull, constants=constants)
 
-        # return render_template('glukose.html', tmpl=pull, constants=constants)
+        return render_template('glukose.html', tmpl=pull, constants=constants)
 
     if (pull == 'pain_assessment'):
         constants['pain_assessment_max'] = MAX_ASSESSMENT
-        constants['ain_assessment_min'] = MIN_ASSESSMENT
+        constants['pain_assessment_min'] = MIN_ASSESSMENT
 
         return render_template('pain_assessment.html', tmpl=pull, constants=constants)
 
@@ -2752,6 +2750,10 @@ def action_pull_save(pull):
             make_task(contract_id, task_id)
     else:
         if check_float(param_value) == False:
+            error('ERROR_FORM')
+            print('param_value = ', param_value)
+            zzz = param_value.replace(',', '.')
+            print('zzz = ', zzz)
             return ERROR_FORM
 
         category = pull
@@ -2786,7 +2788,7 @@ def action_pull_save(pull):
 
         max = float(max)
         min = float(min)
-        param_value = float(param_value)
+        param_value = float(param_value.replace(',', '.'))
 
         if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
             param_value_int = int(param_value)
