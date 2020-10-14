@@ -1,5 +1,6 @@
 from init import *
 
+
 class ContractTasks(db.Model):
     __tablename__ = 'contract_tasks'
 
@@ -11,6 +12,7 @@ class ContractTasks(db.Model):
     updated_at = db.Column(db.DateTime)
     action_link = db.Column(db.String(255))
 
+
 class ActualBots(db.Model):
     __tablename__ = 'actual_bots'
 
@@ -18,6 +20,7 @@ class ActualBots(db.Model):
     actual = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
+
 
 class CategoryParams(db.Model):
     __tablename__ = 'category_params'
@@ -41,8 +44,7 @@ def toDate(timestamp):
 
 
 def nowDate():
-    date_now = datetime.datetime.now()
-    return date_now.strftime(DATE_HOUR_FORMAT)
+    return datetime.datetime.now()
 
 
 def drop_task(contract_id, task_id):
@@ -352,9 +354,6 @@ def quard():
 
 def sender():
     while True:
-        # MEASUREMENTS
-
-        # initTasksDone = []
         go_task = False
         megaTask = []
 
@@ -418,7 +417,7 @@ def sender():
             if mode == 'daily':
 
                 for item in timetable:
-                    if (item == 'hours'):
+                    if item == 'hours':
                         hours = timetable[item]
 
                         hours_array = []
@@ -712,13 +711,13 @@ def getTasks(contract_id):
 
 
 def transformMeasurementName(name):
-    if (name == 'systolic_pressure'):
+    if name == 'systolic_pressure':
         name = 'pressure'
 
-    if (name == 'leg_circumference_left'):
+    if name == 'leg_circumference_left':
         name = 'shin'
 
-    if (name == 'waist_circumference'):
+    if name == 'waist_circumference':
         name = 'waist'
 
     return str(name)
@@ -758,8 +757,8 @@ def initTasks(contract_id):
         hours = timetable['hours']
         show = category_param.show
 
-        if (show == True):
-            if (name in STOP_LIST):
+        if show == True:
+            if name in STOP_LIST:
                 continue
 
             text = CATEGORY_TEXT[name]
@@ -769,8 +768,8 @@ def initTasks(contract_id):
             task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
 
             try:
-                contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=now(),
-                                              created_at=now(), updated_at=now(), action_link='frame/' + str(name))
+                contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=nowDate(),
+                                              created_at=nowDate(), updated_at=nowDate(), action_link='frame/' + str(name))
                 db.session.add(contract_task)
                 db.session.commit()
 
@@ -782,10 +781,10 @@ def initTasks(contract_id):
 
     info_green('Success initTask()')
 
+
 # ******************************************
 # ************** Testing place *************
 # ******************************************
-
 
 
 # ******************************************
@@ -837,7 +836,6 @@ def actions():
     type = 'patient'
 
     query_str = 'SELECT count(id) as cnt FROM medicines m WHERE contract_id = ' + str(contract_id) + ' AND show = true'
-
     records = DB.select(query_str)
 
     cnt = 0
@@ -847,10 +845,10 @@ def actions():
 
     answer = []
 
-    if (cnt > 0):
+    if cnt > 0:
         answer.append({'link': 'medicines', 'type': type, 'name': 'Прием лекарств'})
 
-    category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
+    category_params = CategoryParams.query.filter_by(contract_id=contract_id, show=True).all()
 
     continues_list = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
 
@@ -867,26 +865,24 @@ def actions():
 
     for category_param in category_params:
         name = category_param.category
-        show = category_param.show
 
-        if (name in continues_list):
+        if name in continues_list:
             continue
 
-        if (name == 'systolic_pressure'):
+        if name == 'systolic_pressure':
             name = 'pressure'
 
-        if (name == 'leg_circumference_left'):
+        if name == 'leg_circumference_left':
             name = 'shin'
 
-        if (name == 'waist_circumference'):
+        if name == 'waist_circumference':
             name = 'waist'
 
-        if (show == True):
-            answer.append({
-                'link': 'frame/' + str(name),
-                'type': type,
-                'name': descriptions[name]
-            })
+        answer.append({
+            'link': 'frame/' + str(name),
+            'type': type,
+            'name': descriptions[name]
+        })
 
     return json.dumps(answer)
 
@@ -1038,7 +1034,7 @@ def graph():
         zoomToDates = 'off'
 
         if (len(x) > 0):
-            d1 = x[len(x)-1]
+            d1 = x[len(x) - 1]
             d2 = date_min
 
             if (d2 > d1):
@@ -1232,7 +1228,7 @@ def graph():
         if (len(x) > 0):
             date_max = date_max_min[0]
             date_min = date_max_min[1]
-            d1 = x[len(x)-1]
+            d1 = x[len(x) - 1]
             d2 = date_min
 
             if (d2 > d1):
@@ -1241,7 +1237,6 @@ def graph():
         else:
             date_max = nowDate()
             date_min = nowDate()
-
 
         weight_dic = {
             "zoomToDates": zoomToDates,
@@ -1254,10 +1249,10 @@ def graph():
         }
 
         constants = {'max_shin_right': 35, 'min_waist': 30, 'min_shin_right': 10, 'min_diastolic': 30, 'max_pain': 7,
-         'max_pulse': 80, 'max_spo2': 100, 'max_diastolic': 99, 'max_waist': 150, 'min_pain': 0, 'max_shin_left': 35,
-         'min_systolic': 90, 'min_weight': 45, 'max_systolic': 140, 'max_temperature': 37, 'min_pulse': 50,
-         'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
-         'min_spo2': 93}
+                     'max_pulse': 80, 'max_spo2': 100, 'max_diastolic': 99, 'max_waist': 150, 'min_pain': 0, 'max_shin_left': 35,
+                     'min_systolic': 90, 'min_weight': 45, 'max_systolic': 140, 'max_temperature': 37, 'min_pulse': 50,
+                     'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
+                     'min_spo2': 93}
 
         weight_series = weight_dic
 
@@ -1968,62 +1963,53 @@ def setting_save():
 
 @app.route('/init', methods=['POST'])
 def init():
-    new_contract = True
-
     try:
         data = request.json
         contract_id = quard_data_json(data)
 
-        actual_bots = ActualBots.query.filter_by(contract_id=contract_id)
-        actual_contract = 0
+        contract = ActualBots.query.filter_by(contract_id=contract_id).first()
 
-        for actual_bot in actual_bots:
-            actual_contract = actual_bot.contract_id
+        if contract:
+            contract.actual = True
+            db.session.commit()
 
-        if actual_contract > 0:
-            new_contract = False
+            initTasks(contract_id)
+            out_green_light('Activate contract')
 
-            try:
-                query = ActualBots.query.filter_by(contract_id=contract_id)
+        else:
+            contract = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
+            db.session.add(contract)
+            db.session.commit()
 
-                if query.count() != 0:
-                    contract = query.first()
-                    contract.actual = True
-                    db.session.commit()
+            preset = data.get('preset')
+            preset_params = data.get('params', {})
 
-                    initTasks(contract_id)
+            max_systolic = int(preset_params.get('max_systolic', MAX_SYSTOLIC_DEFAULT))
+            min_systolic = int(preset_params.get('min_systolic', MIN_SYSTOLIC_DEFAULT))
+            max_diastolic = int(preset_params.get('max_diastolic', MAX_DIASTOLIC_DEFAULT))
+            min_diastolic = int(preset_params.get('min_diastolic', MIN_DIASTOLIC_DEFAULT))
+            max_pulse = int(preset_params.get('max_pulse', MAX_PULSE_DEFAULT))
+            min_pulse = int(preset_params.get('min_pulse', MIN_PULSE_DEFAULT))
+            min_weight = float(preset_params.get('min_weight', MIN_WEIGHT_DEFAULT))
+            max_weight = float(preset_params.get('max_weight', MAX_WEIGHT_DEFAULT))
+            max_waist = float(preset_params.get('max_waist', MAX_WAIST_DEFAULT))
+            min_waist = float(preset_params.get('min_waist', MIN_WAIST_DEFAULT))
 
-                    out_green_light('Activate contract')
-                else:
-                    out_red_light('Contract not found')
+            if 'current_systolic' in preset_params:
+                current_systolic = int(preset_params['current_systolic'])
 
-            except Exception as e:
-                error('Error ActualBots')
-                print(e)
-                raise
+                max_systolic = current_systolic + (current_systolic // 3)
+                min_systolic = current_systolic - (current_systolic // 3)
 
-        if (new_contract == True):
-            try:
-                actual_bots = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
-                db.session.add(actual_bots)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('db.session.add(actual_bots)')
-                print(e)
-                raise
+            if 'current_diastolic' in preset_params:
+                current_diastolic = int(preset_params['current_diastolic'])
+                max_diastolic = current_diastolic + (current_diastolic // 3)
+                min_diastolic = current_diastolic - (current_diastolic // 3)
 
-            if 'preset' in data:
-                preset = data['preset']
-            else:
-                preset = None
-
-            max_systolic = MAX_SYSTOLIC_DEFAULT
-            min_systolic = MIN_SYSTOLIC_DEFAULT
-            max_diastolic = MAX_DIASTOLIC_DEFAULT
-            min_diastolic = MIN_DIASTOLIC_DEFAULT
-            max_pulse = MAX_PULSE_DEFAULT
-            min_pulse = MIN_PULSE_DEFAULT
+            if 'current_pulse' in preset_params:
+                current_pulse = int(preset_params['current_pulse'])
+                max_pulse = current_pulse + (current_pulse // 3)
+                min_pulse = current_pulse - (current_pulse // 3)
 
             params = {
                 "max_systolic": max_systolic,
@@ -2033,114 +2019,6 @@ def init():
                 "max_pulse": max_pulse,
                 "min_pulse": min_pulse
             }
-
-            if 'params' in data:
-                preset_params = data['params']
-
-                try:
-                    max_systolic = preset_params['max_systolic']
-                except Exception as e:
-                    max_systolic = MAX_SYSTOLIC_DEFAULT
-
-                try:
-                    min_systolic = preset_params['min_systolic']
-                except Exception as e:
-                    min_systolic = MIN_SYSTOLIC_DEFAULT
-
-                try:
-                    max_diastolic = preset_params['max_diastolic']
-                except Exception as e:
-                    max_diastolic = MAX_DIASTOLIC_DEFAULT
-
-                try:
-                    min_diastolic = preset_params['min_diastolic']
-                except Exception as e:
-                    min_diastolic = MIN_DIASTOLIC_DEFAULT
-
-                try:
-                    max_pulse = preset_params['max_pulse']
-                except Exception as e:
-                    max_pulse = MAX_PULSE_DEFAULT
-
-                try:
-                    min_pulse = preset_params['min_pulse']
-                except Exception as e:
-                    min_pulse = MIN_PULSE_DEFAULT
-
-                params = {
-                    "max_systolic": max_systolic,
-                    "min_systolic": min_systolic,
-                    "max_diastolic": max_diastolic,
-                    "min_diastolic": min_diastolic,
-                    "max_pulse": max_pulse,
-                    "min_pulse": min_pulse
-                }
-
-                if 'current_systolic' in preset_params:
-                    try:
-                        current_systolic = preset_params['current_systolic']
-                    except Exception as e:
-                        current_systolic = 0
-
-                    if (current_systolic > 0):
-                        try:
-                            max_systolic = current_systolic + (current_systolic // 3)
-                        except Exception as e:
-                            max_systolic = MAX_SYSTOLIC_DEFAULT
-
-                        try:
-                            min_systolic = current_systolic - (current_systolic // 3)
-                        except Exception as e:
-                            min_systolic = MIN_SYSTOLIC_DEFAULT
-
-                    #
-
-                    try:
-                        current_diastolic = preset_params['current_diastolic']
-                    except Exception as e:
-                        current_diastolic = 0
-
-                    if (current_diastolic > 0):
-                        try:
-                            max_diastolic = current_diastolic + (current_diastolic // 3)
-                        except Exception as e:
-                            max_diastolic = MAX_DIASTOLIC_DEFAULT
-
-                        try:
-                            min_diastolic = current_diastolic - (current_diastolic // 3)
-                        except Exception as e:
-                            min_diastolic = MIN_DIASTOLIC_DEFAULT
-
-                    #
-
-                    try:
-                        current_pulse = preset_params['current_pulse']
-                    except Exception as e:
-                        current_pulse = 0
-
-                    if (current_pulse > 0):
-                        try:
-                            max_pulse = current_pulse + (current_pulse // 3)
-                        except Exception as e:
-                            max_pulse = MAX_PULSE_DEFAULT
-
-                        try:
-                            min_pulse = current_pulse - (current_pulse // 3)
-                        except Exception as e:
-                            min_pulse = MIN_PULSE_DEFAULT
-
-                    params = {
-                        "max_systolic": max_systolic,
-                        "min_systolic": min_systolic,
-                        "max_diastolic": max_diastolic,
-                        "min_diastolic": min_diastolic,
-                        "max_pulse": max_pulse,
-                        "min_pulse": min_pulse
-                    }
-            else:
-                preset_params = None
-
-            #  *************************************************************** systolic
 
             timetable = {
                 "days_month": [
@@ -2162,436 +2040,187 @@ def init():
                 ]
             }
             mode = 'daily'
-
-            name = 'pressure'
-
-            data = {
-                "contract_id": contract_id,
-                "api_key": APP_KEY,
-                "message": {
-                    "text": MESS_MEASUREMENT[name]['text'],
-                    "action_link": "frame/" + name,
-                    "action_deadline": time.time() + (60 * 60 * 24),
-                    "action_name": MESS_MEASUREMENT[name]['action_name'],
-                    "action_onetime": True,
-                    "only_doctor": False,
-                    "only_patient": True,
-                }
-            }
-
-            delayed(1, post_request, [data])
-
-            try:
-                show = True
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category='systolic_pressure',
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category='diastolic_pressure',
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category='pulse',
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add pressure in category_params')
-                print(e)
-                raise
-
-            # *************************************************************** temperature
-
-            name = 'temperature'
             show = False
 
-            params = {
-                "max": MAX_TEMPERATURE_DEFAULT,
-                "min": MIN_TEMPERATURE_DEFAULT
-            }
+            systolic_pressure = CategoryParams(contract_id=contract_id,
+                                               category='systolic_pressure',
+                                               mode=mode,
+                                               params=params,
+                                               timetable=timetable,
+                                               created_at=nowDate(),
+                                               updated_at=nowDate(),
+                                               last_push=nowDate(),
+                                               show=show)
+            diastolic_pressure = CategoryParams(contract_id=contract_id,
+                                                category='diastolic_pressure',
+                                                mode=mode,
+                                                params=params,
+                                                timetable=timetable,
+                                                created_at=nowDate(),
+                                                updated_at=nowDate(),
+                                                last_push=nowDate(),
+                                                show=show)
 
-            try:
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
+            pulse = CategoryParams(contract_id=contract_id,
+                                   category='pulse',
+                                   mode=mode,
+                                   params=params,
+                                   timetable=timetable,
+                                   created_at=nowDate(),
+                                   updated_at=nowDate(),
+                                   last_push=nowDate(),
+                                   show=show)
+
+            temperature = CategoryParams(contract_id=contract_id,
+                                         category='temperature',
+                                         mode=mode,
+                                         params={
+                                             "max": MAX_TEMPERATURE_DEFAULT,
+                                             "min": MIN_TEMPERATURE_DEFAULT
+                                         },
+                                         timetable=timetable,
+                                         created_at=nowDate(),
+                                         updated_at=nowDate(),
+                                         last_push=nowDate(),
+                                         show=show)
+
+            glukose = CategoryParams(contract_id=contract_id,
+                                     category='glukose',
+                                     mode=mode,
+                                     params={
+                                         "max": MAX_GLUKOSE_DEFAULT,
+                                         "min": MIN_GLUKOSE_DEFAULT
+                                     },
+                                     timetable=timetable,
+                                     created_at=nowDate(),
+                                     updated_at=nowDate(),
+                                     last_push=nowDate(),
+                                     show=show)
+
+            weight = CategoryParams(contract_id=contract_id,
+                                    category='weight',
+                                    mode=mode,
+                                    params={
+                                        "max": max_weight,
+                                        "min": min_weight
+                                    },
+                                    timetable=timetable,
+                                    created_at=nowDate(),
+                                    updated_at=nowDate(),
+                                    last_push=nowDate(),
+                                    show=show)
+
+            waist_circumference = CategoryParams(contract_id=contract_id,
+                                                 category='waist_circumference',
                                                  mode=mode,
-                                                 params=params,
+                                                 params={
+                                                     "max": max_waist,
+                                                     "min": min_waist
+                                                 },
                                                  timetable=timetable,
                                                  created_at=nowDate(),
                                                  updated_at=nowDate(),
                                                  last_push=nowDate(),
                                                  show=show)
 
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add temperature in category_params')
-                print(e)
-                raise
+            spo2 = CategoryParams(contract_id=contract_id,
+                                  category='spo2',
+                                  mode=mode,
+                                  params={
+                                      "max": MAX_SPO2_DEFAULT,
+                                      "min": MIN_SPO2_DEFAULT
+                                  },
+                                  timetable=timetable,
+                                  created_at=nowDate(),
+                                  updated_at=nowDate(),
+                                  last_push=nowDate(),
+                                  show=show)
 
-            # *************************************************************** glukose
+            pain_assessment = CategoryParams(contract_id=contract_id,
+                                             category='pain_assessment',
+                                             mode=mode,
+                                             params={
+                                                 "max": MAX_PAIN_DEFAULT,
+                                                 "min": MIN_PAIN_DEFAULT
+                                             },
+                                             timetable=timetable,
+                                             created_at=nowDate(),
+                                             updated_at=nowDate(),
+                                             last_push=nowDate(),
+                                             show=show)
 
-            try:
-                name = 'glukose'
-                show = False
+            leg_circumference_left = CategoryParams(contract_id=contract_id,
+                                                    category='leg_circumference_left',
+                                                    mode=mode,
+                                                    params={
+                                                        "max": MAX_SHIN_DEFAULT,
+                                                        "min": MIN_SHIN_DEFAULT
+                                                    },
+                                                    timetable=timetable,
+                                                    created_at=nowDate(),
+                                                    updated_at=nowDate(),
+                                                    last_push=nowDate(),
+                                                    show=show)
+            leg_circumference_right = CategoryParams(contract_id=contract_id,
+                                                     category='leg_circumference_right',
+                                                     mode=mode,
+                                                     params={
+                                                         "max": MAX_SHIN_DEFAULT,
+                                                         "min": MIN_SHIN_DEFAULT
+                                                     },
+                                                     timetable=timetable,
+                                                     created_at=nowDate(),
+                                                     updated_at=nowDate(),
+                                                     last_push=nowDate(),
+                                                     show=show)
 
-                params = {
-                    "max": MAX_GLUKOSE_DEFAULT,
-                    "min": MIN_GLUKOSE_DEFAULT
-                }
+            if preset == 'heartfailure':
+                leg_circumference_left.show = True
+                leg_circumference_right.show = True
+                waist_circumference.show = True
 
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
+            if preset in ['fibrillation', 'stenocardia', 'hypertensia', 'heartfailure']:
+                systolic_pressure.show = True
+                diastolic_pressure.show = True
+                pulse.show = True
 
-                db.session.add(category_params)
+            db.session.add(leg_circumference_left)
+            db.session.add(leg_circumference_right)
+            db.session.add(systolic_pressure)
+            db.session.add(diastolic_pressure)
+            db.session.add(pulse)
+            db.session.add(pain_assessment)
+            db.session.add(spo2)
+            db.session.add(waist_circumference)
+            db.session.add(weight)
+            db.session.add(glukose)
+            db.session.add(temperature)
+            db.session.commit()
 
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add temperature in category_params')
-                print(e)
-                raise
-
-            name = 'weight'
-
-            if (preset == 'heartfailure' or preset == 'fibrillation'):
-                show = True
-
-                try:
-                    max_weight = preset_params['max_weight']
-                except Exception as e:
-                    max_weight = MAX_WEIGHT_DEFAULT
-
-                try:
-                    min_weight = preset_params['min_weight']
-                except Exception as e:
-                    min_weight = MIN_WEIGHT_DEFAULT
-
-                params = {
-                    "max": max_weight,
-                    "min": min_weight
-                }
-
-                data = {
-                    "contract_id": contract_id,
-                    "api_key": APP_KEY,
-                    "message": {
-                        "text": MESS_MEASUREMENT[name]['text'],
-                        "action_link": "frame/" + name,
-                        "action_deadline": time.time() + (60 * 60 * 24),
-                        "action_name": MESS_MEASUREMENT[name]['action_name'],
-                        "action_onetime": True,
-                        "only_doctor": False,
-                        "only_patient": True,
-                    }
-                }
-
-                delayed(1, post_request, [data])
-            else:
-                show = False
-                params = {}
-
-            try:
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add weight in category_params')
-                print(e)
-                raise
-
-            # *************************************************************** waist_circumference
-
-            name = 'waist_circumference'
-
-            if (preset == 'heartfailure'):
-                try:
-                    max_waist = preset_params['max_waist']
-                except Exception as e:
-                    max_waist = MAX_WAIST_DEFAULT
-
-                try:
-                    min_waist = preset_params['min_waist']
-                except Exception as e:
-                    min_waist = MIN_WAIST_DEFAULT
-
-                params = {
-                    "max": max_waist,
-                    "min": min_waist
-                }
-
-                data = {
-                    "contract_id": contract_id,
-                    "api_key": APP_KEY,
-                    "message": {
-                        "text": MESS_MEASUREMENT['waist']['text'],
-                        "action_link": "frame/" + "waist",
-                        "action_deadline": time.time() + (60 * 60 * 24),
-                        "action_name": MESS_MEASUREMENT['waist']['action_name'],
-                        "action_onetime": True,
-                        "only_doctor": False,
-                        "only_patient": True,
-                    }
-                }
-
-                delayed(1, post_request, [data])
-            else:
-                params = {}
-
-            if (preset == 'heartfailure'):
-                show = True
-            else:
-                show = False
-
-            try:
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add waist in category_params')
-                print(e)
-                raise
-
-            # *************************************************************** spo2
-
-            try:
-                name = 'spo2'
-                show = False
-
-                params = {
-                    "max": MAX_SPO2_DEFAULT,
-                    "min": MIN_SPO2_DEFAULT
-                }
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add spo2 in category_params')
-                print(e)
-                raise
-
-            # *************************************************************** pain_assessment
-
-            try:
-                name = 'pain_assessment'
-                show = False
-
-                params = {
-                    "max": MAX_PAIN_DEFAULT,
-                    "min": MIN_PAIN_DEFAULT
-                }
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add pain_assessment in category_params')
-                print(e)
-                raise
-
-            params = {
-                "max": MAX_SHIN_DEFAULT,
-                "min": MIN_SHIN_DEFAULT
-            }
-
-            # *************************************************************** leg_circumference_left
-
-            if (preset == 'heartfailure'):
-                name = 'shin'
-                show = True
-
-                data = {
-                    "contract_id": contract_id,
-                    "api_key": APP_KEY,
-                    "message": {
-                        "text": MESS_MEASUREMENT[name]['text'],
-                        "action_link": "frame/" + name,
-                        "action_deadline": time.time() + (60 * 60 * 24),
-                        "action_name": MESS_MEASUREMENT[name]['action_name'],
-                        "action_onetime": True,
-                        "only_doctor": False,
-                        "only_patient": True,
-                    }
-                }
-
-                delayed(1, post_request, [data])
-            else:
-                show = False
-
-            try:
-                name = 'leg_circumference_left'
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add leg_circumference_left in category_params')
-                print(e)
-                raise
-
-
-            # *************************************************************** leg_circumference_right
-
-            try:
-                params = {}
-
-                name = 'leg_circumference_right'
-
-                category_params = CategoryParams(contract_id=contract_id,
-                                                 category=name,
-                                                 mode=mode,
-                                                 params=params,
-                                                 timetable=timetable,
-                                                 created_at=nowDate(),
-                                                 updated_at=nowDate(),
-                                                 last_push=nowDate(),
-                                                 show=show)
-
-                db.session.add(category_params)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                error('Error add leg_circumference_right in category_params')
-                print(e)
-                raise
-
-            # *************************************************************** next parameter
-
-    except Exception as e:
-        error('Error init')
-        print(e)
-        return 'ERROR INIT'
+    except:
+        pass
 
     return 'ok'
 
 
 @app.route('/remove', methods=['POST'])
 def remove():
-    try:
-        data = request.json
-        contract_id = quard_data_json(data)
-        id = 0
-        query = ActualBots.query.filter_by(contract_id=contract_id)
+    data = request.json
+    contract_id = quard_data_json(data)
+    query = ActualBots.query.filter_by(contract_id=contract_id)
 
-        if query.count() != 0:
-            contract = query.first()
-            id = contract.contract_id
+    if query.count() != 0:
+        contract = query.first()
+        contract.actual = False
+        db.session.commit()
 
-        if id > 0:
-            try:
-                query = ActualBots.query.filter_by(contract_id=contract_id)
+        info_yellow('Deactivate contract')
 
-                if query.count() != 0:
-                    contract = query.first()
-                    contract.actual = False
-                    db.session.commit()
+        q = ContractTasks.query.filter_by(contract_id=contract_id)
 
-                    info_yellow('Deactivate contract')
-
-                    q = ContractTasks.query.filter_by(contract_id=contract_id)
-
-                    if q.count() != 0:
-                        contract_tasks = q.all()
-
-                    drop_tasks(contract_id)
-
-                else:
-                    info_cyan('Contract not found')
-
-
-
-            except Exception as e:
-                error('Error ActualBots in remove()')
-                print(e)
-                raise
-
-    except Exception as e:
-        error('Error remove()')
-        print(e)
-        return 'ERROR REMOVE'
+        drop_tasks(contract_id)
+    else:
+        info_cyan('Contract not found')
 
     return 'ok'
 

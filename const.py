@@ -9,8 +9,8 @@ STOP_LIST = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
 
 CATEGORY_TRNSFORM = ['', '', '', '', '']
 CATEGORY_TEXT = {
-    'leg_circumference_right':'Обхват  голени',
-    'leg_circumference_left':'Обхват  голени',
+    'leg_circumference_right':'Обхват голени',
+    'leg_circumference_left':'Обхват голени',
     'pain_assessment':'Оценка боли',
     'spo2':'Мониторинг насыщения крови кислородом',
     'waist_circumference':'Окружность талии',
@@ -19,7 +19,7 @@ CATEGORY_TEXT = {
     'temperature':'Температура',
     'pulse':'Пульс в покое',
     'diastolic_pressure':'Диастолическое (нижнее) артериальное давление',
-    'systolic_pressure':'Систолическое (верхнее) артериальное давление в покое'
+    'systolic_pressure':'Систолическое (верхнее) артериальное давление'
 }
 
 MAX_SPO2 = 100

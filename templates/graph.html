@@ -37,7 +37,7 @@
         }
 
         .dark {
-            {#background-color: #30303d; color: #fff;#}
+
         }
 
         .transparant {
@@ -78,9 +78,9 @@
         }
 
         .btn {
-            {#padding: 7px;#}
-            {#margin-bottom: 3px;#}
-            {#border: 1px solid lightseagreen;#}
+
+
+
         }
 
         .btn:hover {
@@ -100,7 +100,7 @@
     <style>
         #sys-stat-week, #sys-stat-month, #sys-stat-donat, #dia-stat-donat, #dia-stat-week, #dia-stat-month {
             width: 100%;
-            {#height: 250px;#}
+
             text-align: center;
         }
 
@@ -111,7 +111,7 @@
         }
 
         .highcharts-data-table table {
-            {#font-family: Verdana, sans-serif;#}
+
             border-collapse: collapse;
             border: 1px solid #EBEBEB;
             margin: 10px auto;
@@ -152,7 +152,7 @@
         .row_cell {
 
             flex: 1;
-            {#font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;#}
+
             font-size: 1rem;
         }
 
@@ -360,7 +360,7 @@
         const glukose_graph = document.getElementById('glukose_graph')
         const temperature_graph = document.getElementById('temperature_graph')
         const pain_button = document.getElementById('pain_button')
-        {#const stat_button = document.getElementById('stat_button')#}
+
         const spo2_button = document.getElementById('spo2_button')
         const waist_button = document.getElementById('waist_button')
         const shin_button = document.getElementById('shin_button')
@@ -415,19 +415,19 @@
             toggleAll(chartdiv_pain, pain_button)
         })
 
-        {#theme.addEventListener('change', function (event) {#}
-        {#    const index = theme.options.selectedIndex#}
-        {##}
-        {#    if (index == 1) {#}
-        {#        am4core__.useTheme(am4themes_animated)#}
-        {#        chartdiv__.classList.remove('dark')#}
-        {#        chartdiv__.style.display = "none"#}
-        {#    }#}
-        {#})#}
 
-        {#stat_button.addEventListener('click', (event) => {#}
-        {#    toggleAll(stat, stat_button)#}
-        {#})#}
+
+
+
+
+
+
+
+
+
+
+
+
 
         spo2_button.addEventListener('click', (event) => {
             toggleAll(chartdiv_spo2, spo2_button)
@@ -478,7 +478,7 @@
                 params.forEach((item) => {
                     el = item.parentElement
                     Aux.removeClass(el, nameClass)
-                    {#dump(el.nodeName, nameClass)#}
+
                 })
             },
             "showAll": (params) => {
@@ -712,15 +712,15 @@
             // Create axes
             var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
 
-            {#categoryAxis.start = 0.79;#}
-            {#categoryAxis.keepSelection = true;#}
+
+
 
             categoryAxis.renderer.grid.template.location = 0
-            {#categoryAxis.renderer.labels.template.rotation = 90;#}
-            {#categoryAxis.renderer.minGridDistance = 30;#}
+
+
 
             var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
-            {#valueAxis.max = 190#}
+
             let dateOut = ''
             let date_tooltip = ''
 
@@ -825,12 +825,7 @@
                 });
             }
 
-            {#chart.events.on("ready", function () {#}
-            {#    categoryAxis.zoomToDates(#}
-            {#        date_min,#}
-            {#        date_max#}
-            {#    );#}
-            {#});#}
+
 
             // Create series Medicine
             function createSeriesMedicine(field, data, series_name, color, config) {
@@ -839,15 +834,9 @@
                 series.dataFields.dateX = "date_out"
                 series.dataFields.value = "name"
                 series.name = series_name
-                {#series.tooltipText = "medicine_text";#}
-                {#series.strokeWidth = 2;#}
-                {#series.propertyFields.stroke = "color"#}
-                {#series.stroke = am4core__.color("yellow")#}
                 series.strokeOpacity = 0
-                {#series.sequencedInterpolation = true#}
                 series.data = data
 
-                {#var bullet = series.bullets.push(new am4core__.Circle())#}
 
                 var bullet = series.bullets.push(new am4charts__.Bullet())
                 var square = bullet.createChild(am4core.Rectangle)
@@ -860,8 +849,8 @@
                 bullet.strokeOpacity = 0
                 bullet.radius = 5
                 bullet.fillOpacity = 0.7
-                {#bullet.strokeWidth = 2#}
-                {#bullet.stroke = am4core__.color("#ffffff")#}
+
+
 
                 bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}"
 
@@ -909,15 +898,15 @@
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core__.color(config.color);
 
-                {#series.data = data#}
-                {#yAxis.min = 190#}
 
-                {#bullet = series.bullets.push(new am4charts__.CircleBullet())#}
-                {#bullet.circle.strokeWidth = 1#}
+
+
+
+
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
                 let image = bullet.createChild(am4core.Image);
-                {#image.href = "https://www.amcharts.com/lib/images/star.svg";#}
+
                 image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
                 image.width = imageWidth;
                 image.height = imageWidth;
@@ -926,28 +915,28 @@
 
                 bullet.tooltipText = config.tooltipText;
                 chart.scrollbarX = new am4core__.Scrollbar();
-                {#chart.scrollbarН = new am4core__.Scrollbar()#}
+
 
                 if (name == systolic.name) {
-                    {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
-                    {#bullet.propertyFields.fill = "systolic_up_color"#}
+
+
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_systolic";
                 }
 
                 if (name == diastolic.name) {
-                    {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
-                    {#bullet.propertyFields.fill = "diastolic_down_color"#}
+
+
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_diastolic";
                 }
 
                 if (name == pulse_.name) {
-                    {#image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";#}
 
-                    {#bullet.propertyFields.fill = "pulse_up_color"#}
+
+
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_pulse";
                 }
@@ -1062,8 +1051,8 @@
                     pain_date_tooltip: pain_date_tooltip,
                     max_pain: constants.max_pain,
                     min_pain: constants.min_pain,
-                    {#pain_up_color: "red",#}
-                    {#pain_down_color: "brown",#}
+
+
                     disabled_pain: disabled_pain,
                 }
 
@@ -1083,19 +1072,19 @@
             let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis())
             categoryAxis_pain.renderer.grid.template.location = 0
 
-            {#categoryAxis_pain.start = 0.8;#}
-            {#categoryAxis_pain.keepSelection = true;#}
 
-            {#categoryAxis.renderer.labels.template.rotation = 90;#}
-            {#categoryAxis.renderer.minGridDistance = 30;#}
+
+
+
+
 
             let valueAxis_pain = chart_pain.yAxes.push(new am4charts_pain.ValueAxis())
-            {#valueAxis.max = 190#}
-            {#let dateOut = ''#}
-            {#let date_tooltip = ''#}
-            {##}
-            {#let pain_date_tooltip = ''#}
-            {#let systolic_normal = 0#}
+
+
+
+
+
+
 
             valueAxis_pain.renderer.minGridDistance = 50
 
@@ -1126,15 +1115,15 @@
                 series_pain.strokeWidth = 2;
                 series_pain.propertyFields.stroke = "color"
                 series_pain.stroke = am4core_pain.color(config.color)
-                {#series_pain.data = data_pain#}
-                {#yAxis.min = 190#}
 
-                {#bullet = series.bullets.push(new am4charts__.CircleBullet())#}
-                {#bullet.circle.strokeWidth = 1#}
+
+
+
+
 
                 var bullet_pain = series_pain.bullets.push(new am4charts_pain.Bullet());
                 var image_pain = bullet_pain.createChild(am4core_pain.Image);
-                {#image.href = "https://www.amcharts.com/lib/images/star.svg";#}
+
                 image_pain.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
                 image_pain.width = image_width_pain;
                 image_pain.height = image_width_pain;
@@ -1169,15 +1158,15 @@
                 series_medicine.dataFields.dateX = "date_out"
                 series_medicine.dataFields.value = "name"
                 series_medicine.name = series_name
-                {#series.tooltipText = "medicine_text";#}
-                {#series.strokeWidth = 2;#}
-                {#series.propertyFields.stroke = "color"#}
-                {#series.stroke = am4core__.color("yellow")#}
+
+
+
+
                 series_medicine.strokeOpacity = 0
-                {#series.sequencedInterpolation = true#}
+
                 series_medicine.data = data
 
-                {#var bullet = series.bullets.push(new am4core__.Circle())#}
+
 
                 let bullet_medicine = series_medicine.bullets.push(new am4charts_pain.Bullet())
                 let square = bullet_medicine.createChild(am4core.Rectangle)
@@ -1190,8 +1179,8 @@
                 bullet_medicine.strokeOpacity = 0
                 bullet_medicine.radius = 5
                 bullet_medicine.fillOpacity = 0.7
-                {#bullet.strokeWidth = 2#}
-                {#bullet.stroke = am4core__.color("#ffffff")#}
+
+
 
                 bullet_medicine.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}"
 
@@ -1295,8 +1284,8 @@
                 dateAxis = chart.xAxes.push(new am4charts.DateAxis())
                 dateAxis.renderer.grid.template.location = params.location
 
-                {#dateAxis.start = 0.8;#}
-                {#dateAxis.keepSelection = true;#}
+
+
 
                 let date_max = new Date(params.model['date_max']);
                 let date_min = new Date(params.model['date_min']);
@@ -1342,7 +1331,7 @@
                     "chart": chart
                 }
 
-                {#console.warn('config', config)#}
+
 
                 am4Core.createSeries(data, config)
 
@@ -1369,21 +1358,21 @@
                 series.strokeWidth = config.strokeWidth
                 series.stroke = config.color
                 series.data = data
-                {#series.tensionX = 0.8#}
+
 
                 let bullet = series.bullets.push(new am4charts.Bullet())
 
-                {#let bullet = series.bullets.push(new am4charts.CircleBullet())#}
-                {#bullet.circle.stroke = am4core_glukose.color(config.color)#}
-                {#bullet.circle.strokeWidth = config.strokeWidth#}
 
 
-                {#bullet.propertyFields.fill = config.color_danger#}
+
+
+
+
                 bullet.disabled = "disabled"
                 bullet.propertyFields.disabled = config.disabled
 
                 let image = bullet.createChild(am4core.Image);
-                {#image.href = "https://www.amcharts.com/lib/images/star.svg";#}
+
                 image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
                 image.width = imageWidth;
                 image.height = imageWidth;
@@ -1394,7 +1383,7 @@
             }
         }
 
-        {#am4Core.darkTheme(am4core)#}
+
         am4Core.defaultTheme(am4core)
         let strokeWidth = 2
         let date_max;
@@ -1427,8 +1416,8 @@
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.renderer.minGridDistance = 50;
 
-        {#dateAxis.start = 0.8;#}
-        {#dateAxis.keepSelection = true;#}
+
+
 
         date_max = new Date(shin_left['date_max']);
         date_min = new Date(shin_left['date_min']);
@@ -1496,7 +1485,7 @@
             "model": model
         }
 
-        {#am4Core.makeGraph(params)#}
+
 
 
                 chart_waist = am4core.create(params.div, am4charts.XYChart)
@@ -1504,8 +1493,8 @@
                 dateAxis_waist = chart_waist.xAxes.push(new am4charts.DateAxis())
                 dateAxis_waist.renderer.grid.template.location = params.location
 
-                {#dateAxis.start = 0.8;#}
-                {#dateAxis.keepSelection = true;#}
+
+
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
@@ -1551,7 +1540,7 @@
                     "chart": chart_waist
                 }
 
-                {#console.warn('config', config)#}
+
 
                 am4Core.createSeries(data, config)
 
@@ -1599,8 +1588,8 @@
                 dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
                 dateAxis_spo2.renderer.grid.template.location = params.location
 
-                {#dateAxis.start = 0.8;#}
-                {#dateAxis.keepSelection = true;#}
+
+
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
@@ -1646,7 +1635,7 @@
                     "chart": chart_spo2
                 }
 
-                {#console.warn('config', config)#}
+
 
                 am4Core.createSeries(data, config)
 
@@ -1666,7 +1655,7 @@
         model = {{ temperature | safe }}
         model['min'] = constants.min_temperature
         model['max'] = constants.max_temperature
-        {#model['tooltipText'] = model.name + ": [bold]{y}[normal] | от " + model.min + " до " + model.max + " | {tooltip_date}"#}
+
 
         params = {
             "div": "chartdiv_temperature",
@@ -1682,15 +1671,13 @@
             "model": model
         }
 
-        {#am4Core.makeGraph(params)#}
+
 
                 chart_temperature = am4core.create(params.div, am4charts.XYChart)
                 chart_temperature.language.locale = params.lang
                 dateAxis_temperature = chart_temperature.xAxes.push(new am4charts.DateAxis())
                 dateAxis_temperature.renderer.grid.template.location = params.location
 
-                {#dateAxis.start = 0.8;#}
-                {#dateAxis.keepSelection = true;#}
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
@@ -1754,7 +1741,7 @@
         model = {{ glukose | safe }}
         model['min'] = constants.min_glukose
         model['max'] = constants.max_glukose
-        {#model['tooltipText'] = model.name + ": [bold]{y}[normal] | от " + model.min + " до " + model.max + " | {tooltip_date}"#}
+
 
         params = {
             "div": "chartdiv_glukose",
@@ -1770,15 +1757,15 @@
             "model": model
         }
 
-        {#am4Core.makeGraph(params)#}
+
 
         chart_glukose = am4core.create(params.div, am4charts.XYChart)
         chart_glukose.language.locale = params.lang
         dateAxis_glukose = chart_glukose.xAxes.push(new am4charts.DateAxis())
         dateAxis_glukose.renderer.grid.template.location = params.location
 
-        {#dateAxis.start = 0.8;#}
-        {#dateAxis.keepSelection = true;#}
+
+
 
         date_max = new Date(params.model['date_max']);
         date_min = new Date(params.model['date_min']);
@@ -1824,7 +1811,7 @@
             "chart": chart_glukose
         }
 
-        {#console.warn('config', config)#}
+
 
         am4Core.createSeries(data, config)
 
@@ -1845,7 +1832,7 @@
         model = {{ weight | safe }}
         model['min'] = constants.min_weight
         model['max'] = constants.max_weight
-        {#model['tooltipText'] = model.name + ": [bold]{y}[normal] | от " + model.min + " до " + model.max + " | {tooltip_date}" + "\n" + "{comments}"#}
+
 
         params = {
             "div": "chartdiv_weight",
@@ -1867,8 +1854,8 @@
                 dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis());
                 dateAxis_weight.renderer.grid.template.location = params.location;
 
-                {#dateAxis.start = 0.8;#}
-                {#dateAxis.keepSelection = true;#}
+
+
 
                 date_max = new Date(params.model['date_max']);
                 date_min = new Date(params.model['date_min']);
@@ -1916,7 +1903,7 @@
                     "chart": chart_weight
                 }
 
-                {#console.warn('config', config)#}
+
 
                 am4Core.createSeries(data, config);
 
