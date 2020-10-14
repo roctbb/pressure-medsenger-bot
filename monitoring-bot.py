@@ -354,7 +354,7 @@ def quard():
 
 def process_records():
     megaTask = []
-    records = CategoryParams.query.filter(show=True).all()
+    records = CategoryParams.query.filter_by(show=True).all()
     now = datetime.datetime.now()
     go_task = now.hour == int(TASK_HOUR) and (now.minute > 1 and now.minute < 3)
 
