@@ -352,321 +352,200 @@ def quard():
     return contract_id
 
 
-def sender():
-    while True:
-        go_task = False
-        megaTask = []
+def process_records():
+    megaTask = []
+    records = CategoryParams.query.filter(show=True).all()
+    now = datetime.datetime.now()
+    go_task = now.hour == int(TASK_HOUR) and (now.minute > 1 and now.minute < 3)
 
-        records = DB.select('SELECT * FROM category_params')
+    for record in records:
+        contract_id = record.contract_id
+        name = record.category
 
-        for record in records:
-            current_datetime = datetime.datetime.now()
+        if name in STOP_LIST:
+            continue
 
-            id = record[0]
-            contract_id = record[1]
-            name = record[2]
-            show = record[9]
+        mode = record.mode
+        timetable = record.timetable
 
-            test_out = (contract_id == 1417 or contract_id == 2)
+        should_i_send = False
+        same_day_hours = []
 
-            if (name == 'diastolic_pressure' or name == 'pulse' or name == 'shin_volume_right'):
-                continue
+        if mode == 'daily':
+            for point in timetable["hours"]:
+                hour = point["value"]
+                if hour == 24:
+                    hour = 0
 
-            go_task = current_datetime.hour == int(TASK_HOUR) and (current_datetime.minute > 1 and current_datetime.minute < 3)
+                same_day_hours.append(hour)
 
-            if (go_task):
-                initTaskStart = True
+                if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                    should_i_send = True
+                    same_day_hours.remove(hour)
 
-                if (initTaskStart == True):
-                    if (name not in STOP_LIST):
-                        # drop_tasks(contract_id)
-                        category = name
+        if mode == 'weekly':
+            for point in timetable["days_week"]:
+                hour = point["hour"]
 
-                        category_params = CategoryParams.query.filter_by(contract_id=contract_id, category=category).all()
-
-                        for category_param in category_params:
-                            name = category_param.category
-                            timetable = category_param.timetable
-                            hours__ = timetable['hours']
-                            # show = category_param.show
-
-                        text = CATEGORY_TEXT[name]
-                        name = transformMeasurementName(name)
-                        action_link = 'frame/' + name
-
-                        if (show):
-                            megaTask.append({
-                                'contract_id': contract_id,
-                                'text': text,
-                                'target_number': len(hours__),
-                                'action_link': action_link
-                            })
-
-            if name in STOP_LIST:
-                continue
-
-            mode = record[3]
-            params = record[4]
-            timetable = record[5]
-            last_push = record[8].timestamp()
-            show = record[9]
-
-            if show == False:
-                continue
-
-            # timetable = {
-            #     "days_month": [
-            #         {
-            #             "day": 1,
-            #             "hour": 10
-            #         }
-            #     ],
-            #     "days_week": [
-            #         {
-            #             "day": 1,
-            #             "hour": 10
-            #         }
-            #     ],
-            #     "hours": [
-            #         {
-            #             "value": 10
-            #         }
-            #     ]
-            # }
-            now = datetime.datetime.now()
-            should_i_send = False
-            same_day_hours = []
-            if mode == 'daily':
-                for record in timetable["hours"]:
-                    hour = record["value"]
-                    if hour == 24:
-                        hour = 0
-
+                if now.isoweekday() == point["day"]:
                     same_day_hours.append(hour)
 
                     if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
                         should_i_send = True
                         same_day_hours.remove(hour)
 
-            if mode == 'weekly':
-                for record in timetable["days_week"]:
-                    hour = record["hour"]
+        if mode == 'monthly':
+            for point in timetable["days_month"]:
+                hour = point["hour"]
 
-                    if now.isoweekday() == record["day"]:
-                        same_day_hours.append(hour)
+                if now.day == point.day:
+                    same_day_hours.append(hour)
+                    if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                        should_i_send = True
+                        same_day_hours.remove(hour)
 
-                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
-                            should_i_send = True
-                            same_day_hours.remove(hour)
+        if go_task:
+            megaTask.append({
+                'contract_id': contract_id,
+                'text': CATEGORY_TEXT[name],
+                'target_number': len(same_day_hours),
+                'action_link': 'frame/' + transformMeasurementName(name)
+            })
 
-            if mode == 'monthly':
-                for record in timetable["days_month"]:
-                    hour = record["hour"]
+        if should_i_send:
+            next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
 
-                    if now.day == record.day:
-                        same_day_hours.append(hour)
-                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
-                            should_i_send = True
-                            same_day_hours.remove(hour)
+            if next_hours:
+                deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
+            else:
+                deadline = int(time.time() + 12 * 60 * 60)
 
-            if should_i_send:
-                next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
+            route_name = transformMeasurementName(name)
 
-                if next_hours:
-                    deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
-                else:
-                    deadline = int(time.time() + 12 * 60 * 60)
+            data = {
+                "contract_id": contract_id,
+                "api_key": APP_KEY,
+                "message": {
+                    "text": MESS_MEASUREMENT[route_name]['text'],
+                    "action_link": "frame/" + route_name,
+                    "action_deadline": deadline,
+                    "action_name": MESS_MEASUREMENT[route_name]['action_name'],
+                    "action_onetime": True,
+                    "only_doctor": False,
+                    "only_patient": True,
+                },
+            }
 
+            record.last_push = now
+            db.session.commit()
 
+            no_message = False
+            res = getRecords(contract_id, name)
 
-                route_name = record.name
+            if res != 404:
+                out_yellow(name)
+                values = res['values']
 
-                if name == 'systolic_pressure':
-                    route_name = 'pressure'
+                for value in values:
+                    delta = (time.time() - value['timestamp']) / 60
 
-                if name == 'shin_volume_left':
-                    route_name = 'shin'
+                    if (delta < 60):
+                        no_message = True
 
-                if name == 'leg_circumference_left':
-                    route_name = 'shin'
+                    break
 
-                if name == 'leg_circumference_right':
-                    route_name = 'shin'
+            if no_message == False:
+                post_request(data)
 
-                if name == 'waist_circumference':
-                    route_name = 'waist'
+        if go_task:
+            delayed(1, dayTaskPlanning, [megaTask])
 
+def process_medicines():
+    now = datetime.datetime.now()
+    query_str = "SELECT * FROM medicines WHERE show = true"
+    records = DB.select(query_str)
+    medicines = records
+    for medicine in medicines:
+        id = str(medicine[0])
+        contract_id = medicine[1]
+        name = medicine[2]
+        mode = medicine[3]
+        dosage = medicine[4]
+        timetable = medicine[6]
 
-                data = {
-                    "contract_id": contract_id,
-                    "api_key": APP_KEY,
-                    "message": {
-                        "text": MESS_MEASUREMENT[route_name]['text'],
-                        "action_link": "frame/" + route_name,
-                        "action_deadline": deadline,
-                        "action_name": MESS_MEASUREMENT[route_name]['action_name'],
-                        "action_onetime": True,
-                        "only_doctor": False,
-                        "only_patient": True,
-                    },
+        should_i_send = False
+        same_day_hours = []
+
+        if mode == 'daily':
+            for point in timetable["hours"]:
+                hour = point["value"]
+                if hour == 24:
+                    hour = 0
+
+                same_day_hours.append(hour)
+
+                if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
+                    should_i_send = True
+                    same_day_hours.remove(hour)
+
+        if mode == 'weekly':
+            for point in timetable["days_week"]:
+                hour = point["hour"]
+
+                if now.isoweekday() == point["day"]:
+                    same_day_hours.append(hour)
+
+                    if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
+                        should_i_send = True
+                        same_day_hours.remove(hour)
+
+        if mode == 'monthly':
+            for point in timetable["days_month"]:
+                hour = point["hour"]
+
+                if now.day == point.day:
+                    same_day_hours.append(hour)
+                    if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
+                        should_i_send = True
+                        same_day_hours.remove(hour)
+
+        if should_i_send:
+            next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
+
+            if next_hours:
+                deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
+            else:
+                deadline = int(time.time() + 12 * 60 * 60)
+
+            data = {
+                "contract_id": contract_id,
+                "api_key": APP_KEY,
+                "message": {
+                    "text": MESS_MEDICINE['text'].format(name),
+                    "action_link": MESS_MEDICINE['action_link'].format(id),
+                    "action_name": MESS_MEDICINE['action_name'].format(name, dosage),
+                    "action_onetime": True,
+                    "action_deadline": deadline,
+                    "only_doctor": False,
+                    "only_patient": True,
                 }
+            }
 
-                record.last_push = now
-                db.session.commit()
+            query_str = "UPDATE medicines set last_push = '" + \
+                        str(datetime.datetime.fromtimestamp(
+                            time.time()).isoformat()) + Aux.quote() + \
+                        " WHERE id = '" + str(id) + Aux.quote()
 
-                no_message = False
-                res = getRecords(contract_id, name)
+            DB.query(query_str)
 
-                if res != 404:
-                    out_yellow(name)
-                    values = res['values']
-
-                    for value in values:
-                        delta = (time.time() - value['timestamp']) / 60
-
-                        if (delta < 60):
-                            no_message = True
-
-                        break
+            post_request(data)
+            db.session.commit()
 
 
-                if no_message == False:
-                    post_request(data)
-
-
-            if go_task:
-                delayed(1, dayTaskPlanning, [megaTask])
-
-        # MEDICINES
-        query_str = "SELECT * FROM medicines WHERE show = true"
-        records = DB.select(query_str)
-        medicines = records
-        go_task = False
-
-        for medicine in medicines:
-            id = str(medicine[0])
-            contract_id = medicine[1]
-            name = medicine[2]
-            mode = medicine[3]
-            dosage = medicine[4]
-            amount = medicine[5]
-            timetable = medicine[6]
-            show = medicine[7]
-            last_push = medicine[8].timestamp()
-
-            if show == False:
-                continue
-
-            if mode == 'daily':
-                for item in timetable:
-                    if item == 'hours':
-                        hours = timetable[item]
-
-                        hours_array = []
-
-                        for hour in hours:
-                            hours_array.append(hour['value'])
-
-                        for hour in hours:
-                            date = datetime.date.fromtimestamp(time.time())
-                            hour_value = hour['value']
-
-                            if (hour_value == 24):
-                                hour_value = 0
-
-                            medicine_date = datetime.datetime(date.year, date.month, date.day, int(hour_value), 0, 0)
-
-                            control_time = medicine_date.timestamp()
-                            current_time = time.time()
-                            push_time = last_push
-                            diff_current_control = current_time - control_time
-
-                            if diff_current_control > 0:
-                                if control_time > push_time:
-                                    print('Запись лекарства в messages', name)
-
-                                    len_hours_array = len(hours_array)
-                                    action_deadline = 1
-
-                                    pattern = hour_value
-
-                                    for i in range(len_hours_array):
-                                        if (len_hours_array == 1):
-                                            if (pattern < hours_array[0]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                break
-
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = 24
-                                                break
-
-                                            if (pattern > hours_array[0]):
-                                                action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                break
-
-                                        if (len_hours_array == 2):
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = int(hours_array[1]) - int(pattern)
-                                                break
-
-                                            if (pattern == hours_array[1]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                break
-
-                                        if (len_hours_array > 2):
-
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                break
-
-                                            if (pattern == hours_array[len_hours_array - 1]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                break
-
-                                            if (i > 0):
-                                                if (hours_array[i] == pattern):
-                                                    action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
-
-                                    data_deadline = int(time.time()) + (action_deadline * 60 * 60)
-
-                                    data = {
-                                        "contract_id": contract_id,
-                                        "api_key": APP_KEY,
-                                        "message": {
-                                            "text": MESS_MEDICINE['text'].format(name),
-                                            "action_link": MESS_MEDICINE['action_link'].format(id),
-                                            "action_name": MESS_MEDICINE['action_name'].format(name, dosage),
-                                            "action_onetime": True,
-                                            "action_deadline": data_deadline - 600,
-                                            "only_doctor": False,
-                                            "only_patient": True,
-                                        }
-                                    }
-
-                                    data_update_deadline = int(time.time()) - (4 * 60 * 60)
-
-                                    data_update = {
-                                        "contract_id": contract_id,
-                                        "api_key": APP_KEY,
-                                        "action_link": "medicine/" + id,
-                                        "action_deadline": data_update_deadline
-                                    }
-
-                                    try:
-                                        query = '/api/agents/correct_action_deadline'
-
-                                        response = requests.post(MAIN_HOST + query, json=data_update)
-                                    except Exception as e:
-                                        print('error requests.post', e)
-
-                                    query_str = "UPDATE medicines set last_push = '" + \
-                                                str(datetime.datetime.fromtimestamp(
-                                                    current_time).isoformat()) + Aux.quote() + \
-                                                " WHERE id = '" + str(id) + Aux.quote()
-
-                                    DB.query(query_str)
-
-                                    post_request(data)
+def sender():
+    while True:
+        process_records()
+        process_medicines()
 
         time.sleep(60)
 
