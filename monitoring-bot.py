@@ -1967,7 +1967,10 @@ def init():
             if preset == 'heartfailure':
                 leg_circumference_left.show = True
                 leg_circumference_right.show = True
+
+            if preset in ['fibrillation', 'heartfailure']:
                 waist_circumference.show = True
+                weight.show = True
 
             if preset in ['fibrillation', 'stenocardia', 'hypertensia', 'heartfailure']:
                 systolic_pressure.show = True
