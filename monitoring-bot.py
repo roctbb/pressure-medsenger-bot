@@ -44,7 +44,8 @@ def toDate(timestamp):
 
 
 def nowDate():
-    return datetime.datetime.now()
+    date_now = datetime.datetime.now()
+    return date_now.strftime(DATE_HOUR_FORMAT)
 
 
 def drop_task(contract_id, task_id):
@@ -463,8 +464,8 @@ def process_records():
 def process_medicines():
     now = datetime.datetime.now()
     query_str = "SELECT * FROM medicines WHERE show = true"
-    records = DB.select(query_str)
-    medicines = records
+    medicines = DB.select(query_str)
+
     for medicine in medicines:
         id = str(medicine[0])
         contract_id = medicine[1]
@@ -776,10 +777,11 @@ def graph():
 
         for item in medical_record_categories:
             category = item['name']
+            if category not in CATEGORY_TEXT.keys():
+                break
 
             try:
                 CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
-
                 params = CategoryParamsObj.params
             except Exception as e:
                 out_magenta_light('Error CategoryParams' + category)
@@ -875,10 +877,9 @@ def graph():
             x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
-        try:
+        if len(x):
             date_max = x[0]
-        except Exception as e:
-            out_red(e)
+        else:
             date_max = nowDate()
 
         dt = time.strptime(date_max, DATE_HOUR_FORMAT)
@@ -1652,69 +1653,37 @@ def setting_save():
         params = {}
         name = measurement['name']
 
-        if (name == 'pressure'):
-            params['max_systolic'] = measurement['max_systolic']
-            params['min_systolic'] = measurement['min_systolic']
-            params['max_diastolic'] = measurement['max_diastolic']
-            params['min_diastolic'] = measurement['min_diastolic']
-            params['max_pulse'] = measurement['max_pulse']
-            params['min_pulse'] = measurement['min_pulse']
+        if name == 'pressure':
+            params['max_systolic'] = int(measurement['max_systolic'])
+            params['min_systolic'] = int(measurement['min_systolic'])
+            params['max_diastolic'] = int(measurement['max_diastolic'])
+            params['min_diastolic'] = int(measurement['min_diastolic'])
+            params['max_pulse'] = int(measurement['max_pulse'])
+            params['min_pulse'] = int(measurement['min_pulse'])
         else:
-            params['max'] = measurement['max']
-            params['min'] = measurement['min']
+            params['max'] = float(measurement['max'])
+            params['min'] = float(measurement['min'])
 
         mode = measurement['mode']
         timetable = measurement['timetable'][0]
 
-        timetable_new = {}
-
         for item in timetable:
-            if (item == 'hours'):
-                hours__ = []
+            if item == 'hours':
+                for point in timetable[item]:
+                    point['value'] = int(point['value'])
 
-                for el in timetable[item]:
-                    element = el['value']
-
-                    hour_value_ = int(element)
-
-                    if (hour_value_ == 24):
-                        hour_value_ = 0
-
-                    hours__.append(hour_value_)
-
-                unique_array = {each: each for each in hours__}.values()
-                hours__.sort()
-
-                hours_new__ = []
-
-                new = []
-
-                for hour in unique_array:
-                    new.append(hour)
-                    hours_new__.append({
-                        "value": hour
-                    })
-
-                new.sort()
-
-                new_array = []
-
-                for hour in new:
-                    new_array.append({
-                        "value": hour
-                    })
-
-                timetable_new[item] = new_array
             else:
-                timetable_new[item] = timetable[item]
+                for point in timetable[item]:
+                    point['hour'] = int(point['hour'])
+                    point['day'] = int(point['day'])
 
         show = measurement['show']
 
         try:
-            if (name == 'pressure'):
+            if name == 'pressure':
                 name = 'systolic_pressure'
 
-            if (name == 'shin'):
+            if name == 'shin':
                 name = 'leg_circumference_left'
 
             query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
@@ -1724,7 +1693,7 @@ def setting_save():
 
                 contract.mode = mode
                 contract.params = params
-                contract.timetable = timetable_new
+                contract.timetable = timetable
                 contract.show = show
 
                 db.session.commit()
@@ -1743,49 +1712,16 @@ def setting_save():
         json__ = medicine['timetable'][0]
         timetable = json__
         show = medicine['show']
-        timetable_new = {}
 
         for item in timetable:
-            if (item == 'hours'):
-                hours__ = []
+            if item == 'hours':
+                for point in timetable[item]:
+                    point['value'] = int(point['value'])
 
-                for el in timetable[item]:
-                    element = el['value']
-
-                    hour_value_ = int(element)
-
-                    if (hour_value_ == 24):
-                        hour_value_ = 0
-
-                    hours__.append(hour_value_)
-
-                unique_array = {each: each for each in hours__}.values()
-                hours__.sort()
-
-                hours_new__ = []
-
-                new = []
-
-                for hour in unique_array:
-                    new.append(hour)
-                    hours_new__.append({
-                        "value": hour
-                    })
-
-                new.sort()
-
-                new_array = []
-
-                for hour in new:
-                    new_array.append({
-                        "value": hour
-                    })
-
-                timetable_new[item] = new_array
             else:
-                timetable_new[item] = timetable[item]
-
-        timetable = timetable_new
+                for point in timetable[item]:
+                    point['hour'] = int(point['hour'])
+                    point['day'] = int(point['day'])
 
         timetable = json.dumps(timetable)
 

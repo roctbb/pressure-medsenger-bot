@@ -121,12 +121,12 @@
 
                     <div>
                         <span class="small mb0 lh11" for="dosage">Дозировка</span><br>
-                        <input type="text" class="form-control small inline w50" v-model="medicines.dosage">
+                        <input type="number" step="0.01" class="form-control small inline w50" v-model="medicines.dosage">
                     </div>
 
                     <div>
                         <span class="small mb0 lh11" for="amount">Кол-во</span><br>
-                        <input type="text" class="form-control small inline w50" placeholder="Кол-во" v-model="medicines.amount">
+                        <input type="number" class="form-control small inline w50" placeholder="Кол-во" v-model="medicines.amount">
                     </div>
                 </div>
             </div>
@@ -148,7 +148,7 @@
                                             <option value="7">ВС</option>
                                         </select>
 
-                                        <input type="text" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
+                                        <input type="number" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
 
                                         <a href="#" v-on:click.prevent="$delete(medicine.days_week, index)">
                                             <small>&nbsp;&nbsp;Удалить</small>
@@ -166,7 +166,7 @@
                         <div class="form-group" v-if="medicines.show">
                             <ul v-for="(medicine, index) in medicines.timetable">
                                 <li v-for="(hours, index) in medicine.hours">
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
+                                    <input type="number" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
 
                                     <a href="#" v-on:click.prevent="$delete(medicine.hours, index)">
                                         <small>&nbsp&nbspУдалить</small>
@@ -218,7 +218,7 @@
                                         <option value="31">31</option>
                                     </select>
 
-                                    <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
+                                    <input type="number" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
 
                                     <a href="#" v-on:click.prevent="$delete(medicine.days_month, index)">
                                         <small>&nbsp;&nbsp;Удалить</small>
@@ -251,27 +251,27 @@
 
                 <div v-if="measurements.name === 'pressure'">
                     <span class="small mb0 lh11" for="systolic">Макс. и мин. систолическое</span><br>
-                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
-                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
+                    <input type="number" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_systolic">
+                    <input type="number" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_systolic">
                 </div>
 
                 <div v-if="measurements.name === 'pressure'">
                     <span class="small mb0 lh11" for="systolic">Макс. и мин. диастолическое</span><br>
-                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
-                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
+                    <input type="number" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_diastolic">
+                    <input type="number" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_diastolic">
                 </div>
 
                 <div v-if="measurements.name === 'pressure'">
                     <span class="small mb0 lh11" for="systolic">Макс. и мин. пульс</span><br>
-                    <input type="text" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
-                    <input type="text" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
+                    <input type="number" class="form-control small inline w30" placeholder="Макс" v-model="measurements.max_pulse">
+                    <input type="number" class="form-control small inline w30" placeholder="Мин" v-model="measurements.min_pulse">
                 </div>
 
                 <div v-if="measurements.name !== 'pressure'">
                     <label class="small mb0" for="checkbox">Макс. значение</label>
-                    <input type="text" class="form-control small w30" placeholder="Макс" v-model="measurements.max">
+                    <input type="number" step="0.01" class="form-control small w30" placeholder="Макс" v-model="measurements.max">
                     <label class="small mb0" for="checkbox">Мин. значение</label>
-                    <input type="text" class="form-control small w30" placeholder="Мин" v-model="measurements.min">
+                    <input type="number" step="0.01" class="form-control small w30" placeholder="Мин" v-model="measurements.min">
                 </div>
             </div>
             <div class="col-md-4 col-sm-12" v-if="measurements.show">
@@ -281,7 +281,7 @@
                     <div v-bind:id="measurements.name+3" v-if="measurements.show">
                         <ul v-for="(measurement, index) in measurements.timetable">
                             <li v-for="(hours, index) in measurement.hours">
-                                <input type="text" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
+                                <input type="number" class="form-control form-control-sm w30-inline" v-model="hours.value"/> <span class="small">:00</span>
 
                                 <a href="#" v-on:click.prevent="$delete(measurement.hours, index)">
                                     <small>&nbsp;&nbsp;Удалить</small>
@@ -309,7 +309,7 @@
                                     <option value="7">ВС</option>
                                 </select>
 
-                                <input type="text" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
+                                <input type="number" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
 
                                 <a href="#" v-on:click.prevent="$delete(measurement.days_week, index)">
                                     <small>&nbsp;&nbsp;Удалить</small>
@@ -358,9 +358,10 @@
                                     <option value="28">28</option>
                                     <option value="29">29</option>
                                     <option value="30">30</option>
+                                    <option value="31">30</option>
                                 </select>
 
-                                <input type="text" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
+                                <input type="number" class="form-control form-control-sm w30-inline" v-model="days_month.hour"/> <span class="small">:00</span>
 
                                 <a href="#" v-on:click.prevent="$delete(measurement.days_month, index)">
                                     <small>&nbsp;&nbsp;Удалить</small>
