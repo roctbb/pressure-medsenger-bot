@@ -402,7 +402,7 @@ def sender():
                                 'action_link': action_link
                             })
 
-            if (name in STOP_LIST):
+            if name in STOP_LIST:
                 continue
 
             mode = record[3]
@@ -411,161 +411,136 @@ def sender():
             last_push = record[8].timestamp()
             show = record[9]
 
-            if (show == False):
+            if show == False:
                 continue
 
+            # timetable = {
+            #     "days_month": [
+            #         {
+            #             "day": 1,
+            #             "hour": 10
+            #         }
+            #     ],
+            #     "days_week": [
+            #         {
+            #             "day": 1,
+            #             "hour": 10
+            #         }
+            #     ],
+            #     "hours": [
+            #         {
+            #             "value": 10
+            #         }
+            #     ]
+            # }
+            now = datetime.datetime.now()
+            should_i_send = False
+            same_day_hours = []
             if mode == 'daily':
+                for record in timetable["hours"]:
+                    hour = record["value"]
+                    if hour == 24:
+                        hour = 0
 
-                for item in timetable:
-                    if item == 'hours':
-                        hours = timetable[item]
+                    same_day_hours.append(hour)
 
-                        hours_array = []
+                    if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                        should_i_send = True
+                        same_day_hours.remove(hour)
 
-                        for hour in hours:
-                            hour_value = hour['value']
-                            hours_array.append(hour_value)
+            if mode == 'weekly':
+                for record in timetable["days_week"]:
+                    hour = record["hour"]
 
-                        for hour in hours:
-                            date = datetime.date.fromtimestamp(time.time())
-                            hour_value = hour['value']
+                    if now.isoweekday() == record["day"]:
+                        same_day_hours.append(hour)
 
-                            if (hour_value == 24):
-                                hour_value = 0
+                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
 
-                            measurement_date = datetime.datetime(date.year, date.month, date.day, int(hour_value), 0, 0)
-                            control_time = measurement_date.timestamp()
-                            current_time = time.time()
-                            push_time = last_push
-                            diff_current_control = current_time - control_time
+            if mode == 'monthly':
+                for record in timetable["days_month"]:
+                    hour = record["hour"]
 
-                            if diff_current_control > 0:
-                                if control_time > push_time:
-                                    len_hours_array = len(hours_array)
-                                    action_deadline = 1
+                    if now.day == record.day:
+                        same_day_hours.append(hour)
+                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
 
-                                    pattern = hour_value
+            if should_i_send:
+                next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
 
-                                    for i in range(len_hours_array):
-                                        if (len_hours_array == 1):
-                                            if (pattern < hours_array[0]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
+                if next_hours:
+                    deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
+                else:
+                    deadline = int(time.time() + 12 * 60 * 60)
 
-                                                break
 
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = 24
-                                                break
 
-                                            if (pattern > hours_array[0]):
-                                                action_deadline = (24 + int(pattern)) - int(hours_array[0])
-                                                break
+                route_name = record.name
 
-                                        if (len_hours_array == 2):
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = int(hours_array[1]) - int(pattern)
-                                                break
+                if name == 'systolic_pressure':
+                    route_name = 'pressure'
 
-                                            if (pattern == hours_array[1]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                break
+                if name == 'shin_volume_left':
+                    route_name = 'shin'
 
-                                        if (len_hours_array > 2):
-                                            if (pattern == hours_array[0]):
-                                                action_deadline = int(hours_array[1]) - int(hours_array[0])
-                                                break
+                if name == 'leg_circumference_left':
+                    route_name = 'shin'
 
-                                            if (pattern == hours_array[len_hours_array - 1]):
-                                                action_deadline = (24 - int(pattern)) + int(hours_array[0])
-                                                break
+                if name == 'leg_circumference_right':
+                    route_name = 'shin'
 
-                                            if (i > 0):
-                                                if (hours_array[i] == pattern):
-                                                    action_deadline = int(hours_array[i + 1]) - int(hours_array[i])
+                if name == 'waist_circumference':
+                    route_name = 'waist'
 
-                                    action_deadline = action_deadline * 60 * 60
-                                    date_deadline = int(time.time()) + action_deadline
 
-                                    route_name = name
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[route_name]['text'],
+                        "action_link": "frame/" + route_name,
+                        "action_deadline": deadline,
+                        "action_name": MESS_MEASUREMENT[route_name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    },
+                }
 
-                                    if (name == 'systolic_pressure'):
-                                        route_name = 'pressure'
+                record.last_push = now
+                db.session.commit()
 
-                                    if (name == 'shin_volume_left'):
-                                        route_name = 'shin'
+                no_message = False
+                res = getRecords(contract_id, name)
 
-                                    if (name == 'leg_circumference_left'):
-                                        route_name = 'shin'
+                if res != 404:
+                    out_yellow(name)
+                    values = res['values']
 
-                                    if (name == 'leg_circumference_right'):
-                                        route_name = 'shin'
+                    for value in values:
+                        delta = (time.time() - value['timestamp']) / 60
 
-                                    if (name == 'waist_circumference'):
-                                        route_name = 'waist'
+                        if (delta < 60):
+                            no_message = True
 
-                                    data = {
-                                        "contract_id": contract_id,
-                                        "api_key": APP_KEY,
-                                        "message": {
-                                            "text": MESS_MEASUREMENT[route_name]['text'],
-                                            "action_link": "frame/" + route_name,
-                                            "action_deadline": date_deadline - 300,
-                                            "action_name": MESS_MEASUREMENT[route_name]['action_name'],
-                                            "action_onetime": True,
-                                            "only_doctor": False,
-                                            "only_patient": True,
-                                        },
-                                        "hour_value": hour_value
-                                    }
+                        break
 
-                                    try:
-                                        query = CategoryParams.query.filter_by(contract_id=contract_id, category=name)
 
-                                        if query.count() != 0:
-                                            contract = query.first()
-                                            contract.last_push = datetime.datetime.fromtimestamp(current_time).isoformat()
-                                            db.session.commit()
-                                    except Exception as e:
-                                        error('Error CategoryParams.query')
-                                        print(e)
+                if no_message == False:
+                    post_request(data)
 
-                                    no_message = False
 
-                                    res = getRecords(contract_id, name)
-
-                                    if (res != 404):
-                                        out_yellow(name)
-                                        values = res['values']
-
-                                        for value in values:
-                                            delta = (control_time - value['timestamp']) / 60
-
-                                            if (delta < 60):
-                                                no_message = True
-
-                                            break
-
-                                    if test_out:
-                                        info_green(no_message)
-
-                                    if (no_message == False):
-                                        post_request(data)
-
-                                    time.sleep(1)
-                                    break
-
-        info_yellow(nowDate())
-
-        if (go_task):
-            delayed(1, dayTaskPlanning, [megaTask])
+            if go_task:
+                delayed(1, dayTaskPlanning, [megaTask])
 
         # MEDICINES
-
         query_str = "SELECT * FROM medicines WHERE show = true"
-
         records = DB.select(query_str)
         medicines = records
-
         go_task = False
 
         for medicine in medicines:
@@ -579,12 +554,12 @@ def sender():
             show = medicine[7]
             last_push = medicine[8].timestamp()
 
-            if (show == False):
+            if show == False:
                 continue
 
             if mode == 'daily':
                 for item in timetable:
-                    if (item == 'hours'):
+                    if item == 'hours':
                         hours = timetable[item]
 
                         hours_array = []
