@@ -42,7 +42,6 @@ class CategoryParams(db.Model):
 def toDate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp)
 
-
 def nowDate():
     date_now = datetime.datetime.now()
     return date_now.strftime(DATE_HOUR_FORMAT)
@@ -1839,7 +1838,7 @@ def init():
                                                timetable=timetable,
                                                created_at=nowDate(),
                                                updated_at=nowDate(),
-                                               last_push=nowDate(),
+                                               last_push=toDate(0),
                                                show=show)
             diastolic_pressure = CategoryParams(contract_id=contract_id,
                                                 category='diastolic_pressure',
@@ -1848,7 +1847,7 @@ def init():
                                                 timetable=timetable,
                                                 created_at=nowDate(),
                                                 updated_at=nowDate(),
-                                                last_push=nowDate(),
+                                                last_push=toDate(0),
                                                 show=show)
 
             pulse = CategoryParams(contract_id=contract_id,
@@ -1858,7 +1857,7 @@ def init():
                                    timetable=timetable,
                                    created_at=nowDate(),
                                    updated_at=nowDate(),
-                                   last_push=nowDate(),
+                                   last_push=toDate(0),
                                    show=show)
 
             temperature = CategoryParams(contract_id=contract_id,
@@ -1871,7 +1870,7 @@ def init():
                                          timetable=timetable,
                                          created_at=nowDate(),
                                          updated_at=nowDate(),
-                                         last_push=nowDate(),
+                                         last_push=toDate(0),
                                          show=show)
 
             glukose = CategoryParams(contract_id=contract_id,
@@ -1884,7 +1883,7 @@ def init():
                                      timetable=timetable,
                                      created_at=nowDate(),
                                      updated_at=nowDate(),
-                                     last_push=nowDate(),
+                                     last_push=toDate(0),
                                      show=show)
 
             weight = CategoryParams(contract_id=contract_id,
@@ -1897,7 +1896,7 @@ def init():
                                     timetable=timetable,
                                     created_at=nowDate(),
                                     updated_at=nowDate(),
-                                    last_push=nowDate(),
+                                    last_push=toDate(0),
                                     show=show)
 
             waist_circumference = CategoryParams(contract_id=contract_id,
@@ -1910,7 +1909,7 @@ def init():
                                                  timetable=timetable,
                                                  created_at=nowDate(),
                                                  updated_at=nowDate(),
-                                                 last_push=nowDate(),
+                                                 last_push=toDate(0),
                                                  show=show)
 
             spo2 = CategoryParams(contract_id=contract_id,
@@ -1923,7 +1922,7 @@ def init():
                                   timetable=timetable,
                                   created_at=nowDate(),
                                   updated_at=nowDate(),
-                                  last_push=nowDate(),
+                                  last_push=toDate(0),
                                   show=show)
 
             pain_assessment = CategoryParams(contract_id=contract_id,
@@ -1936,7 +1935,7 @@ def init():
                                              timetable=timetable,
                                              created_at=nowDate(),
                                              updated_at=nowDate(),
-                                             last_push=nowDate(),
+                                             last_push=toDate(0),
                                              show=show)
 
             leg_circumference_left = CategoryParams(contract_id=contract_id,
@@ -1949,7 +1948,7 @@ def init():
                                                     timetable=timetable,
                                                     created_at=nowDate(),
                                                     updated_at=nowDate(),
-                                                    last_push=nowDate(),
+                                                    last_push=toDate(0),
                                                     show=show)
             leg_circumference_right = CategoryParams(contract_id=contract_id,
                                                      category='leg_circumference_right',
@@ -1961,7 +1960,7 @@ def init():
                                                      timetable=timetable,
                                                      created_at=nowDate(),
                                                      updated_at=nowDate(),
-                                                     last_push=nowDate(),
+                                                     last_push=toDate(0),
                                                      show=show)
 
             if preset == 'heartfailure':
