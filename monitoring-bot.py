@@ -1,5 +1,6 @@
 from init import *
 
+LAST_TASK_PUSH = 0
 
 class ContractTasks(db.Model):
     __tablename__ = 'contract_tasks'
@@ -382,7 +383,7 @@ def process_records():
     megaTask = []
     records = CategoryParams.query.filter_by(show=True).all()
     now = datetime.datetime.now()
-    go_task = now.hour == int(TASK_HOUR) and (now.minute > 1 and now.minute < 3)
+    go_task = now.hour == int(TASK_HOUR) and (now.minute > 1 and now.minute < 3) and time.time() - LAST_TASK_PUSH > 60 * 60
 
     for record in records:
         contract_id = record.contract_id
@@ -483,8 +484,10 @@ def process_records():
             if no_message == False:
                 post_request(data)
 
-        if go_task:
-            delayed(1, dayTaskPlanning, [megaTask])
+    if go_task:
+        global  LAST_TASK_PUSH
+        LAST_TASK_PUSH = time.time()
+        delayed(1, dayTaskPlanning, [megaTask])
 
 def process_medicines():
     now = datetime.datetime.now()
@@ -628,36 +631,34 @@ def dayTaskPlanning(tasks):
 def initTasks(contract_id):
     drop_tasks(contract_id)
 
-    category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
+    category_params = CategoryParams.query.filter_by(contract_id=contract_id, show=True).all()
 
     for category_param in category_params:
         name = category_param.category
         timetable = category_param.timetable
 
         hours = timetable['hours']
-        show = category_param.show
 
-        if show == True:
-            if name in STOP_LIST:
-                continue
+        if name in STOP_LIST:
+            continue
 
-            text = CATEGORY_TEXT[name]
+        text = CATEGORY_TEXT[name]
 
-            name = transformMeasurementName(name)
+        name = transformMeasurementName(name)
 
-            task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
+        task_id = add_task(contract_id, text, len(hours), action_link='frame/' + str(name))
 
-            try:
-                contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=nowDate(),
-                                              created_at=nowDate(), updated_at=nowDate(), action_link='frame/' + str(name))
-                db.session.add(contract_task)
-                db.session.commit()
+        try:
+            contract_task = ContractTasks(contract_id=contract_id, task_id=task_id, last_task_push=nowDate(),
+                                          created_at=nowDate(), updated_at=nowDate(), action_link='frame/' + str(name))
+            db.session.add(contract_task)
+            db.session.commit()
 
-            except Exception as e:
-                db.session.rollback()
-                error('Error initTask()')
-                print(e)
-                raise
+        except Exception as e:
+            db.session.rollback()
+            error('Error initTask()')
+            print(e)
+            raise
 
     info_green('Success initTask()')
 
