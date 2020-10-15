@@ -27,7 +27,7 @@ class CategoryParams(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     contract_id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(25), primary_key=True)
+    category = db.Column(db.String(25))
     mode = db.Column(db.String(10))
     params = db.Column(db.JSON)
     timetable = db.Column(db.JSON)
@@ -36,6 +36,32 @@ class CategoryParams(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
+class Medicines(db.Model):
+    __tablename__ = 'medicines'
+
+    id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    mode = db.Column(db.String(10))
+    dosage = db.Column(db.String(25))
+    amount = db.Column(db.String(25))
+    timetable = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+    last_push = db.Column(db.DateTime)
+    show = db.Column(db.Boolean)
+
+
+class MedicinesResults(db.Model):
+    __tablename__ = 'medicines_results'
+
+    id = db.Column(db.Integer, primary_key=True)
+    medicine_id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+    last_push = db.Column(db.DateTime)
+    show = db.Column(db.Boolean)
 
 # METHODS
 
@@ -744,129 +770,99 @@ def actions():
 @app.route('/graph', methods=['GET'])
 def graph():
     contract_id = quard()
-
-    constants = {}
-    systolic = []
-    diastolic = []
-    pulse = []
-    glukose = []
-    weight = []
-    temperature = []
-    times = []
-    pressure_timestamp = []
-    glukose_trace_times = []
-    weight_trace_times = []
-    temperature_trace_times = []
-    medicines_names = []
-    medicines_trace_times = []
-    medicines_trace_data = {}
-    medicines_times_ = []
-    dosage = []
-    amount = []
-
-    array_x = []
-    array_y = []
     comments = []
-    systolic_dic = {}
+    constants = {}
 
-    if (True):
-        constants = {}
+    medical_record_categories = getCategories()
 
-        medical_record_categories = getCategories()
+    for item in medical_record_categories:
+        category = item['name']
 
-        for item in medical_record_categories:
-            category = item['name']
-            if category not in CATEGORY_TEXT.keys():
-                break
+        if category not in CATEGORY_TEXT.keys():
+            break
 
+        CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
+        params = CategoryParamsObj.params
+
+        if category == 'systolic_pressure':
             try:
-                CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
-                params = CategoryParamsObj.params
+                constants['max_systolic'] = params['max_systolic']
+                constants['min_systolic'] = params['min_systolic']
+                constants['max_diastolic'] = params['max_diastolic']
+                constants['min_diastolic'] = params['min_diastolic']
+                constants['max_pulse'] = params['max_pulse']
+                constants['min_pulse'] = params['min_pulse']
+            except:
+                constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
+                constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
+                constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
+                constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
+                constants['max_pulse'] = MAX_PULSE_DEFAULT
+                constants['min_pulse'] = MIN_PULSE_DEFAULT
+
+        if category == 'spo2':
+            try:
+                constants['max_spo2'] = params['max']
+                constants['min_spo2'] = params['min']
             except Exception as e:
-                out_magenta_light('Error CategoryParams' + category)
-                print(e)
+                constants['max_spo2'] = MAX_SPO2_DEFAULT
+                constants['min_spo2'] = MIN_SPO2_DEFAULT
 
-            if (category == 'systolic_pressure'):
-                try:
-                    constants['max_systolic'] = params['max_systolic']
-                    constants['min_systolic'] = params['min_systolic']
-                    constants['max_diastolic'] = params['max_diastolic']
-                    constants['min_diastolic'] = params['min_diastolic']
-                    constants['max_pulse'] = params['max_pulse']
-                    constants['min_pulse'] = params['min_pulse']
-                except:
-                    constants['max_systolic'] = MAX_SYSTOLIC_DEFAULT
-                    constants['min_systolic'] = MIN_SYSTOLIC_DEFAULT
-                    constants['max_diastolic'] = MAX_DIASTOLIC_DEFAULT
-                    constants['min_diastolic'] = MIN_DIASTOLIC_DEFAULT
-                    constants['max_pulse'] = MAX_PULSE_DEFAULT
-                    constants['min_pulse'] = MIN_PULSE_DEFAULT
+        if category == 'glukose':
+            try:
+                constants['max_glukose'] = params['max']
+                constants['min_glukose'] = params['min']
+            except Exception as e:
+                constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
+                constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
 
-            if (category == 'spo2'):
-                try:
-                    constants['max_spo2'] = params['max']
-                    constants['min_spo2'] = params['min']
-                except Exception as e:
-                    constants['max_spo2'] = MAX_SPO2_DEFAULT
-                    constants['min_spo2'] = MIN_SPO2_DEFAULT
+        if category == 'pain_assessment':
+            try:
+                constants['max_pain'] = params['max']
+                constants['min_pain'] = params['min']
+            except Exception as e:
+                constants['max_pain'] = MAX_PAIN_DEFAULT
+                constants['min_pain'] = MIN_PAIN_DEFAULT
 
-            if (category == 'glukose'):
-                try:
-                    constants['max_glukose'] = params['max']
-                    constants['min_glukose'] = params['min']
-                except Exception as e:
-                    constants['max_glukose'] = MAX_GLUKOSE_DEFAULT
-                    constants['min_glukose'] = MIN_GLUKOSE_DEFAULT
+        if category == 'weight':
+            try:
+                constants['max_weight'] = params['max']
+                constants['min_weight'] = params['min']
+            except Exception as e:
+                constants['max_weight'] = MAX_WEIGHT_DEFAULT
+                constants['min_weight'] = MIN_WEIGHT_DEFAULT
 
-            if (category == 'pain_assessment'):
-                try:
-                    constants['max_pain'] = params['max']
-                    constants['min_pain'] = params['min']
-                except Exception as e:
-                    constants['max_pain'] = MAX_PAIN_DEFAULT
-                    constants['min_pain'] = MIN_PAIN_DEFAULT
+        if category == 'waist_circumference':
+            try:
+                constants['max_waist'] = params['max']
+                constants['min_waist'] = params['min']
+            except Exception as e:
+                constants['max_waist'] = MAX_WAIST_DEFAULT
+                constants['min_waist'] = MIN_WAIST_DEFAULT
 
-            if (category == 'weight'):
-                try:
-                    constants['max_weight'] = params['max']
-                    constants['min_weight'] = params['min']
-                except Exception as e:
-                    constants['max_weight'] = MAX_WEIGHT_DEFAULT
-                    constants['min_weight'] = MIN_WEIGHT_DEFAULT
+        if category == 'leg_circumference_left' or category == 'leg_circumference_right':
+            try:
+                constants['max_shin_left'] = params['max']
+                constants['min_shin_left'] = params['min']
+                constants['max_shin_right'] = params['max']
+                constants['min_shin_right'] = params['min']
+            except Exception as e:
+                constants['max_shin_left'] = MAX_SHIN_DEFAULT
+                constants['min_shin_left'] = MIN_SHIN_DEFAULT
+                constants['max_shin_right'] = MAX_SHIN_DEFAULT
+                constants['min_shin_right'] = MIN_SHIN_DEFAULT
 
-            if (category == 'waist_circumference'):
-                try:
-                    constants['max_waist'] = params['max']
-                    constants['min_waist'] = params['min']
-                except Exception as e:
-                    constants['max_waist'] = MAX_WAIST_DEFAULT
-                    constants['min_waist'] = MIN_WAIST_DEFAULT
-
-            if (category == 'leg_circumference_left' or category == 'leg_circumference_right'):
-                try:
-                    constants['max_shin_left'] = params['max']
-                    constants['min_shin_left'] = params['min']
-                    constants['max_shin_right'] = params['max']
-                    constants['min_shin_right'] = params['min']
-                except Exception as e:
-                    constants['max_shin_left'] = MAX_SHIN_DEFAULT
-                    constants['min_shin_left'] = MIN_SHIN_DEFAULT
-                    constants['max_shin_right'] = MAX_SHIN_DEFAULT
-                    constants['min_shin_right'] = MIN_SHIN_DEFAULT
-
-            if (category == 'temperature'):
-                try:
-                    constants['max_temperature'] = params['max']
-                    constants['min_temperature'] = params['min']
-                except Exception as e:
-                    constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
-                    constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
+        if category == 'temperature':
+            try:
+                constants['max_temperature'] = params['max']
+                constants['min_temperature'] = params['min']
+            except Exception as e:
+                constants['max_temperature'] = MAX_TEMPERATURE_DEFAULT
+                constants['min_temperature'] = MIN_TEMPERATURE_DEFAULT
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
         y = []
-        # chartData = []
-        # insertQuery = []
 
         category = response['category']
         values = response['values']
@@ -907,23 +903,8 @@ def graph():
             "y": y,
             "date_max": date_max,
             "date_min": date_min,
-            # "sys_max_value": int(sys_max_value),
             "sys_max_value": max_y,
-            # "sys_min_value": int(sys_min_value),
             "sys_min_value": min_y,
-            # "sys_avg_value": sum(sys_avg_value),
-            # "sys_slice_normal": int(sys_slice_normal),
-            # "sys_slice_critical": int(sys_slice_critical),
-            # "sys_max_week": int(sys_max_week),
-            # "sys_min_week": int(sys_min_week),
-            # "sys_avg_week": int(sys_avg_week),
-            # "sys_slice_normal_week": int(sys_slice_normal_week),
-            # "sys_slice_critical_week": int(sys_slice_critical_week),
-            # "sys_max_month": int(sys_max_month),
-            # "sys_min_month": int(sys_min_month),
-            # "sys_avg_month": int(sys_avg_month),
-            # "sys_slice_normal_month": int(sys_slice_normal_month),
-            # "sys_slice_critical_month": int(sys_slice_critical_month),
             "comments": '',
             "name": category['description']
         }
@@ -982,8 +963,6 @@ def graph():
         array_x = []
         array_y = []
         text = []
-        dosage = []
-        amount = []
         medicines_data = {}
 
         for row in records:
@@ -1294,9 +1273,7 @@ def graph():
                                shin_right=shin_right,
                                medicine_trace_data=medicines_trace_data
                                )
-    else:
-        print('NONE_MEASUREMENTS')
-        return NONE_MEASUREMENTS
+
 
     return "ok"
 
@@ -1309,10 +1286,10 @@ def settings():
         error('Error settings()')
         return 'UNKNOWN ERROR'
 
-    if (contract_id == ERROR_KEY):
+    if contract_id == ERROR_KEY:
         return ERROR_KEY
 
-    if (contract_id == ERROR_CONTRACT):
+    if contract_id == ERROR_CONTRACT:
         return ERROR_CONTRACT
 
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
@@ -1343,7 +1320,7 @@ def settings():
         show = category_param.show
         last_push = category_param.last_push
 
-        if (name == 'leg_circumference_left'):
+        if name == 'leg_circumference_left':
             shin['name'] = 'shin'
 
             if name in categories_description:
@@ -1370,7 +1347,7 @@ def settings():
 
             measurements.append(shin)
 
-        if (name == 'systolic_pressure'):
+        if name == 'systolic_pressure':
             pressure['name'] = 'pressure'
 
             if name in categories_description:
@@ -1407,7 +1384,7 @@ def settings():
 
         out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left', 'leg_circumference_right']
 
-        if (name not in out_list):
+        if name not in out_list:
             measurement_new['name'] = name
 
             if name in categories_description:
@@ -1446,8 +1423,6 @@ def settings():
     for row in records:
         times = []
         timetable = []
-        medicines_data = {}
-
         name = row[0]
         dosage = row[1]
         amount = row[2]
@@ -1501,7 +1476,7 @@ def medicine_done(uid):
 
     result = DB.query(query_str)
 
-    if (result != 'SUCCESS_QUERY'):
+    if result != 'SUCCESS_QUERY':
         return result
 
     return MESS_THANKS
@@ -1532,7 +1507,6 @@ def medicines():
 @app.route('/medicine/add', methods=['POST'])
 def medicine_done_post():
     result = quard_data_json()
-
     return result
 
 
@@ -1541,13 +1515,13 @@ def action_pull(pull):
     quard()
     constants = {}
 
-    if (pull == 'shin'):
+    if pull == 'shin':
         constants['shin_max'] = MAX_SHIN
         constants['shin_min'] = MIN_SHIN
 
         return render_template('shin.html', tmpl=pull, constants=constants)
 
-    if (pull == 'pressure'):
+    if pull == 'pressure':
         constants['sys_max'] = MAX_SYSTOLIC
         constants['sys_min'] = MIN_SYSTOLIC
         constants['dia_max'] = MAX_DIASTOLIC
@@ -1557,43 +1531,37 @@ def action_pull(pull):
 
         return render_template('pressure.html', tmpl=pull, constants=constants)
 
-    if (pull == 'weight'):
+    if pull == 'weight':
         constants['weight_max'] = MAX_WEIGHT
         constants['weight_min'] = MIN_WEIGHT
 
-        # return render_template('measurement.html', tmpl=pull, constants=constants)
-
         return render_template('weight.html', tmpl=pull, constants=constants)
 
-    if (pull == 'temperature'):
+    if pull == 'temperature':
         constants['temperature_max'] = MAX_TEMPERATURE
         constants['temperature_min'] = MIN_TEMPERATURE
 
-        # return render_template('measurement.html', tmpl=pull, constants=constants)
-
         return render_template('temperature.html', tmpl=pull, constants=constants)
 
-    if (pull == 'glukose'):
+    if pull == 'glukose':
         constants['glukose_max'] = MAX_GLUKOSE
         constants['glukose_min'] = MIN_GLUKOSE
 
-        # return render_template('measurement.html', tmpl=pull, constants=constants)
-
         return render_template('glukose.html', tmpl=pull, constants=constants)
 
-    if (pull == 'pain_assessment'):
+    if pull == 'pain_assessment:
         constants['pain_assessment_max'] = MAX_ASSESSMENT
         constants['pain_assessment_min'] = MIN_ASSESSMENT
 
         return render_template('pain_assessment.html', tmpl=pull, constants=constants)
 
-    if (pull == 'spo2'):
+    if pull == 'spo2':
         constants['spo2_max'] = MAX_SPO2
         constants['spo2_min'] = MIN_SPO2
 
         return render_template('spo2.html', tmpl=pull, constants=constants)
 
-    if (pull == 'waist'):
+    if pull == 'waist':
         constants['waist_max'] = MAX_WAIST
         constants['waist_min'] = MIN_WAIST
 
@@ -2025,15 +1993,15 @@ def action_pull_save(pull):
 
     contract_id = quard()
 
-    if (contract_id in ERRORS):
+    if contract_id in ERRORS:
         return ERRORS[contract_id]
 
-    if (pull in AVAILABLE_MEASUREMENTS):
+    if pull in AVAILABLE_MEASUREMENTS:
         param = pull
         param_value = request.form.get(param, '')
         comments = request.form.get('comments', '')
 
-    if (pull == 'shin'):
+    if pull == 'shin':
         shin_left = request.form.get('shin_left', '')
         shin_right = request.form.get('shin_right', '')
 
@@ -2050,10 +2018,10 @@ def action_pull_save(pull):
         except Exception as e:
             shin_right = MAX_SHIN_DEFAULT
 
-        if (shin_left < MIN_SHIN or shin_left > MAX_SHIN):
+        if shin_left < MIN_SHIN or shin_left > MAX_SHIN:
             return ERROR_OUTSIDE_SHIN
 
-        if (shin_right < MIN_SHIN or shin_right > MAX_SHIN):
+        if shin_right < MIN_SHIN or shin_right > MAX_SHIN:
             return ERROR_OUTSIDE_SHIN
 
         try:
@@ -2089,7 +2057,7 @@ def action_pull_save(pull):
 
         if task_id > 0:
             make_task(contract_id, task_id)
-    elif (pull == 'pressure'):
+    elif pull == 'pressure':
         systolic = request.form.get('systolic', '')
         diastolic = request.form.get('diastolic', '')
         pulse_ = request.form.get('pulse_', '')
@@ -2112,31 +2080,29 @@ def action_pull_save(pull):
         except Exception as e:
             pulse_ = 60
 
-        if (systolic < MIN_SYSTOLIC or systolic > MAX_SYSTOLIC):
+        if systolic < MIN_SYSTOLIC or systolic > MAX_SYSTOLIC:
             flash(ERROR_OUTSIDE_SYSTOLIC_TEXT)
             return action_pull(pull)
 
-        if (diastolic < MIN_DIASTOLIC or diastolic > MAX_DIASTOLIC):
+        if diastolic < MIN_DIASTOLIC or diastolic > MAX_DIASTOLIC:
             return ERROR_OUTSIDE_DIASTOLIC
 
-        if (pulse_ < MIN_PULSE or pulse_ > MAX_PULSE):
+        if pulse_ < MIN_PULSE or pulse_ > MAX_PULSE:
             return ERROR_OUTSIDE_PULSE
 
-        try:
-            query = CategoryParams.query.filter_by(contract_id=contract_id, category='systolic_pressure')
 
-            if query.count() != 0:
-                contract = query.first()
-                params = contract.params
+        query = CategoryParams.query.filter_by(contract_id=contract_id, category='systolic_pressure')
 
-            q = ContractTasks.query.filter_by(contract_id=contract_id, action_link='frame/' + pull)
+        if query.count() != 0:
+            contract = query.first()
+            params = contract.params
 
-            if q.count() != 0:
-                task = q.first()
-                task_id = task.task_id
-        except Exception as e:
-            error('Error CategoryParams in action_pull_save()')
-            print(e)
+        q = ContractTasks.query.filter_by(contract_id=contract_id, action_link='frame/' + pull)
+
+        if q.count() != 0:
+            task = q.first()
+            task_id = task.task_id
+
 
         try:
             max_systolic = int(params['max_systolic'])
@@ -2211,44 +2177,44 @@ def action_pull_save(pull):
         min = float(min)
         param_value = float(param_value.replace(',', '.'))
 
-        if (pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2)):
+        if pull == 'spo2' and (param_value < MIN_SPO2 or param_value > MAX_SPO2):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_SPO2_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST)):
+        if param == 'waist' and (param_value < MIN_WAIST or param_value > MAX_WAIST):
             param_value_int = int(param_value)
             flash(ERROR_OUTSIDE_WAIST_TEXT, category=param_value_int)
             return action_pull(pull)
 
-        if (param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT)):
+        if param == 'weight' and (param_value < MIN_WEIGHT or param_value > MAX_WEIGHT):
             return ERROR_OUTSIDE_WEIGHT
 
-        if (param == 'glukose' and (param_value < MIN_GLUKOSE or param_value > MAX_GLUKOSE)):
+        if param == 'glukose' and (param_value < MIN_GLUKOSE or param_value > MAX_GLUKOSE):
             return ERROR_OUTSIDE_GLUKOSE
 
-        if (param == 'temperature' and (param_value < MIN_TEMPERATURE or param_value > MAX_TEMPERATURE)):
+        if param == 'temperature' and (param_value < MIN_TEMPERATURE or param_value > MAX_TEMPERATURE):
             return ERROR_OUTSIDE_TEMPERATURE
 
         param_for_record = param
 
-        if (param == 'waist'):
+        if param == 'waist':
             param_for_record = 'waist_circumference'
 
-        if (param == 'shin_volume_left'):
+        if param == 'shin_volume_left':
             param_for_record = 'leg_circumference_left'
 
-        if (param == 'shin_volume_right'):
+        if param == 'shin_volume_right':
             param_for_record = 'leg_circumference_right'
 
-        if (param_value < min or param_value > max):
+        if param_value < min or param_value > max:
             # Сигналим врачу
             out_yellow('Сигналим врачу')
             delayed(1, warning, [contract_id, param, param_value])
 
         delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
 
-        if (task_id > 0):
+        if task_id > 0:
             make_task(contract_id, task_id)
 
     return MESS_THANKS
