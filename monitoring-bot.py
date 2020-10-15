@@ -1549,7 +1549,7 @@ def action_pull(pull):
 
         return render_template('glukose.html', tmpl=pull, constants=constants)
 
-    if pull == 'pain_assessment:
+    if pull == 'pain_assessment':
         constants['pain_assessment_max'] = MAX_ASSESSMENT
         constants['pain_assessment_min'] = MIN_ASSESSMENT
 
