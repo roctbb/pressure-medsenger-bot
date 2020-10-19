@@ -380,6 +380,7 @@ def quard():
 
 
 def process_records():
+    global LAST_TASK_PUSH
     megaTask = []
     records = CategoryParams.query.filter_by(show=True).all()
     now = datetime.datetime.now()
@@ -491,7 +492,6 @@ def process_records():
 
 
     if go_task:
-        global LAST_TASK_PUSH
         LAST_TASK_PUSH = time.time()
         delayed(1, dayTaskPlanning, [megaTask])
 
