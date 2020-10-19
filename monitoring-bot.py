@@ -383,109 +383,115 @@ def process_records():
     megaTask = []
     records = CategoryParams.query.filter_by(show=True).all()
     now = datetime.datetime.now()
-    go_task = now.hour == int(TASK_HOUR) and (now.minute > 1 and now.minute < 3) and time.time() - LAST_TASK_PUSH > 60 * 60
+    go_task = now.hour == int(TASK_HOUR) and time.time() - LAST_TASK_PUSH > 60 * 60
 
     for record in records:
-        contract_id = record.contract_id
-        name = record.category
+        try:
+            contract_id = record.contract_id
+            name = record.category
 
-        if name in STOP_LIST:
-            continue
+            if name in STOP_LIST:
+                continue
 
-        mode = record.mode
-        timetable = record.timetable
+            mode = record.mode
+            timetable = record.timetable
 
-        should_i_send = False
-        same_day_hours = []
+            should_i_send = False
+            same_day_hours = []
 
-        if mode == 'daily':
-            for point in timetable["hours"]:
-                hour = point["value"]
-                if hour == 24:
-                    hour = 0
+            if mode == 'daily':
+                for point in timetable["hours"]:
+                    hour = point["value"]
+                    if hour == 24:
+                        hour = 0
 
-                same_day_hours.append(hour)
-
-                if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
-                    should_i_send = True
-                    same_day_hours.remove(hour)
-
-        if mode == 'weekly':
-            for point in timetable["days_week"]:
-                hour = point["hour"]
-
-                if now.isoweekday() == point["day"]:
                     same_day_hours.append(hour)
 
                     if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
                         should_i_send = True
                         same_day_hours.remove(hour)
 
-        if mode == 'monthly':
-            for point in timetable["days_month"]:
-                hour = point["hour"]
+            if mode == 'weekly':
+                for point in timetable["days_week"]:
+                    hour = point["hour"]
 
-                if now.day == point["day"]:
-                    same_day_hours.append(hour)
-                    if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
-                        should_i_send = True
-                        same_day_hours.remove(hour)
+                    if now.isoweekday() == point["day"]:
+                        same_day_hours.append(hour)
 
-        if go_task:
-            megaTask.append({
-                'contract_id': contract_id,
-                'text': CATEGORY_TEXT[name],
-                'target_number': len(same_day_hours),
-                'action_link': 'frame/' + transformMeasurementName(name)
-            })
+                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
 
-        if should_i_send:
-            next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
+            if mode == 'monthly':
+                for point in timetable["days_month"]:
+                    hour = point["hour"]
 
-            if next_hours:
-                deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
-            else:
-                deadline = int(time.time() + 12 * 60 * 60)
+                    if now.day == point["day"]:
+                        same_day_hours.append(hour)
+                        if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
 
-            route_name = transformMeasurementName(name)
+            if go_task:
+                megaTask.append({
+                    'contract_id': contract_id,
+                    'text': CATEGORY_TEXT[name],
+                    'target_number': len(same_day_hours),
+                    'action_link': 'frame/' + transformMeasurementName(name)
+                })
 
-            data = {
-                "contract_id": contract_id,
-                "api_key": APP_KEY,
-                "message": {
-                    "text": MESS_MEASUREMENT[route_name]['text'],
-                    "action_link": "frame/" + route_name,
-                    "action_deadline": deadline,
-                    "action_name": MESS_MEASUREMENT[route_name]['action_name'],
-                    "action_onetime": True,
-                    "only_doctor": False,
-                    "only_patient": True,
-                },
-            }
+            if should_i_send:
+                next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
 
-            record.last_push = now
-            db.session.commit()
+                if next_hours:
+                    deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
+                else:
+                    deadline = int(time.time() + 12 * 60 * 60)
 
-            no_message = False
-            res = getRecords(contract_id, name)
+                route_name = transformMeasurementName(name)
 
-            if res != 404:
-                out_yellow(name)
-                values = res['values']
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEASUREMENT[route_name]['text'],
+                        "action_link": "frame/" + route_name,
+                        "action_deadline": deadline,
+                        "action_name": MESS_MEASUREMENT[route_name]['action_name'],
+                        "action_onetime": True,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    },
+                }
 
-                for value in values:
-                    delta = (time.time() - value['timestamp']) / 60
+                record.last_push = now
+                db.session.commit()
 
-                    if (delta < 60):
-                        no_message = True
+                no_message = False
+                res = getRecords(contract_id, name)
 
-                    break
+                if res != 404:
+                    out_yellow(name)
+                    values = res['values']
 
-            if no_message == False:
-                post_request(data)
+                    for value in values:
+                        delta = (time.time() - value['timestamp']) / 60
+
+                        if (delta < 60):
+                            no_message = True
+                            print("skip record", record.id, "results exists")
+
+                        break
+
+                if no_message == False:
+                    post_request(data)
+        except Exception as e:
+            print(e)
+            print("problem with record", record.id)
+
 
     if go_task:
-        global  LAST_TASK_PUSH
+        global LAST_TASK_PUSH
         LAST_TASK_PUSH = time.time()
         delayed(1, dayTaskPlanning, [megaTask])
 
