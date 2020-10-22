@@ -501,80 +501,85 @@ def process_medicines():
     medicines = DB.select(query_str)
 
     for medicine in medicines:
-        id = str(medicine[0])
-        contract_id = medicine[1]
-        name = medicine[2]
-        mode = medicine[3]
-        dosage = medicine[4]
-        timetable = medicine[6]
+        try:
+            id = str(medicine[0])
+            contract_id = medicine[1]
+            name = medicine[2]
+            mode = medicine[3]
+            dosage = medicine[4]
+            timetable = medicine[6]
 
-        should_i_send = False
-        same_day_hours = []
+            should_i_send = False
+            same_day_hours = []
 
-        if mode == 'daily':
-            for point in timetable["hours"]:
-                hour = int(point["value"])
-                if hour == 24:
-                    hour = 0
+            if mode == 'daily':
+                for point in timetable["hours"]:
+                    hour = int(point["value"])
+                    if hour == 24:
+                        hour = 0
 
-                same_day_hours.append(hour)
-
-                if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
-                    should_i_send = True
-                    same_day_hours.remove(hour)
-
-        if mode == 'weekly':
-            for point in timetable["days_week"]:
-                hour = int(point["hour"])
-
-                if now.isoweekday() == int(point["day"]):
                     same_day_hours.append(hour)
 
                     if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
                         should_i_send = True
                         same_day_hours.remove(hour)
 
-        if mode == 'monthly':
-            for point in timetable["days_month"]:
-                hour = int(point["hour"])
+            if mode == 'weekly':
+                for point in timetable["days_week"]:
+                    hour = int(point["hour"])
 
-                if now.day == int(point["day"]):
-                    same_day_hours.append(hour)
-                    if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
-                        should_i_send = True
-                        same_day_hours.remove(hour)
+                    if now.isoweekday() == int(point["day"]):
+                        same_day_hours.append(hour)
 
-        if should_i_send:
-            next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
+                        if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
 
-            if next_hours:
-                deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
-            else:
-                deadline = int(time.time() + 12 * 60 * 60)
+            if mode == 'monthly':
+                for point in timetable["days_month"]:
+                    hour = int(point["hour"])
 
-            data = {
-                "contract_id": contract_id,
-                "api_key": APP_KEY,
-                "message": {
-                    "text": MESS_MEDICINE['text'].format(name),
-                    "action_link": MESS_MEDICINE['action_link'].format(id),
-                    "action_name": MESS_MEDICINE['action_name'].format(name, dosage),
-                    "action_onetime": True,
-                    "action_deadline": deadline,
-                    "only_doctor": False,
-                    "only_patient": True,
+                    if now.day == int(point["day"]):
+                        same_day_hours.append(hour)
+                        if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
+                            should_i_send = True
+                            same_day_hours.remove(hour)
+
+            if should_i_send:
+                next_hours = list(filter(lambda x: x > now.hour, same_day_hours))
+
+                if next_hours:
+                    deadline = int(time.time() + (min(next_hours) - now.hour) * 60 * 60)
+                else:
+                    deadline = int(time.time() + 12 * 60 * 60)
+
+                data = {
+                    "contract_id": contract_id,
+                    "api_key": APP_KEY,
+                    "message": {
+                        "text": MESS_MEDICINE['text'].format(name),
+                        "action_link": MESS_MEDICINE['action_link'].format(id),
+                        "action_name": MESS_MEDICINE['action_name'].format(name, dosage),
+                        "action_onetime": True,
+                        "action_deadline": deadline,
+                        "only_doctor": False,
+                        "only_patient": True,
+                    }
                 }
-            }
 
-            query_str = "UPDATE medicines set last_push = '" + \
-                        str(datetime.datetime.fromtimestamp(
-                            time.time()).isoformat()) + Aux.quote() + \
-                        " WHERE id = '" + str(id) + Aux.quote()
+                query_str = "UPDATE medicines set last_push = '" + \
+                            str(datetime.datetime.fromtimestamp(
+                                time.time()).isoformat()) + Aux.quote() + \
+                            " WHERE id = '" + str(id) + Aux.quote()
 
-            DB.query(query_str)
+                DB.query(query_str)
 
-            post_request(data)
-            db.session.commit()
+                post_request(data)
+        except Exception as e:
+            print(e)
+            print("problem with record", id)
+
+    db.session.commit()
 
 
 def sender():
