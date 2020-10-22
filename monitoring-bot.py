@@ -402,7 +402,7 @@ def process_records():
 
             if mode == 'daily':
                 for point in timetable["hours"]:
-                    hour = point["value"]
+                    hour = int(point["value"])
                     if hour == 24:
                         hour = 0
 
@@ -414,9 +414,9 @@ def process_records():
 
             if mode == 'weekly':
                 for point in timetable["days_week"]:
-                    hour = point["hour"]
+                    hour = int(point["hour"])
 
-                    if now.isoweekday() == point["day"]:
+                    if now.isoweekday() == int(point["day"]):
                         same_day_hours.append(hour)
 
                         if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
@@ -425,9 +425,9 @@ def process_records():
 
             if mode == 'monthly':
                 for point in timetable["days_month"]:
-                    hour = point["hour"]
+                    hour = int(point["hour"])
 
-                    if now.day == point["day"]:
+                    if now.day == int(point["day"]):
                         same_day_hours.append(hour)
                         if hour == now.hour and (now - record.last_push).total_seconds() > 60 * 60:
                             should_i_send = True
@@ -513,7 +513,7 @@ def process_medicines():
 
         if mode == 'daily':
             for point in timetable["hours"]:
-                hour = point["value"]
+                hour = int(point["value"])
                 if hour == 24:
                     hour = 0
 
@@ -525,9 +525,9 @@ def process_medicines():
 
         if mode == 'weekly':
             for point in timetable["days_week"]:
-                hour = point["hour"]
+                hour = int(point["hour"])
 
-                if now.isoweekday() == point["day"]:
+                if now.isoweekday() == int(point["day"]):
                     same_day_hours.append(hour)
 
                     if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
@@ -536,9 +536,9 @@ def process_medicines():
 
         if mode == 'monthly':
             for point in timetable["days_month"]:
-                hour = point["hour"]
+                hour = int(point["hour"])
 
-                if now.day == point["day"]:
+                if now.day == int(point["day"]):
                     same_day_hours.append(hour)
                     if hour == now.hour and (now - medicine[8]).total_seconds() > 60 * 60:
                         should_i_send = True
