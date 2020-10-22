@@ -415,20 +415,6 @@
             toggleAll(chartdiv_pain, pain_button)
         })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         spo2_button.addEventListener('click', (event) => {
             toggleAll(chartdiv_spo2, spo2_button)
         })
@@ -608,7 +594,7 @@
                 return dataObject
             },
             "dateFormat": function(date) {
-                let dateOut = new Date(date)
+                let dateOut = new Date(date.replace(' ', 'T'))
 
                 return this.num_day(dateOut.getDate()) + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
             },
@@ -616,7 +602,7 @@
                 return this.num_day(dateOut.getDate()) + '-' + this.num(dateOut.getMonth()) + '-' + dateOut.getFullYear() + ' ' + this.num(dateOut.getHours()) + ':' + this.num(dateOut.getMinutes())
             },
             "str2date": function(date) {
-                return new Date(date)
+                return new Date(date.replace(' ', 'T'))
             }
         }
 
@@ -707,18 +693,12 @@
             am4core__.useTheme(am4themes_animated)
 
             var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
+            chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS"
             chart.language.locale = am4lang_ru_RU
 
             // Create axes
             var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
-
-
-
-
             categoryAxis.renderer.grid.template.location = 0
-
-
-
             var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
 
             let dateOut = ''
@@ -730,8 +710,6 @@
 
             // Add data
             systolic_dates.forEach(function() {
-                // 1
-
                 systolic_value = systolic_values[i]
                 diastolic_value = diastolic_values[i]
                 pulse_value = pulse_values[i]
@@ -763,7 +741,7 @@
                     disabled_pulse = true
                 }
 
-                dateOut = new Date(systolic_dates[i])
+                dateOut = new Date(systolic_dates[i].replace(' ', 'T'))
                 date_tooltip = dataObject.format(dateOut)
 
                 if (i == 0) {
@@ -806,8 +784,8 @@
             dynamic_data['name'] = 'Динамика роста давления'
             chart.data = data.reverse();
 
-            let date_max = new Date(systolic['date_max'])
-            let date_min = new Date(systolic['date_min'])
+            let date_max = new Date(systolic['date_max'].replace(' ', 'T'))
+            let date_min = new Date(systolic['date_min'].replace(' ', 'T'))
             let zoomToDates = systolic['zoomToDates']
 
             // Pre-zoom the chart
@@ -824,8 +802,6 @@
                     );
                 });
             }
-
-
 
             // Create series Medicine
             function createSeriesMedicine(field, data, series_name, color, config) {
@@ -871,7 +847,7 @@
                 data_medicines_out = []
 
                 for (item in dates_medicines) {
-                    date_in = new Date(dates_medicines[item])
+                    date_in = new Date(dates_medicines[item].replace(' ', 'T'))
                     date_tooltip = dataObject.format(date_in)
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
@@ -899,11 +875,6 @@
                 series.stroke = am4core__.color(config.color);
 
 
-
-
-
-
-
                 var bullet = series.bullets.push(new am4charts.Bullet());
                 let image = bullet.createChild(am4core.Image);
 
@@ -918,25 +889,16 @@
 
 
                 if (name == systolic.name) {
-
-
-
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_systolic";
                 }
 
                 if (name == diastolic.name) {
-
-
-
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_diastolic";
                 }
 
                 if (name == pulse_.name) {
-
-
-
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_pulse";
                 }
@@ -1029,7 +991,7 @@
 
                 pain_comment = pain_comments[iterator_pain_dates]
 
-                pain_dateOut = new Date(pain_dates[iterator_pain_dates])
+                pain_dateOut = new Date(pain_dates[iterator_pain_dates].replace(' ', 'T'))
                 pain_date_tooltip = dataObject.format(pain_dateOut)
 
                 if (pain_value >= constants.max_pain || pain_value < constants.min_pain) {
@@ -1090,8 +1052,8 @@
 
             chart_pain.data = data_pain.reverse()
 
-            let date_max = new Date(pain_assessment['date_max']);
-            let date_min = new Date(pain_assessment['date_min']);
+            let date_max = new Date(pain_assessment['date_max'].replace(' ', 'T'));
+            let date_min = new Date(pain_assessment['date_min'].replace(' ', 'T'));
 
             // Pre-zoom the chart
             chart_pain.events.on("ready", function () {
@@ -1201,7 +1163,7 @@
                 data_medicines_out = []
 
                 for (item in dates_medicines) {
-                    date_in = new Date(dates_medicines[item])
+                    date_in = new Date(dates_medicines[item].replace(' ', 'T'))
                     date_tooltip = dataObject.format(date_in)
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": delta_y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
@@ -1287,8 +1249,8 @@
 
 
 
-                let date_max = new Date(params.model['date_max']);
-                let date_min = new Date(params.model['date_min']);
+                let date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+                let date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
                 // Pre-zoom the chart
                 chart.events.on("ready", function () {
@@ -1404,8 +1366,7 @@
 
         i = 0
         shin_left.x.forEach(function(date) {
-            shinData.push({'date': new Date(date), 'value1': shin_left.y[i], 'value2': shin_right.y[i], 'previousDate': new Date(shin_right.x[i])});
-
+            shinData.push({'date': new Date(date.replace(' ', 'T')), 'value1': shin_left.y[i], 'value2': shin_right.y[i], 'previousDate': new Date(shin_right.x[i].replace(' ', 'T'))});
             i++
         })
 
@@ -1416,11 +1377,8 @@
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.renderer.minGridDistance = 50;
 
-
-
-
-        date_max = new Date(shin_left['date_max']);
-        date_min = new Date(shin_left['date_min']);
+        date_max = new Date(shin_left['date_max'].replace(' ', 'T'));
+        date_min = new Date(shin_left['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
         chart.events.on("ready", function () {
@@ -1488,70 +1446,70 @@
 
 
 
-                chart_waist = am4core.create(params.div, am4charts.XYChart)
-                chart_waist.language.locale = params.lang
-                dateAxis_waist = chart_waist.xAxes.push(new am4charts.DateAxis())
-                dateAxis_waist.renderer.grid.template.location = params.location
+        chart_waist = am4core.create(params.div, am4charts.XYChart)
+        chart_waist.language.locale = params.lang
+        dateAxis_waist = chart_waist.xAxes.push(new am4charts.DateAxis())
+        dateAxis_waist.renderer.grid.template.location = params.location
 
 
 
 
-                date_max = new Date(params.model['date_max']);
-                date_min = new Date(params.model['date_min']);
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
-                // Pre-zoom the chart
-                chart_waist.events.on("ready", function () {
-                    dateAxis_waist.zoomToDates(
-                        date_min,
-                        date_max
-                    );
-                });
+        // Pre-zoom the chart
+        chart_waist.events.on("ready", function () {
+            dateAxis_waist.zoomToDates(
+                date_min,
+                date_max
+            );
+        });
 
-                yAxis_waist = chart_waist.yAxes.push(new am4charts.ValueAxis())
-                yAxis_waist.min = params.y_min
-                yAxis_waist.max = params.y_max
-                model = params.model
-                data = dataObject.dataTransform(model)
-                data = data.reverse()
-                min = params.min
-                max = params.max
+        yAxis_waist = chart_waist.yAxes.push(new am4charts.ValueAxis())
+        yAxis_waist.min = params.y_min
+        yAxis_waist.max = params.y_max
+        model = params.model
+        data = dataObject.dataTransform(model)
+        data = data.reverse()
+        min = params.min
+        max = params.max
 
-                for (key in data) {
-                    if (data[key]['y'] > max || data[key]['y'] < min) {
-                        data[key]['color_danger'] = namesConstants.get('color_danger')
-                        data[key]['disabled'] = false
-                    } else {
-                        data[key]['disabled'] = true
-                    }
-                }
+        for (key in data) {
+            if (data[key]['y'] > max || data[key]['y'] < min) {
+                data[key]['color_danger'] = namesConstants.get('color_danger')
+                data[key]['disabled'] = false
+            } else {
+                data[key]['disabled'] = true
+            }
+        }
 
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+        tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
 
-                config = {
-                    "name": model.name,
-                    "field": "y",
-                    "dateX": "dates_format",
-                    "comments": "comments",
-                    "tooltipText": tooltipText,
-                    "color": params.color,
-                    "color_danger": "color_danger",
-                    "strokeWidth": params.strokeWidth,
-                    "disabled": "disabled",
-                    "chart": chart_waist
-                }
+        config = {
+            "name": model.name,
+            "field": "y",
+            "dateX": "dates_format",
+            "comments": "comments",
+            "tooltipText": tooltipText,
+            "color": params.color,
+            "color_danger": "color_danger",
+            "strokeWidth": params.strokeWidth,
+            "disabled": "disabled",
+            "chart": chart_waist
+        }
 
 
 
-                am4Core.createSeries(data, config)
+        am4Core.createSeries(data, config)
 
-                // Create legend
-                chart_waist.legend = new am4charts.Legend()
+        // Create legend
+        chart_waist.legend = new am4charts.Legend()
 
-                // Create cursor
-                chart_waist.cursor = new am4charts.XYCursor()
+        // Create cursor
+        chart_waist.cursor = new am4charts.XYCursor()
 
-                // Enable export
-                chart_waist.exporting.menu = new am4core.ExportMenu()
+        // Enable export
+        chart_waist.exporting.menu = new am4core.ExportMenu()
 
 
         // ************************************
@@ -1581,72 +1539,67 @@
 
         //am4Core.makeGraph(params)
 
+        chart_spo2 = am4core.create(params.div, am4charts.XYChart)
+        chart_spo2.language.locale = params.lang
+        dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
+        dateAxis_spo2.renderer.grid.template.location = params.location
 
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
-                chart_spo2 = am4core.create(params.div, am4charts.XYChart)
-                chart_spo2.language.locale = params.lang
-                dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
-                dateAxis_spo2.renderer.grid.template.location = params.location
+        // Pre-zoom the chart
+        chart_spo2.events.on("ready", function () {
+            dateAxis_spo2.zoomToDates(
+                date_min,
+                date_max
+            );
+        });
 
+        yAxis_spo2 = chart_spo2.yAxes.push(new am4charts.ValueAxis())
+        yAxis_spo2.min = params.y_min
+        yAxis_spo2.max = params.y_max
+        model = params.model
+        data = dataObject.dataTransform(model)
+        data = data.reverse()
+        min = params.min
+        max = params.max
 
+        for (key in data) {
+            if (data[key]['y'] > max || data[key]['y'] < min) {
+                data[key]['color_danger'] = namesConstants.get('color_danger')
+                data[key]['disabled'] = false
+            } else {
+                data[key]['disabled'] = true
+            }
+        }
 
+        tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
 
-                date_max = new Date(params.model['date_max']);
-                date_min = new Date(params.model['date_min']);
-
-                // Pre-zoom the chart
-                chart_spo2.events.on("ready", function () {
-                    dateAxis_spo2.zoomToDates(
-                        date_min,
-                        date_max
-                    );
-                });
-
-                yAxis_spo2 = chart_spo2.yAxes.push(new am4charts.ValueAxis())
-                yAxis_spo2.min = params.y_min
-                yAxis_spo2.max = params.y_max
-                model = params.model
-                data = dataObject.dataTransform(model)
-                data = data.reverse()
-                min = params.min
-                max = params.max
-
-                for (key in data) {
-                    if (data[key]['y'] > max || data[key]['y'] < min) {
-                        data[key]['color_danger'] = namesConstants.get('color_danger')
-                        data[key]['disabled'] = false
-                    } else {
-                        data[key]['disabled'] = true
-                    }
-                }
-
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-                config = {
-                    "name": model.name,
-                    "field": "y",
-                    "dateX": "dates_format",
-                    "comments": "comments",
-                    "tooltipText": tooltipText,
-                    "color": params.color,
-                    "color_danger": "color_danger",
-                    "strokeWidth": params.strokeWidth,
-                    "disabled": "disabled",
-                    "chart": chart_spo2
-                }
+        config = {
+            "name": model.name,
+            "field": "y",
+            "dateX": "dates_format",
+            "comments": "comments",
+            "tooltipText": tooltipText,
+            "color": params.color,
+            "color_danger": "color_danger",
+            "strokeWidth": params.strokeWidth,
+            "disabled": "disabled",
+            "chart": chart_spo2
+        }
 
 
 
-                am4Core.createSeries(data, config)
+        am4Core.createSeries(data, config)
 
-                // Create legend
-                chart_spo2.legend = new am4charts.Legend()
+        // Create legend
+        chart_spo2.legend = new am4charts.Legend()
 
-                // Create cursor
-                chart_spo2.cursor = new am4charts.XYCursor()
+        // Create cursor
+        chart_spo2.cursor = new am4charts.XYCursor()
 
-                // Enable export
-                chart_spo2.exporting.menu = new am4core.ExportMenu()
+        // Enable export
+        chart_spo2.exporting.menu = new am4core.ExportMenu()
 
         // *****************************************
         // ******* Create chart instance temperature
@@ -1673,66 +1626,66 @@
 
 
 
-                chart_temperature = am4core.create(params.div, am4charts.XYChart)
-                chart_temperature.language.locale = params.lang
-                dateAxis_temperature = chart_temperature.xAxes.push(new am4charts.DateAxis())
-                dateAxis_temperature.renderer.grid.template.location = params.location
+        chart_temperature = am4core.create(params.div, am4charts.XYChart)
+        chart_temperature.language.locale = params.lang
+        dateAxis_temperature = chart_temperature.xAxes.push(new am4charts.DateAxis())
+        dateAxis_temperature.renderer.grid.template.location = params.location
 
 
-                date_max = new Date(params.model['date_max']);
-                date_min = new Date(params.model['date_min']);
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
-                // Pre-zoom the chart
-                chart_temperature.events.on("ready", function () {
-                    dateAxis_temperature.zoomToDates(
-                        date_min,
-                        date_max
-                    );
-                });
+        // Pre-zoom the chart
+        chart_temperature.events.on("ready", function () {
+            dateAxis_temperature.zoomToDates(
+                date_min,
+                date_max
+            );
+        });
 
-                yAxis_temperature = chart_temperature.yAxes.push(new am4charts.ValueAxis())
-                yAxis_temperature.min = params.y_min
-                yAxis_temperature.max = params.y_max
-                model = params.model
-                data = dataObject.dataTransform(model)
-                data = data.reverse()
-                min = params.min
-                max = params.max
+        yAxis_temperature = chart_temperature.yAxes.push(new am4charts.ValueAxis())
+        yAxis_temperature.min = params.y_min
+        yAxis_temperature.max = params.y_max
+        model = params.model
+        data = dataObject.dataTransform(model)
+        data = data.reverse()
+        min = params.min
+        max = params.max
 
-                for (key in data) {
-                    if (data[key]['y'] > max || data[key]['y'] < min) {
-                        data[key]['color_danger'] = namesConstants.get('color_danger')
-                        data[key]['disabled'] = false
-                    } else {
-                        data[key]['disabled'] = true
-                    }
-                }
+        for (key in data) {
+            if (data[key]['y'] > max || data[key]['y'] < min) {
+                data[key]['color_danger'] = namesConstants.get('color_danger')
+                data[key]['disabled'] = false
+            } else {
+                data[key]['disabled'] = true
+            }
+        }
 
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
+        tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
 
-                config = {
-                    "name": model.name,
-                    "field": "y",
-                    "dateX": "dates_format",
-                    "comments": "comments",
-                    "tooltipText": tooltipText,
-                    "color": params.color,
-                    "color_danger": "color_danger",
-                    "strokeWidth": params.strokeWidth,
-                    "disabled": "disabled",
-                    "chart": chart_temperature
-                }
+        config = {
+            "name": model.name,
+            "field": "y",
+            "dateX": "dates_format",
+            "comments": "comments",
+            "tooltipText": tooltipText,
+            "color": params.color,
+            "color_danger": "color_danger",
+            "strokeWidth": params.strokeWidth,
+            "disabled": "disabled",
+            "chart": chart_temperature
+        }
 
-                am4Core.createSeries(data, config)
+        am4Core.createSeries(data, config)
 
-                // Create legend
-                chart_temperature.legend = new am4charts.Legend()
+        // Create legend
+        chart_temperature.legend = new am4charts.Legend()
 
-                // Create cursor
-                chart_temperature.cursor = new am4charts.XYCursor()
+        // Create cursor
+        chart_temperature.cursor = new am4charts.XYCursor()
 
-                // Enable export
-                chart_temperature.exporting.menu = new am4core.ExportMenu()
+        // Enable export
+        chart_temperature.exporting.menu = new am4core.ExportMenu()
 
         // *************************************
         // ******* Create chart instance glukose
@@ -1767,8 +1720,8 @@
 
 
 
-        date_max = new Date(params.model['date_max']);
-        date_min = new Date(params.model['date_min']);
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
         chart_glukose.events.on("ready", function () {
@@ -1849,194 +1802,67 @@
             "model": model
         }
 
-                chart_weight = am4core.create(params.div, am4charts.XYChart);
-                chart_weight.language.locale = params.lang;
-                dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis());
-                dateAxis_weight.renderer.grid.template.location = params.location;
+        chart_weight = am4core.create(params.div, am4charts.XYChart);
+        chart_weight.language.locale = params.lang;
+        dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis());
+        dateAxis_weight.renderer.grid.template.location = params.location;
 
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
-
-
-                date_max = new Date(params.model['date_max']);
-                date_min = new Date(params.model['date_min']);
-
-                // Pre-zoom the chart
-                chart_weight.events.on("ready", function () {
-                    dateAxis_weight.zoomToDates(
-                        date_min,
-                        date_max
-                    );
-                });
-
-                yAxis_weight = chart_weight.yAxes.push(new am4charts.ValueAxis());
-                yAxis_weight.min = params.y_min;
-                yAxis_weight.max = params.y_max;
-                model = params.model;
-                data = dataObject.dataTransform(model);
-                data = data.reverse();
-                min = params.min;
-                max = params.max;
-
-                for (key in data) {
-                    if (data[key]['y'] > max || data[key]['y'] < min) {
-                        data[key]['color_danger'] = namesConstants.get('color_danger');
-                        data[key]['disabled'] = false;
-                    } else {
-                        data[key]['disabled'] = true;
-                    }
-                }
-
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}";
-
-                dump(params.strokeWidth)
-
-                config = {
-                    "name": model.name,
-                    "field": "y",
-                    "dateX": "dates_format",
-                    "comments": "comments",
-                    "tooltipText": tooltipText,
-                    "color": params.color,
-                    "color_danger": "color_danger",
-                    "strokeWidth": params.strokeWidth,
-                    "disabled": "disabled",
-                    "chart": chart_weight
-                }
-
-
-
-                am4Core.createSeries(data, config);
-
-                // Create legend
-                chart_weight.legend = new am4charts.Legend();
-
-                // Create cursor
-                chart_weight.cursor = new am4charts.XYCursor();
-
-                // Enable export
-                chart_weight.exporting.menu = new am4core.ExportMenu();
-    </script>
-
-    <!-- Chart pressure -->
-    <script>
-        let main = {};
-        let i = 0;
-        let j = 0;
-        let sum = 0;
-        let data_sys = [];
-        let data_dia = [];
-        let data_pulse = [];
-        let averaged = [];
-        let constants = {{ constants | safe }};
-        let systolic = {{ systolic | safe }};
-        let diastolic = {{ diastolic | safe }};
-        let pulse = {{ pulse_ | safe }};
-        let timestamp_for_pressure = systolic.timestamp_for_pressure;
-        let arr = []
-
-        let formatDate = function (timestamp_) {
-            let date_ = new Date(timestamp_);
-            let sep = '-';
-            let sep_time = ':';
-            let spacebar = ' ';
-
-            return num_day(date_.getDate()) + sep + num(date_.getMonth()) + sep + date_.getFullYear() + spacebar + num(date_.getHours()) + sep_time + num(date_.getMinutes()) + sep_time + num(date_.getSeconds());
-        };
-
-        let num = function (param) {
-            let num_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
-
-            if (param < num_array.length) {
-                return num_array[param]
-            } else {
-                return param
-            }
-        };
-
-        let num_day = function (param) {
-            let num_array = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09']
-
-            if (param < num_array.length) {
-                return num_array[param]
-            } else {
-                return param
-            }
-        };
-
-        let zzz = {'i': 0};
-        zzz.sep = ' | ';
-        zzz.color_critical = 'orange';
-
-        systolic['x'].forEach(function() {
-            main = {};
-            main.sep = ' | ';
-            main.color_critical = 'orange'; //'rgb(255, 0, 0)';
-            main.fillColor = '#FFFFFF';
-            zzz.fillColor = '#FFFFFF';
-            main.data = {};
-            zzz.data = {};
-            zzz.sys = systolic.y[i];
-            zzz.dia = diastolic.y[i];
-            zzz.line_width = 2;
-            main.line_color = 'orange';
-            main.sys = systolic.y[i];
-            main.dia = diastolic.y[i];
-            main.line_width = 2;
-            main.line_color = 'orange';
-
-            if (main.sys > constants.max_systolic || main.sys < constants.min_systolic) {
-                main.fill_color = main.color_critical;
-                main.line_width = 0;
-                main.line_color = 'brown'
-
-                zzz.fill_color = main.color_critical;
-                zzz.line_width = 0;
-                zzz.line_color = 'brown'
-            }
-
-            main.marker = {
-                enabled: true,
-                fillColor: main.fill_color,
-                lineWidth: main.line_width,
-                lineColor: null
-            };
-
-            zzz.marker = {
-                enabled: true,
-                fillColor: main.fill_color,
-                lineWidth: main.line_width,
-                lineColor: null
-            };
-
-            if (i > 0) {
-                sum = 0;
-                arr = [];
-
-                if (i > 1) {
-                    for (j = 0; j < i; j++) {
-                        arr.push(systolic.y[j])
-                        sum += sum + systolic.y[j];
-                    }
-                }
-
-                arr.forEach(function(item){
-                    sum += sum + item;
-                });
-
-                averaged.push({'x': new Date(systolic.x[i]), 'y': (main.sys + systolic.y[i-1])/2, 'tooltip': 'SYS: ' + main.sys + main.sep + formatDate(systolic.x[i])});
-            }
-
-            main.data = {'x': new Date(systolic.x[i]), 'y': main.sys, 'tooltip': 'SYS: ' + main.sys + main.sep + formatDate(systolic.x[i]), 'marker': main.marker};
-            data_sys.push(main.data);
-
-            zzz.data = main.data
-
-            main.data = {'x': new Date(diastolic.x[i]), 'y': main.dia, 'tooltip': 'DIA: ' + main.dia + main.sep + formatDate(diastolic.x[i])}
-            data_dia.push(main.data);
-
-            zzz.data = main.data
-            i++;
+        // Pre-zoom the chart
+        chart_weight.events.on("ready", function () {
+            dateAxis_weight.zoomToDates(
+                date_min,
+                date_max
+            );
         });
+
+        yAxis_weight = chart_weight.yAxes.push(new am4charts.ValueAxis());
+        yAxis_weight.min = params.y_min;
+        yAxis_weight.max = params.y_max;
+        model = params.model;
+        data = dataObject.dataTransform(model);
+        data = data.reverse();
+        min = params.min;
+        max = params.max;
+
+        for (key in data) {
+            if (data[key]['y'] > max || data[key]['y'] < min) {
+                data[key]['color_danger'] = namesConstants.get('color_danger');
+                data[key]['disabled'] = false;
+            } else {
+                data[key]['disabled'] = true;
+            }
+        }
+
+        tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}";
+
+        dump(params.strokeWidth)
+
+        config = {
+            "name": model.name,
+            "field": "y",
+            "dateX": "dates_format",
+            "comments": "comments",
+            "tooltipText": tooltipText,
+            "color": params.color,
+            "color_danger": "color_danger",
+            "strokeWidth": params.strokeWidth,
+            "disabled": "disabled",
+            "chart": chart_weight
+        }
+
+        am4Core.createSeries(data, config);
+
+        // Create legend
+        chart_weight.legend = new am4charts.Legend();
+
+        // Create cursor
+        chart_weight.cursor = new am4charts.XYCursor();
+
+        // Enable export
+        chart_weight.exporting.menu = new am4core.ExportMenu();
     </script>
 
 </body>
