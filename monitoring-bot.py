@@ -2,6 +2,7 @@ from init import *
 
 LAST_TASK_PUSH = 0
 
+
 class ContractTasks(db.Model):
     __tablename__ = 'contract_tasks'
 
@@ -37,6 +38,7 @@ class CategoryParams(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
+
 class Medicines(db.Model):
     __tablename__ = 'medicines'
 
@@ -64,10 +66,12 @@ class MedicinesResults(db.Model):
     last_push = db.Column(db.DateTime)
     show = db.Column(db.Boolean)
 
+
 # METHODS
 
 def toDate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp)
+
 
 def nowDate():
     date_now = datetime.datetime.now()
@@ -490,10 +494,10 @@ def process_records():
             print(e)
             print("problem with record", record.id)
 
-
     if go_task:
         LAST_TASK_PUSH = time.time()
         delayed(1, dayTaskPlanning, [megaTask])
+
 
 def process_medicines():
     now = datetime.datetime.now()
@@ -584,8 +588,11 @@ def process_medicines():
 
 def sender():
     while True:
-        process_records()
-        process_medicines()
+        try:
+            process_records()
+            process_medicines()
+        except Exception as e:
+            print(e)
 
         time.sleep(60)
 
@@ -1285,7 +1292,6 @@ def graph():
                                shin_right=shin_right,
                                medicine_trace_data=medicines_trace_data
                                )
-
 
     return "ok"
 
@@ -2102,7 +2108,6 @@ def action_pull_save(pull):
         if pulse_ < MIN_PULSE or pulse_ > MAX_PULSE:
             return ERROR_OUTSIDE_PULSE
 
-
         query = CategoryParams.query.filter_by(contract_id=contract_id, category='systolic_pressure')
 
         if query.count() != 0:
@@ -2114,7 +2119,6 @@ def action_pull_save(pull):
         if q.count() != 0:
             task = q.first()
             task_id = task.task_id
-
 
         try:
             max_systolic = int(params['max_systolic'])
