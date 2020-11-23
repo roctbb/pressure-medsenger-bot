@@ -1263,6 +1263,7 @@
                 yAxis = chart.yAxes.push(new am4charts.ValueAxis())
                 yAxis.min = params.y_min
                 yAxis.max = params.y_max
+                yAxis.minGridDistance = 10
                 model = params.model
                 data = dataObject.dataTransform(model)
                 data = data.reverse()
@@ -1323,12 +1324,6 @@
 
 
                 let bullet = series.bullets.push(new am4charts.Bullet())
-
-
-
-
-
-
 
                 bullet.disabled = "disabled"
                 bullet.propertyFields.disabled = config.disabled
