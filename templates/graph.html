@@ -430,6 +430,8 @@
         am4core__ = am4core
         am4charts__ = am4charts
 
+        am4core.options.disableHoverOnTransform = "touch";
+
         /**
          * ---------------------------------------
          * This demo was created using amCharts 4.
@@ -695,7 +697,7 @@
             var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
             chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS"
             chart.language.locale = am4lang_ru_RU
-            chart.seriesContainer.resizable = false;
+
 
             // Create axes
             var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
