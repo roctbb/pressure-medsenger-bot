@@ -354,6 +354,7 @@
 
     <!-- Chart systolic-diastolic-pulse-medicines -->
     <script>
+
         const all_graph = document.getElementById('all_graph')
         const pressure_graph = document.getElementById('pressure_graph')
         const weight_graph = document.getElementById('weight_graph')
@@ -429,8 +430,6 @@
 
         am4core__ = am4core
         am4charts__ = am4charts
-
-        am4core.options.disableHoverOnTransform = "touch";
 
         /**
          * ---------------------------------------
@@ -693,7 +692,6 @@
             let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"]
 
             am4core__.useTheme(am4themes_animated)
-
             var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
             chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS"
             chart.language.locale = am4lang_ru_RU
@@ -935,10 +933,12 @@
             createSeries("pulse_value", pulse_.name, config);
 
             chart.legend = new am4charts__.Legend();
-            chart.cursor = new am4charts__.XYCursor();
+            chart.cursor = new am4charts__.XYCursor()
+            chart.cursor.behavior = "panXY"
 
             // Enable export
             chart.exporting.menu = new am4core__.ExportMenu()
+
 
             })
 
@@ -1037,25 +1037,14 @@
             let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis())
             categoryAxis_pain.renderer.grid.template.location = 0
 
-
-
-
-
-
-
             let valueAxis_pain = chart_pain.yAxes.push(new am4charts_pain.ValueAxis())
-
-
-
-
-
 
 
             valueAxis_pain.renderer.minGridDistance = 50
 
             chart_pain.data = data_pain.reverse()
 
-            let date_max = new Date(pain_assessment['date_max'].replace(' ', 'T'));
+            let date_max = new Date(pain_assessment['date_max'].replace(' ', 'T'))
             let date_min = new Date(pain_assessment['date_min'].replace(' ', 'T'));
 
             // Pre-zoom the chart
@@ -1184,6 +1173,7 @@
 
             chart_pain.legend = new am4charts_pain.Legend();
             chart_pain.cursor = new am4charts_pain.XYCursor();
+            chart_pain.cursor.behavior = "panXY"
 
             // Enable export
             chart_pain.exporting.menu = new am4core_pain.ExportMenu()
@@ -1252,7 +1242,7 @@
 
 
 
-                let date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+                let date_max = new Date(params.model['date_max'].replace(' ', 'T'))
                 let date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
                 // Pre-zoom the chart
@@ -1306,6 +1296,8 @@
 
                 // Create cursor
                 chart.cursor = new am4charts.XYCursor()
+                chart.cursor.behavior = "panXY"
+
 
                 // Enable export
                 chart.exporting.menu = new am4core.ExportMenu()
@@ -1375,7 +1367,7 @@
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.renderer.minGridDistance = 50;
 
-        date_max = new Date(shin_left['date_max'].replace(' ', 'T'));
+        date_max = new Date(shin_left['date_max'].replace(' ', 'T'))
         date_min = new Date(shin_left['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1411,6 +1403,7 @@
 
         // Add cursor
         chart.cursor = new am4charts.XYCursor();
+        chart.cursor.behavior = "panXY"
         chart.cursor.xAxis = dateAxis;
 
         // Enable export
@@ -1432,7 +1425,7 @@
             "location": 0,
             "distance": 100,
             "y_min": 0,
-            "y_max": 100,
+            "y_max": 200,
             "min": model.min,
             "max": model.max,
             "color": "#2f2f1e",
@@ -1452,7 +1445,7 @@
 
 
 
-        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1505,6 +1498,7 @@
 
         // Create cursor
         chart_waist.cursor = new am4charts.XYCursor()
+        chart_waist.cursor.behavior = "panXY"
 
         // Enable export
         chart_waist.exporting.menu = new am4core.ExportMenu()
@@ -1526,7 +1520,7 @@
             "location": 0,
             "distance": 100,
             "y_min": 0,
-            "y_max": 100,
+            "y_max": 120,
             "min": model.min,
             "max": model.max,
             "color": "brown",
@@ -1542,7 +1536,7 @@
         dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
         dateAxis_spo2.renderer.grid.template.location = params.location
 
-        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1595,6 +1589,7 @@
 
         // Create cursor
         chart_spo2.cursor = new am4charts.XYCursor()
+        chart_spo2.cursor.behavior = "panXY"
 
         // Enable export
         chart_spo2.exporting.menu = new am4core.ExportMenu()
@@ -1613,8 +1608,8 @@
             "lang": am4lang_ru_RU,
             "location": 0,
             "distance": 100,
-            "y_min": 33,
-            "y_max": 43,
+            "y_min": 20,
+            "y_max": 45,
             "min": model.min,
             "max": model.max,
             "color": "#23759F",
@@ -1630,7 +1625,7 @@
         dateAxis_temperature.renderer.grid.template.location = params.location
 
 
-        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1681,6 +1676,7 @@
 
         // Create cursor
         chart_temperature.cursor = new am4charts.XYCursor()
+        chart_temperature.cursor.behavior = "panXY"
 
         // Enable export
         chart_temperature.exporting.menu = new am4core.ExportMenu()
@@ -1718,7 +1714,7 @@
 
 
 
-        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1771,6 +1767,7 @@
 
         // Create cursor
         chart_glukose.cursor = new am4charts.XYCursor()
+        chart_glukose.cursor.behavior = "panXY"
 
         // Enable export
         chart_glukose.exporting.menu = new am4core.ExportMenu()
@@ -1791,7 +1788,7 @@
             "location": 0,
             "distance": 100,
             "y_min": 0,
-            "y_max": 150,
+            "y_max": 200,
             "min": model.min,
             "max": model.max,
             "color": "lightgreen",
@@ -1805,7 +1802,7 @@
         dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis());
         dateAxis_weight.renderer.grid.template.location = params.location;
 
-        date_max = new Date(params.model['date_max'].replace(' ', 'T'));
+        date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1858,6 +1855,7 @@
 
         // Create cursor
         chart_weight.cursor = new am4charts.XYCursor();
+        chart_weight.cursor.behavior = "panXY"
 
         // Enable export
         chart_weight.exporting.menu = new am4core.ExportMenu();
