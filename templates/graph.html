@@ -877,15 +877,17 @@
                 series.strokeDasharray = "3,3";
 
 
-                var bullet = series.bullets.push(new am4charts.CircleBullet());
-                bullet.circle.stroke = am4core.color("#f00");
-                bullet.circle.strokeWidth = 3;
-                bullet.circle.zindex = 10;
-
-
-
                 chart.scrollbarX = new am4core__.Scrollbar();
 
+                let circleBullet = series.bullets.push(new am4charts.CircleBullet());
+                circleBullet.circle.stroke = am4core.color(config.color);
+                circleBullet.circle.strokeWidth = 3;
+                circleBullet.tooltipText = config.tooltipText;
+
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.stroke = am4core.color("#f00");
+                bullet.circle.strokeWidth = 4;
+                bullet.circle.zindex = 10;
 
                 if (name == systolic.name) {
                     bullet.disabled = true;
@@ -901,11 +903,6 @@
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_pulse";
                 }
-
-                let circleBullet = series.bullets.push(new am4charts.CircleBullet());
-                circleBullet.circle.stroke = am4core.color(config.color);
-                circleBullet.circle.strokeWidth = 3;
-                circleBullet.tooltipText = config.tooltipText;
 
             }
 
