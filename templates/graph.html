@@ -878,15 +878,12 @@
 
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
-                let image = bullet.createChild(am4core.Image);
+                bullet.circle.stroke = am4core.color("#f00");
+                bullet.circle.strokeWidth = 3;
+                bullet.circle.zindex = 10;
 
-                image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
-                image.width = imageWidth;
-                image.height = imageWidth;
-                image.horizontalCenter = "middle";
-                image.verticalCenter = "middle";
 
-                bullet.tooltipText = config.tooltipText;
+
                 chart.scrollbarX = new am4core__.Scrollbar();
 
 
@@ -908,6 +905,7 @@
                 let circleBullet = series.bullets.push(new am4charts.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 3;
+                circleBullet.tooltipText = config.tooltipText;
 
             }
 
