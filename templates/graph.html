@@ -871,9 +871,10 @@
                 series.dataFields.dateX = "date";
                 series.name = name;
                 series.tooltipText = config.tooltipText;
-                series.strokeWidth = 2;
+                series.strokeWidth = 2
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core__.color(config.color);
+                series.strokeDasharray = "3,3";
 
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
@@ -903,6 +904,10 @@
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_pulse";
                 }
+
+                let labelBullet = series.bullets.push(new am4charts.LabelBullet());
+                labelBullet.label.text = "{value}";
+                labelBullet.label.dy = -20;
             }
 
             tooltipText = "Верхнее давление: [bold]{systolic_pressure}[normal] " + " | до " + constants.max_systolic + " | {date_tooltip}" + "\n {comment}"
