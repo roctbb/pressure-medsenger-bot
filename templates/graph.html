@@ -907,11 +907,8 @@
 
                 let circleBullet = series.bullets.push(new am4charts.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
-                circleBullet.circle.strokeWidth = 5;
+                circleBullet.circle.strokeWidth = 3;
 
-                let labelBullet = series.bullets.push(new am4charts.LabelBullet());
-                labelBullet.label.text = "{systolic_pressure}{diastolic_pressure}{pulse_value}";
-                labelBullet.label.dy = -20;
             }
 
             tooltipText = "Верхнее давление: [bold]{systolic_pressure}[normal] " + " | до " + constants.max_systolic + " | {date_tooltip}" + "\n {comment}"
