@@ -905,6 +905,10 @@
                     bullet.propertyFields.disabled = "disabled_pulse";
                 }
 
+                let circleBullet = series.bullets.push(new am4charts.CircleBullet());
+                circleBullet.circle.stroke = am4core.color(config.color);
+                circleBullet.circle.strokeWidth = 2;
+
                 let labelBullet = series.bullets.push(new am4charts.LabelBullet());
                 labelBullet.label.text = "{value}";
                 labelBullet.label.dy = -20;
