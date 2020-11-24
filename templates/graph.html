@@ -1384,7 +1384,7 @@
         series.dataFields.valueY = "value1";
         series.dataFields.dateX = "date";
         series.strokeWidth = 2;
-        series.minBulletDistance = 10;
+        series.strokeDasharray = "3,4"
         series.tooltipText = "Объем левой голени: [bold]{value1}[/] см | {date.formatDate('dd-MM-yyyy k:mm')}\nОбъем правой голени: [bold]{value2}[/] см | {previousDate.formatDate('dd-MM-yyyy k:mm')}";
         series.tooltip.pointerOrientation = "vertical";
         series.name = 'Обхват голени'
@@ -1394,7 +1394,7 @@
         series2.dataFields.valueY = "value2";
         series2.dataFields.dateX = "date";
         series2.strokeWidth = 2;
-        series2.strokeDasharray = "3,4";
+        series2.strokeDasharray = "3,3";
         series2.stroke = series.stroke;
 
         // Create legend
@@ -1607,8 +1607,8 @@
             "lang": am4lang_ru_RU,
             "location": 0,
             "distance": 100,
-            "y_min": 20,
-            "y_max": 45,
+            "y_min": 28,
+            "y_max": 44,
             "min": model.min,
             "max": model.max,
             "color": "#23759F",
