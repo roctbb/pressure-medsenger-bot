@@ -874,8 +874,7 @@
                 series.strokeWidth = 2
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core__.color(config.color);
-                series.strokeDasharray = "3,3";
-
+                series.strokeDasharray = "3,3"
 
                 chart.scrollbarX = new am4core__.Scrollbar();
 
@@ -1070,25 +1069,24 @@
                 series_pain.strokeWidth = 2;
                 series_pain.propertyFields.stroke = "color"
                 series_pain.stroke = am4core_pain.color(config.color)
+                series_pain.strokeDasharray = "3,3"
 
 
 
+                var circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
+                circleBullet.circle.stroke = am4core.color(config.color);
+                circleBullet.circle.strokeWidth = 3;
+                circleBullet.tooltipText = config.tooltipText;
 
+                var bullet = series_pain.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.stroke = am4core.color("#f00");
+                bullet.circle.strokeWidth = 4;
+                bullet.circle.zindex = 10;
 
+                bullet.disabled = true
+                bullet.propertyFields.disabled = "disabled_pain"
 
-                var bullet_pain = series_pain.bullets.push(new am4charts_pain.Bullet());
-                var image_pain = bullet_pain.createChild(am4core_pain.Image);
-
-                image_pain.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
-                image_pain.width = image_width_pain;
-                image_pain.height = image_width_pain;
-                image_pain.horizontalCenter = "middle";
-                image_pain.verticalCenter = "middle";
-
-                bullet_pain.disabled = true
-                bullet_pain.propertyFields.disabled = "disabled_pain"
-
-                bullet_pain.tooltipText = config.tooltipText
+                bullet.tooltipText = config.tooltipText
                 chart_pain.scrollbarX = new am4core_pain.Scrollbar()
             }
 
@@ -1316,21 +1314,21 @@
                 series.tooltipText = config.tooltipText
                 series.strokeWidth = config.strokeWidth
                 series.stroke = config.color
+                series.strokeDasharray = "3,3"
                 series.data = data
 
+                var circleBullet = series.bullets.push(new am4charts_pain.CircleBullet());
+                circleBullet.circle.stroke = am4core.color(config.color);
+                circleBullet.circle.strokeWidth = 3;
+                circleBullet.tooltipText = config.tooltipText;
 
-                let bullet = series.bullets.push(new am4charts.Bullet())
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.stroke = am4core.color("#f00");
+                bullet.circle.strokeWidth = 4;
+                bullet.circle.zindex = 10;
 
                 bullet.disabled = "disabled"
                 bullet.propertyFields.disabled = config.disabled
-
-                let image = bullet.createChild(am4core.Image);
-
-                image.href = "https://img2.freepng.ru/20180328/faw/kisspng-circle-symbol-font-new-5abb8f0aa93728.5304686315222412906931.jpg";
-                image.width = imageWidth;
-                image.height = imageWidth;
-                image.horizontalCenter = "middle";
-                image.verticalCenter = "middle";
 
                 return series;
             }
