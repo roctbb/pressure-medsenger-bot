@@ -696,12 +696,16 @@
             chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS"
             chart.language.locale = am4lang_ru_RU
 
-
             // Create axes
-            var categoryAxis = chart.xAxes.push(new am4charts__.DateAxis())
-            categoryAxis.renderer.grid.template.location = 0
-            var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
+            axis = new am4charts__.DateAxis()
+            axis.dateFormats.setKey("day", "dd.MM")
+            axis.dateFormats.setKey("week", "dd.MM")
+            axis.dateFormats.setKey("month", "MM.yyyy")
 
+            var categoryAxis = chart.xAxes.push(axis)
+            categoryAxis.renderer.grid.template.location = 0
+
+            var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
             let dateOut = ''
             let date_tooltip = ''
 
@@ -788,12 +792,6 @@
             let date_max = new Date(systolic['date_max'].replace(' ', 'T'))
             let date_min = new Date(systolic['date_min'].replace(' ', 'T'))
             let zoomToDates = systolic['zoomToDates']
-
-            // Pre-zoom the chart
-
-            dump(date_min)
-            dump(date_max)
-            dump(zoomToDates)
 
             if (zoomToDates == 'on') {
                 chart.events.on("ready", function () {
@@ -938,6 +936,7 @@
 
             // Enable export
             chart.exporting.menu = new am4core__.ExportMenu()
+            chart.exporting.menu.verticalAlign = "bottom";
 
 
             })
@@ -1035,6 +1034,9 @@
 
             // Create axes
             let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis())
+            categoryAxis_pain.dateFormats.setKey("day", "dd.MM")
+            categoryAxis_pain.dateFormats.setKey("week", "dd.MM")
+            categoryAxis_pain.dateFormats.setKey("month", "MM.yyyy")
             categoryAxis_pain.renderer.grid.template.location = 0
 
             let valueAxis_pain = chart_pain.yAxes.push(new am4charts_pain.ValueAxis())
@@ -1176,6 +1178,7 @@
 
             // Enable export
             chart_pain.exporting.menu = new am4core_pain.ExportMenu()
+            chart_pain.exporting.menu.verticalAlign = "bottom";
 
             // End *******
 
@@ -1236,6 +1239,9 @@
                 chart = am4core.create(params.div, am4charts.XYChart)
                 chart.language.locale = params.lang
                 dateAxis = chart.xAxes.push(new am4charts.DateAxis())
+                dateAxis.dateFormats.setKey("day", "dd.MM")
+                dateAxis.dateFormats.setKey("week", "dd.MM")
+                dateAxis.dateFormats.setKey("month", "MM.yyyy")
                 dateAxis.renderer.grid.template.location = params.location
 
 
@@ -1300,6 +1306,7 @@
 
                 // Enable export
                 chart.exporting.menu = new am4core.ExportMenu()
+                chart.exporting.menu.verticalAlign = "bottom";
             },
             "createSeries": function(data, config) {
                 let series = config.chart.series.push(new am4charts.LineSeries())
@@ -1364,6 +1371,9 @@
 
         // Create axes
         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        dateAxis.dateFormats.setKey("day", "dd.MM")
+        dateAxis.dateFormats.setKey("week", "dd.MM")
+        dateAxis.dateFormats.setKey("month", "MM.yyyy")
         dateAxis.renderer.minGridDistance = 50;
 
         date_max = new Date(shin_left['date_max'].replace(' ', 'T'))
@@ -1407,6 +1417,7 @@
 
         // Enable export
         chart.exporting.menu = new am4core.ExportMenu()
+        chart.exporting.menu.verticalAlign = "bottom";
 
         // ************************************
         // ******* Create chart instance waist
@@ -1440,6 +1451,9 @@
         chart_waist.language.locale = params.lang
         dateAxis_waist = chart_waist.xAxes.push(new am4charts.DateAxis())
         dateAxis_waist.renderer.grid.template.location = params.location
+        dateAxis_waist.dateFormats.setKey("day", "dd.MM")
+        dateAxis_waist.dateFormats.setKey("week", "dd.MM")
+        dateAxis_waist.dateFormats.setKey("month", "MM.yyyy")
 
 
 
@@ -1501,6 +1515,7 @@
 
         // Enable export
         chart_waist.exporting.menu = new am4core.ExportMenu()
+        chart_waist.exporting.menu.verticalAlign = "bottom";
 
 
         // ************************************
@@ -1534,6 +1549,10 @@
         chart_spo2.language.locale = params.lang
         dateAxis_spo2 = chart_spo2.xAxes.push(new am4charts.DateAxis())
         dateAxis_spo2.renderer.grid.template.location = params.location
+        dateAxis_spo2.dateFormats.setKey("day", "dd.MM")
+        dateAxis_spo2.dateFormats.setKey("week", "dd.MM")
+        dateAxis_spo2.dateFormats.setKey("month", "MM.yyyy")
+
 
         date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
@@ -1592,6 +1611,7 @@
 
         // Enable export
         chart_spo2.exporting.menu = new am4core.ExportMenu()
+        chart_spo2.exporting.menu.verticalAlign = "bottom";
 
         // *****************************************
         // ******* Create chart instance temperature
@@ -1622,6 +1642,9 @@
         chart_temperature.language.locale = params.lang
         dateAxis_temperature = chart_temperature.xAxes.push(new am4charts.DateAxis())
         dateAxis_temperature.renderer.grid.template.location = params.location
+        dateAxis_temperature.dateFormats.setKey("day", "dd.MM")
+        dateAxis_temperature.dateFormats.setKey("week", "dd.MM")
+        dateAxis_temperature.dateFormats.setKey("month", "MM.yyyy")
 
 
         date_max = new Date(params.model['date_max'].replace(' ', 'T'))
@@ -1679,6 +1702,7 @@
 
         // Enable export
         chart_temperature.exporting.menu = new am4core.ExportMenu()
+        chart_temperature.exporting.menu.verticalAlign = "bottom";
 
         // *************************************
         // ******* Create chart instance glukose
@@ -1709,7 +1733,9 @@
         chart_glukose.language.locale = params.lang
         dateAxis_glukose = chart_glukose.xAxes.push(new am4charts.DateAxis())
         dateAxis_glukose.renderer.grid.template.location = params.location
-
+        dateAxis_glukose.dateFormats.setKey("day", "dd.MM")
+        dateAxis_glukose.dateFormats.setKey("week", "dd.MM")
+        dateAxis_glukose.dateFormats.setKey("month", "MM.yyyy")
 
 
 
@@ -1770,6 +1796,7 @@
 
         // Enable export
         chart_glukose.exporting.menu = new am4core.ExportMenu()
+        chart_glukose.exporting.menu.verticalAlign = "bottom";
 
 
         // ************************************
@@ -1800,6 +1827,9 @@
         chart_weight.language.locale = params.lang;
         dateAxis_weight = chart_weight.xAxes.push(new am4charts.DateAxis());
         dateAxis_weight.renderer.grid.template.location = params.location;
+        dateAxis_weight.dateFormats.setKey("day", "dd.MM")
+        dateAxis_weight.dateFormats.setKey("week", "dd.MM")
+        dateAxis_weight.dateFormats.setKey("month", "MM.yyyy")
 
         date_max = new Date(params.model['date_max'].replace(' ', 'T'))
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
@@ -1858,6 +1888,7 @@
 
         // Enable export
         chart_weight.exporting.menu = new am4core.ExportMenu();
+        chart_weight.exporting.menu.verticalAlign = "bottom";
     </script>
 
 </body>
