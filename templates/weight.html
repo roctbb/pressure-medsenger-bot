@@ -52,7 +52,8 @@
                     weight: null,
                     comments: null,
                     activeColor: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    confirmation: {{ confirmation }}
                 },
             methods: {
                 checkForm: function (e) {
@@ -66,7 +67,7 @@
                         this.errors.push('Требуется указать значение веса.');
                     }
 
-                    if (this.errors.length > 0)
+                    if (this.errors.length > 0 || (this.confirmation && !confirm('Вес - ' + this.weight + ' кг ?')))
                         e.preventDefault();
                 }
             },

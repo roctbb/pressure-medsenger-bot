@@ -52,7 +52,8 @@
                     spo2: null,
                     comments: null,
                     activeColor: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    confirmation: {{ confirmation }}
                 },
             methods: {
                 checkForm: function (e) {
@@ -68,7 +69,7 @@
                         }
                     }
 
-                    if (this.errors.length > 0)
+                    if (this.errors.length > 0 || (this.confirmation && !confirm('Уровень насыщения крови - ' + this.spo2 + '% ?')))
                         e.preventDefault();
                 }
             },

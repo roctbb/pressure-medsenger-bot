@@ -58,7 +58,8 @@
                     shin_right: null,
                     comments: null,
                     activeColor: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    confirmation: {{ confirmation }}
                 },
             methods: {
                 checkForm: function (e) {
@@ -80,7 +81,7 @@
                         this.errors.push('Требуется указать значение окружности правой голени.');
                     }
 
-                    if (this.errors.length > 0)
+                    if (this.errors.length > 0 || (this.confirmation && !confirm('Окружности левой и правой голени - ' + this.shin_left + 'см /' + this.shin_right + 'см ?')))
                         e.preventDefault();
                 }
             },

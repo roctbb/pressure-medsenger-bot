@@ -6,7 +6,8 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
     <style>
@@ -20,7 +21,7 @@
         }
 
         li {
-           list-style-type: none; /* Убираем маркеры */
+            list-style-type: none; /* Убираем маркеры */
         }
 
         ul {
@@ -29,7 +30,7 @@
         }
 
         .select {
-           margin-top: -25px;
+            margin-top: -25px;
         }
 
         th {
@@ -89,7 +90,7 @@
         .mt5 {
             margin-bottom: 5px;
         }
-  </style>
+    </style>
 </head>
 <body>
 <div class="container mt15" id="app">
@@ -135,31 +136,31 @@
                     <label class="small mb0 ccc" for="mode">Время приема</label>
 
                     <div v-if="medicines.mode === 'weekly'">
-                            <div class="form-group" v-if="medicines.show">
-                                <ul v-for="(medicine, index) in medicines.timetable">
-                                    <li v-for="(days_week, index) in medicine.days_week">
-                                        <select class="form-control w30-inline small" v-model="days_week.day">
-                                            <option value="1">ПН</option>
-                                            <option value="2">ВТ</option>
-                                            <option value="3">СР</option>
-                                            <option value="4">ЧТ</option>
-                                            <option value="5">ПТ</option>
-                                            <option value="6">СБ</option>
-                                            <option value="7">ВС</option>
-                                        </select>
+                        <div class="form-group" v-if="medicines.show">
+                            <ul v-for="(medicine, index) in medicines.timetable">
+                                <li v-for="(days_week, index) in medicine.days_week">
+                                    <select class="form-control w30-inline small" v-model="days_week.day">
+                                        <option value="1">ПН</option>
+                                        <option value="2">ВТ</option>
+                                        <option value="3">СР</option>
+                                        <option value="4">ЧТ</option>
+                                        <option value="5">ПТ</option>
+                                        <option value="6">СБ</option>
+                                        <option value="7">ВС</option>
+                                    </select>
 
-                                        <input type="number" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
+                                    <input type="number" class="form-control form-control-sm w30-inline" v-model="days_week.hour"/> <span class="small">:00</span>
 
-                                        <a href="#" v-on:click.prevent="$delete(medicine.days_week, index)">
-                                            <small>&nbsp;&nbsp;Удалить</small>
-                                        </a>
-                                    </li>
-
-                                    <a href="#" v-on:click.prevent="add_medicine_day(medicine.days_week)">
-                                        <small class="mt-10">Добавить</small>
+                                    <a href="#" v-on:click.prevent="$delete(medicine.days_week, index)">
+                                        <small>&nbsp;&nbsp;Удалить</small>
                                     </a>
-                                </ul>
-                            </div>
+                                </li>
+
+                                <a href="#" v-on:click.prevent="add_medicine_day(medicine.days_week)">
+                                    <small class="mt-10">Добавить</small>
+                                </a>
+                            </ul>
+                        </div>
                     </div>
 
                     <div v-if="medicines.mode === 'daily'">
@@ -377,6 +378,12 @@
             </div>
         </div>
 
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" v-model="confirmation">
+            <label class="form-check-label">При вводе данных уточнять правильность</label>
+        </div>
+
+
         <div class="form-group">
             <input type="submit" class="btn-success btn" value="Сохранить"/>
         </div>
@@ -392,7 +399,8 @@
         data: {
             medicines_data: JSON.parse('{{medicines_data | safe }}'),
             medicines_data_new: JSON.parse('{{medicines_data_new | safe }}'),
-            measurements_data: JSON.parse('{{measurements_data | safe }}')
+            measurements_data: JSON.parse('{{measurements_data | safe }}'),
+            confirmation: {{ confirmation }}
         },
         methods: {
             hide: function () {
@@ -416,7 +424,7 @@
             },
             add_measurement_param: function (measurements) {
                 measurements.push(
-                        {
+                    {
                         "name": "",
                         "alias": "",
                         "mode": "daily",
@@ -447,7 +455,16 @@
             add_medicines: function (medicines_data) {
                 date = new Date()
                 timestamp = date.valueOf()
-                let item = {"name": "", "mode": "daily", "amount": "", "dosage": "", "last_sent": 0, "timetable": [{"days_month": [{"day": 1, "hour": 10}], "days_week": [{"day": 1, "hour": 10}], "hours": [{"value": 10}]}], "times": [], "show": true}
+                let item = {
+                    "name": "",
+                    "mode": "daily",
+                    "amount": "",
+                    "dosage": "",
+                    "last_sent": 0,
+                    "timetable": [{"days_month": [{"day": 1, "hour": 10}], "days_week": [{"day": 1, "hour": 10}], "hours": [{"value": 10}]}],
+                    "times": [],
+                    "show": true
+                }
                 medicines_data.push(item)
             },
             add_medicine_time: function (hours) {
@@ -461,19 +478,18 @@
                     "json": JSON.stringify({
                         mode: this.mode,
                         medicines_data: this.medicines_data,
-                        measurements_data: this.measurements_data
+                        measurements_data: this.measurements_data,
+                        confirmation: this.confirmation
                     })
                 }).then(function (response) {
 
-                    console.log('response' ,response);
+                    console.log('response', response);
 
-                    if (response.data == 'ok')
-                    {
+                    if (response.data == 'ok') {
                         console.log('settings.html | close-modal-success')
-                        window.parent.postMessage('close-modal-success','*');
+                        window.parent.postMessage('close-modal-success', '*');
                         console.log('window.parent', window.parent);
-                    }
-                    else {
+                    } else {
                         alert("Заполните все поля!");
                     }
                 }).catch(function (error) {

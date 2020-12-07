@@ -22,6 +22,7 @@ class ActualBots(db.Model):
     actual = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
+    confirmation = db.Column(db.Boolean, default=False)
 
 
 class CategoryParams(db.Model):
@@ -1310,6 +1311,8 @@ def settings():
     if contract_id == ERROR_CONTRACT:
         return ERROR_CONTRACT
 
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
     categories = getCategories()
     categories_description = {}
@@ -1480,7 +1483,7 @@ def settings():
     return render_template('settings.html',
                            medicines_data=json.dumps(medicines),
                            measurements_data=json.dumps(measurements),
-                           medicines_data_new=json.dumps(medicines_new))
+                           medicines_data_new=json.dumps(medicines_new), confirmation=str(contract.confirmation).lower())
 
 
 @app.route('/medicine/<uid>', methods=['GET'])
@@ -1530,14 +1533,20 @@ def medicine_done_post():
 
 @app.route('/frame/<string:pull>', methods=['GET'])
 def action_pull(pull):
-    quard()
+    contract_id = quard()
+
+    if contract_id in ERRORS:
+        return contract_id
+
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
     constants = {}
 
     if pull == 'shin':
         constants['shin_max'] = MAX_SHIN
         constants['shin_min'] = MIN_SHIN
 
-        return render_template('shin.html', tmpl=pull, constants=constants)
+        return render_template('shin.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'pressure':
         constants['sys_max'] = MAX_SYSTOLIC
@@ -1547,45 +1556,45 @@ def action_pull(pull):
         constants['pulse_max'] = MAX_PULSE
         constants['pulse_min'] = MIN_PULSE
 
-        return render_template('pressure.html', tmpl=pull, constants=constants)
+        return render_template('pressure.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'weight':
         constants['weight_max'] = MAX_WEIGHT
         constants['weight_min'] = MIN_WEIGHT
 
-        return render_template('weight.html', tmpl=pull, constants=constants)
+        return render_template('weight.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'temperature':
         constants['temperature_max'] = MAX_TEMPERATURE
         constants['temperature_min'] = MIN_TEMPERATURE
 
-        return render_template('temperature.html', tmpl=pull, constants=constants)
+        return render_template('temperature.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'glukose':
         constants['glukose_max'] = MAX_GLUKOSE
         constants['glukose_min'] = MIN_GLUKOSE
 
-        return render_template('glukose.html', tmpl=pull, constants=constants)
+        return render_template('glukose.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'pain_assessment':
         constants['pain_assessment_max'] = MAX_ASSESSMENT
         constants['pain_assessment_min'] = MIN_ASSESSMENT
 
-        return render_template('pain_assessment.html', tmpl=pull, constants=constants)
+        return render_template('pain_assessment.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'spo2':
         constants['spo2_max'] = MAX_SPO2
         constants['spo2_min'] = MIN_SPO2
 
-        return render_template('spo2.html', tmpl=pull, constants=constants)
+        return render_template('spo2.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
     if pull == 'waist':
         constants['waist_max'] = MAX_WAIST
         constants['waist_min'] = MIN_WAIST
 
-        return render_template('waist.html', tmpl=pull, constants=constants)
+        return render_template('waist.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
-    return render_template('measurement.html', tmpl=pull, constants=constants)
+    return render_template('measurement.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
 
 
 # ROUTES POST
@@ -1627,12 +1636,17 @@ def setting_save():
     if contract_id in ERRORS:
         return contract_id
 
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
     try:
         data = json.loads(request.form.get('json'))
     except Exception as e:
         error('Error json.loads()')
         print(e)
         return 'ERROR_JSON_LOADS'
+
+    contract.confirmation = data['confirmation']
+    db.session.commit()
 
     for measurement in data['measurements_data']:
         params = {}
