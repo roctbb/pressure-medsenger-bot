@@ -1749,6 +1749,98 @@ def setting_save():
 
     return "ok"
 
+@app.route('/order', methods=['POST'])
+def init():
+    data = request.json
+    contract_id = quard_data_json(data)
+
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
+    if contract:
+        try:
+            order = data['order']
+
+            if order == "enable_monitoring" or order == "disable_monitoring":
+                category = data['params']['category']
+
+                if category != "pressure":
+                    record = CategoryParams.query.filter_by(contract_id=contract_id, category=category).first()
+
+                    if order == "disable_monitoring":
+                        record.show = False
+                    else:
+                        timetable = data['params']['timetable']
+                        mode = data['params']['mode']
+                        min_value = data['params']['min']
+                        max_value = data['params']['max']
+
+                        record.show = True
+                        record.timetable = timetable
+                        record.params = {
+                            "min": min_value,
+                            "max": max_value
+                        }
+                        record.mode = mode
+                else:
+                    sp = CategoryParams.query.filter_by(contract_id=contract_id, category="systolic_pressure").first()
+                    dp = CategoryParams.query.filter_by(contract_id=contract_id, category="diastolic_pressure").first()
+                    pulse = CategoryParams.query.filter_by(contract_id=contract_id, category="pulse").first()
+
+                    entries = [sp, dp, pulse]
+
+                    if order == "disable_monitoring":
+                        for e in entries:
+                            e.show = False
+                    else:
+                        timetable = data['params']['timetable']
+                        mode = data['params']['mode']
+                        params = {
+                            "max_systolic": data['params']['max_systolic'],
+                            "min_systolic": data['params']['min_systolic'],
+                            "max_diastolic": data['params']['max_diastolic'],
+                            "min_diastolic": data['params']['min_diastolic'],
+                            "max_pulse": data['params']['max_pulse'],
+                            "min_pulse": data['params']['min_pulse']
+                        }
+
+                        for e in entries:
+                            e.show = True
+                            e.timetable = timetable
+                            e.params = params
+                            e.mode = mode
+            if order == "add_medicine":
+                name = data['params']['name']
+                mode = data['params']['mode']
+                dosage = data['params']['dosage']
+                amount = data['params']['amount']
+                timetable = json.dumps(data['params']['timetable'])
+
+                query_str = "INSERT INTO medicines VALUES((select uuid_generate_v4())," + \
+                            str(contract_id) + "," + \
+                            Aux.quote() + str(name) + Aux.quote() + "," + \
+                            Aux.quote() + str(mode) + Aux.quote() + "," + \
+                            Aux.quote() + str(dosage) + Aux.quote() + "," + \
+                            Aux.quote() + str(amount) + Aux.quote() + "," + \
+                            Aux.quote() + str(timetable) + Aux.quote() + "," + \
+                            Aux.quote() + str(True) + Aux.quote() + \
+                            ", (select * from now()), (select * from now()), (select * from now()))"
+
+                DB.query(query_str)
+
+            if order == "remove_medicine":
+                name = data['params']['name']
+
+                query_str = "UPDATE medicines set show = " + Aux.quote() + str(False) + Aux.quote() + \
+                            " WHERE name = " + Aux.quote() + str(name) + Aux.quote()
+
+                DB.query(query_str)
+
+            db.session.commit()
+            return "ok"
+        except Exception as e:
+            print(e)
+    else:
+        return "error"
 
 @app.route('/init', methods=['POST'])
 def init():
