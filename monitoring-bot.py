@@ -355,6 +355,10 @@ def quard_data_json(data):
 
     return contract_id
 
+try:
+    db.create_all()
+except:
+    print('cant create structure')
 
 def quard():
     key = request.args.get('api_key', '')
@@ -1750,7 +1754,7 @@ def setting_save():
     return "ok"
 
 @app.route('/order', methods=['POST'])
-def init():
+def order():
     data = request.json
     contract_id = quard_data_json(data)
 
