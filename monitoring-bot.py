@@ -1835,7 +1835,7 @@ def order():
                 name = data['params']['name']
 
                 query_str = "UPDATE medicines set show = " + Aux.quote() + str(False) + Aux.quote() + \
-                            " WHERE name = " + Aux.quote() + str(name) + Aux.quote()
+                            " WHERE name = " + Aux.quote() + str(name) + Aux.quote() + " and contract_id = " + contract.id
 
                 DB.query(query_str)
 
