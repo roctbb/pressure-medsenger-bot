@@ -377,10 +377,14 @@
                 </div>
             </div>
         </div>
-
+        <hr>
         <div class="form-check">
             <input type="checkbox" class="form-check-input" v-model="confirmation">
             <label class="form-check-label">При вводе данных уточнять правильность</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" v-model="patient_medicines_enabled">
+            <label class="form-check-label">Запрашивать свой список лекарств</label>
         </div>
 
 
@@ -400,7 +404,9 @@
             medicines_data: JSON.parse('{{medicines_data | safe }}'),
             medicines_data_new: JSON.parse('{{medicines_data_new | safe }}'),
             measurements_data: JSON.parse('{{measurements_data | safe }}'),
-            confirmation: {{ confirmation }}
+            confirmation: {{ confirmation }},
+            patient_medicines_enabled: {{ patient_medicines_enabled }}
+
         },
         methods: {
             hide: function () {
@@ -479,7 +485,8 @@
                         mode: this.mode,
                         medicines_data: this.medicines_data,
                         measurements_data: this.measurements_data,
-                        confirmation: this.confirmation
+                        confirmation: this.confirmation,
+                        patient_medicines_enabled: this.patient_medicines_enabled
                     })
                 }).then(function (response) {
 

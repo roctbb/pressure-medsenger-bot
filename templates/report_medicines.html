@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Список лекарств{% endblock %}
+{% block style %}{{ super() }}{% endblock %}
+
+{% block body %}
+<body onload="">
+<div class="container mt15">
+    <h6>Какие лекарства вы принимаете? Укажите названия и дозировки.</h6>
+       <div class="form" method="post">
+           <div class="form-group">
+               <textarea class="form-control" name="medicines">{% if contract.patient_medicines %}{{ contract.patient_medicines }}{% endif %}</textarea>
+           </div>
+
+           <button class="btn btn-success">Сохранить</button>
+       </div>
+
+
+</div>
+</body>
+{% endblock %}

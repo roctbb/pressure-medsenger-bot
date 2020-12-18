@@ -23,6 +23,9 @@ class ActualBots(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     confirmation = db.Column(db.Boolean, default=False)
+    patient_medicines_enabled = db.Column(db.Boolean, default=False)
+    patient_medicines = db.Column(db.Text, nullable=True)
+    patient_medicines_last_push = db.Column(db.Integer, default=0)
 
 
 class CategoryParams(db.Model):
@@ -400,6 +403,11 @@ def process_records():
             contract_id = record.contract_id
             name = record.category
 
+            contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
+            if not contract or not contract.actual:
+                continue
+
             if name in STOP_LIST:
                 continue
 
@@ -590,12 +598,44 @@ def process_medicines():
 
     db.session.commit()
 
+def process_patient_medicines():
+    contracts = ActualBots.query.filter_by(actual=True, patient_medicines_enabled=True).all()
+
+    for contract in contracts:
+        if contract.patient_medicines_last_push < time.time() - 30 * 24 * 60 * 60:
+            send_medicines_query(contract)
+            contract.patient_medicines_last_push = int(time.time())
+
+    db.session.commit()
+
+def send_medicines_query(contract):
+
+    if contract.patient_medicines:
+        message = "В прошлом месяце вы сообщили, что принимаете следующие лекарства. Если этот список изменился, пожалуйста, нажмите на кнопку ниже и внесите изменения."
+        message += '\n\n' + contract.patient_medicines
+    else:
+        message = "Какие лекарства вы принимаете? Чтобы упростить работу врача, нажмите на кнопку ниже и перечислите их в свободной форме с указанием дозировки."
+
+    data = {
+        "contract_id": contract.contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": message,
+            "only_patient": True,
+            "action_link": "report_medicines",
+            "action_name": "Обновить список лекарств",
+            "action_onetime": True,
+        }
+    }
+
+    post_request(data)
 
 def sender():
     while True:
         try:
             process_records()
             process_medicines()
+            process_patient_medicines()
         except Exception as e:
             print(e)
 
@@ -1487,7 +1527,8 @@ def settings():
     return render_template('settings.html',
                            medicines_data=json.dumps(medicines),
                            measurements_data=json.dumps(measurements),
-                           medicines_data_new=json.dumps(medicines_new), confirmation=str(contract.confirmation).lower())
+                           medicines_data_new=json.dumps(medicines_new), confirmation=str(contract.confirmation).lower(),
+                           patient_medicines_enabled=str(contract.patient_medicines_enabled).lower())
 
 
 @app.route('/medicine/<uid>', methods=['GET'])
@@ -1650,6 +1691,7 @@ def setting_save():
         return 'ERROR_JSON_LOADS'
 
     contract.confirmation = data['confirmation']
+    contract.patient_medicines_enabled = data['patient_medicines_enabled']
     db.session.commit()
 
     for measurement in data['measurements_data']:
@@ -2356,8 +2398,32 @@ def save_message():
 
     return "ok"
 
+@app.route('/report_medicines', methods=['GET'])
+def report_medicines():
+    contract_id = quard()
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
+    if not contract:
+        return "error"
+
+    return render_template('report_medicines.html', contract=contract)
+
+@app.route('/report_medicines', methods=['POST'])
+def report_medicines_save():
+    contract_id = quard()
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
+    if not contract:
+        return "error"
+
+    contract.patient_medicines = request.form.get('medicines')
+    db.session.commit()
+
+    return MESS_THANKS
+
+
 
 t = Thread(target=sender)
 t.start()
 
-app.run(port='9099', host='0.0.0.0')
+app.run(port=PORT, host=HOST)
