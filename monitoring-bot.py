@@ -1524,7 +1524,7 @@ def settings():
 
     medicines = medicines_new
 
-    return render_template('settings.html',
+    return render_template('settings.html', contract=contract,
                            medicines_data=json.dumps(medicines),
                            measurements_data=json.dumps(measurements),
                            medicines_data_new=json.dumps(medicines_new), confirmation=str(contract.confirmation).lower(),

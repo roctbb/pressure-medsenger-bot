@@ -90,13 +90,27 @@
         .mt5 {
             margin-bottom: 5px;
         }
+
+        h6 {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container mt15" id="app">
     <h5 class="inline">Настройка канала консультирования</h5>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input class="btn btn-success inline small mt5" type="button" v-on:click="add_medicines(medicines_data)" value="Добавить лекарство">
+
+    {% if contract.patient_medicines and contract.patient_medicines %}
+    <h6>Лекарства, которые принимает пациент самостоятельно.</h6>
+    <p>{{ contract.patient_medicines }}</p>
+    {% endif %}
+
+
     <form v-on:submit.prevent="save">
+        <h6 style="margin-top: 10px;">Назначенные лекарства. <input class="float-right btn btn-success inline small mt5" type="button" v-on:click="add_medicines(medicines_data)" value="Добавить лекарство"></h6>
+
+        <p v-if="!medicines_data.length"><span >Вы пока не назначили лекарства.</span> </p>
+        <div>
         <div class="row" v-for="(medicines, index) in medicines_data" v-if="!medicines.deleted_at">
             <div class="col-md-4 col-sm-12">
                 <div v-if="medicines.show">
@@ -235,7 +249,9 @@
                 </div>
             </div>
         </div>
-
+        </div>
+        <hr>
+        <h6>Измерения.</h6>
         <div class="row" v-for="(measurements, index) in measurements_data">
             <div class="col-md-4 col-sm-12" v-bind:id="measurements.name">
                 <input v-bind:id="measurements.name+'_checkbox'" type="checkbox" v-model="measurements.show">
