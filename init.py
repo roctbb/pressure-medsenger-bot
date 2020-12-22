@@ -23,3 +23,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config.update(DEBUG=True)
 app.config.update(SECRET_KEY='JKJH!Jhjhjhj456545_jgnbh~hfgbgb')
 db = SQLAlchemy(app)
+
+mode_names = {
+    "daily": "ежедневно",
+    "weekly": "каждую неделю",
+    "monthly": "несколько раз в месяц"
+}

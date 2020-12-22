@@ -339,10 +339,12 @@ def quard_data_json(data):
 
     return contract_id
 
+
 try:
     db.create_all()
 except:
     print('cant create structure')
+
 
 def quard():
     key = request.args.get('api_key', '')
@@ -579,6 +581,7 @@ def process_medicines():
 
     db.session.commit()
 
+
 def process_patient_medicines():
     contracts = ActualBots.query.filter_by(actual=True, patient_medicines_enabled=True).all()
 
@@ -589,8 +592,8 @@ def process_patient_medicines():
 
     db.session.commit()
 
-def send_medicines_query(contract):
 
+def send_medicines_query(contract):
     if contract.patient_medicines:
         message = "В прошлом месяце вы сообщили, что принимаете следующие лекарства. Если этот список изменился, пожалуйста, нажмите на кнопку ниже и внесите изменения."
         message += '\n\n' + contract.patient_medicines
@@ -610,6 +613,7 @@ def send_medicines_query(contract):
     }
 
     post_request(data)
+
 
 def sender():
     while True:
@@ -1135,9 +1139,11 @@ def graph():
         }
 
         constants = {'max_shin_right': 35, 'min_waist': 30, 'min_shin_right': 10, 'min_diastolic': 30, 'max_pain': 7,
-                     'max_pulse': 80, 'max_spo2': 100, 'max_diastolic': 99, 'max_waist': 150, 'min_pain': 0, 'max_shin_left': 35,
+                     'max_pulse': 80, 'max_spo2': 100, 'max_diastolic': 99, 'max_waist': 150, 'min_pain': 0,
+                     'max_shin_left': 35,
                      'min_systolic': 90, 'min_weight': 45, 'max_systolic': 140, 'max_temperature': 37, 'min_pulse': 50,
-                     'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150, 'max_glukose': 6.5,
+                     'min_glukose': 4, 'min_shin_left': 10, 'min_temperature': 36, 'max_weight': 150,
+                     'max_glukose': 6.5,
                      'min_spo2': 93}
 
         weight_series = weight_dic
@@ -1436,7 +1442,8 @@ def settings():
 
             measurements.append(pressure)
 
-        out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left', 'leg_circumference_right']
+        out_list = ['systolic_pressure', 'diastolic_pressure', 'pulse', 'leg_circumference_left',
+                    'leg_circumference_right']
 
         if name not in out_list:
             measurement_new['name'] = name
@@ -1516,7 +1523,8 @@ def settings():
     return render_template('settings.html', contract=contract,
                            medicines_data=json.dumps(medicines),
                            measurements_data=json.dumps(measurements),
-                           medicines_data_new=json.dumps(medicines_new), confirmation=str(contract.confirmation).lower(),
+                           medicines_data_new=json.dumps(medicines_new),
+                           confirmation=str(contract.confirmation).lower(),
                            patient_medicines_enabled=str(contract.patient_medicines_enabled).lower())
 
 
@@ -1527,7 +1535,8 @@ def medicine_done(uid):
     if result in ERRORS:
         return result
 
-    query_str = "INSERT INTO medicines_results VALUES(nextval('medicines_results$id$seq')," + Aux.quote() + str(uid) + Aux.quote() + ",(select * from now()), (select * from now()), (select * from now()))"
+    query_str = "INSERT INTO medicines_results VALUES(nextval('medicines_results$id$seq')," + Aux.quote() + str(
+        uid) + Aux.quote() + ",(select * from now()), (select * from now()), (select * from now()))"
 
     result = DB.query(query_str)
 
@@ -1540,7 +1549,8 @@ def medicine_done(uid):
 @app.route('/medicines', methods=['GET'])
 def medicines():
     contract_id = quard()
-    query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(contract_id) + Aux.quote() + ' AND show = true'
+    query_str = 'SELECT m.id, m.name FROM medicines m WHERE m.contract_id = ' + Aux.quote() + str(
+        contract_id) + Aux.quote() + ' AND show = true'
     records = DB.select(query_str)
     medicine_data = {}
     response = getAgentToken(contract_id)
@@ -1553,7 +1563,8 @@ def medicines():
 
         medicine_data[name] = {
             'id': id,
-            'action_link': MAIN_HOST + '/api/client/agents/' + str(AGENT_ID) + '?action=medicine/' + str(id) + '&contract_id=' + str(contract_id) + '&agent_token=' + str(agent_token)
+            'action_link': MAIN_HOST + '/api/client/agents/' + str(AGENT_ID) + '?action=medicine/' + str(
+                id) + '&contract_id=' + str(contract_id) + '&agent_token=' + str(agent_token)
         }
 
     return render_template('medicines.html', medicine_data=medicine_data, contract_id=contract_id)
@@ -1580,7 +1591,8 @@ def action_pull(pull):
         constants['shin_max'] = MAX_SHIN
         constants['shin_min'] = MIN_SHIN
 
-        return render_template('shin.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('shin.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'pressure':
         constants['sys_max'] = MAX_SYSTOLIC
@@ -1590,45 +1602,53 @@ def action_pull(pull):
         constants['pulse_max'] = MAX_PULSE
         constants['pulse_min'] = MIN_PULSE
 
-        return render_template('pressure.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('pressure.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'weight':
         constants['weight_max'] = MAX_WEIGHT
         constants['weight_min'] = MIN_WEIGHT
 
-        return render_template('weight.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('weight.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'temperature':
         constants['temperature_max'] = MAX_TEMPERATURE
         constants['temperature_min'] = MIN_TEMPERATURE
 
-        return render_template('temperature.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('temperature.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'glukose':
         constants['glukose_max'] = MAX_GLUKOSE
         constants['glukose_min'] = MIN_GLUKOSE
 
-        return render_template('glukose.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('glukose.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'pain_assessment':
         constants['pain_assessment_max'] = MAX_ASSESSMENT
         constants['pain_assessment_min'] = MIN_ASSESSMENT
 
-        return render_template('pain_assessment.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('pain_assessment.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'spo2':
         constants['spo2_max'] = MAX_SPO2
         constants['spo2_min'] = MIN_SPO2
 
-        return render_template('spo2.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('spo2.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
     if pull == 'waist':
         constants['waist_max'] = MAX_WAIST
         constants['waist_min'] = MIN_WAIST
 
-        return render_template('waist.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+        return render_template('waist.html', tmpl=pull, constants=constants,
+                               confirmation=str(contract.confirmation).lower())
 
-    return render_template('measurement.html', tmpl=pull, constants=constants, confirmation=str(contract.confirmation).lower())
+    return render_template('measurement.html', tmpl=pull, constants=constants,
+                           confirmation=str(contract.confirmation).lower())
 
 
 # ROUTES POST
@@ -1739,14 +1759,8 @@ def setting_save():
             raise
 
     report = []
-    mode_names = {
-        "daily": "ежедневно",
-        "weekly": "каждую неделю",
-        "monthly": "несколько раз в месяц"
-    }
 
     for medicine in data['medicines_data']:
-
 
         name = medicine['name']
         mode = medicine['mode']
@@ -1809,6 +1823,7 @@ def setting_save():
 
     return "ok"
 
+
 @app.route('/order', methods=['POST'])
 def order():
     data = request.json
@@ -1868,6 +1883,11 @@ def order():
                             e.timetable = timetable
                             e.params = params
                             e.mode = mode
+                if order == "disable_monitoring":
+                    add_record(contract_id, "order", "Отключение мониторинга {}".format(CATEGORY_TEXT[category]))
+                else:
+                    add_record(contract_id, "order", "Включение мониторинга {}".format(CATEGORY_TEXT[category]))
+
             if order == "add_medicine":
                 name = data['params']['name']
                 mode = data['params']['mode']
@@ -1887,13 +1907,20 @@ def order():
 
                 DB.query(query_str)
 
+                add_record(contract_id, "order",
+                           "Назначение препарата {}, {} ({}, {})".format(name, mode_names[mode], dosage, amount))
+
             if order == "remove_medicine":
                 name = data['params']['name']
 
                 query_str = "UPDATE medicines set show = " + Aux.quote() + str(False) + Aux.quote() + \
-                            " WHERE name = " + Aux.quote() + str(name) + Aux.quote() + " and contract_id = " + str(contract_id)
+                            " WHERE name = " + Aux.quote() + str(name) + Aux.quote() + " and contract_id = " + str(
+                    contract_id)
 
                 DB.query(query_str)
+
+                add_record(contract_id, "order",
+                           "Отмена препарата {}".format(name))
 
             db.session.commit()
             return "ok"
@@ -1901,6 +1928,7 @@ def order():
             print(e)
     else:
         return "error"
+
 
 @app.route('/init', methods=['POST'])
 def init():
@@ -1918,7 +1946,8 @@ def init():
             out_green_light('Activate contract')
 
         else:
-            contract = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
+            contract = ActualBots(contract_id=contract_id, actual=True, created_at=datetime.datetime.now(),
+                                  updated_at=datetime.datetime.now())
             db.session.add(contract)
             db.session.commit()
 
@@ -2412,6 +2441,7 @@ def save_message():
 
     return "ok"
 
+
 @app.route('/report_medicines', methods=['GET'])
 def report_medicines():
     contract_id = quard()
@@ -2421,6 +2451,7 @@ def report_medicines():
         return "error"
 
     return render_template('report_medicines.html', contract=contract)
+
 
 @app.route('/report_medicines', methods=['POST'])
 def report_medicines_save():
@@ -2436,7 +2467,6 @@ def report_medicines_save():
     add_record(contract_id, "self_medicines", contract.patient_medicines)
 
     return MESS_THANKS
-
 
 
 t = Thread(target=sender)
