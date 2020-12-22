@@ -1801,6 +1801,7 @@ def setting_save():
     except:
         pass
 
+    print(report)
     if report and report != last:
         add_record(contract_id, "medicines", report)
 
