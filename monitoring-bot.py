@@ -1801,6 +1801,7 @@ def setting_save():
     except:
         pass
 
+    report.sort()
     report = " / ".join(report)
     print(report)
     if report and report != last:
