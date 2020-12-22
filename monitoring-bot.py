@@ -1794,8 +1794,8 @@ def setting_save():
 
             DB.query(query_str)
 
-        if report:
-            add_record(contract_id, "medicines", report)
+    if report:
+        add_record(contract_id, "medicines", report)
 
     return "ok"
 
