@@ -1756,7 +1756,7 @@ def setting_save():
         timetable = json__
         show = medicine['show']
 
-        if show and timetable:
+        if show and timetable and name and mode:
             report += name + ", " + mode_names[mode] + " ({}, {})".format(dosage, amount) + ' / '
 
         for item in timetable:
