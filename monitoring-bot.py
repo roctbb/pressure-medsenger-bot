@@ -1738,7 +1738,7 @@ def setting_save():
             print("error query", e)
             raise
 
-    report = ""
+    report = []
     mode_names = {
         "daily": "ежедневно",
         "weekly": "каждую неделю",
@@ -1757,7 +1757,7 @@ def setting_save():
         show = medicine['show']
 
         if show and timetable and name and mode:
-            report += name + ", " + mode_names[mode] + " ({}, {})".format(dosage, amount) + ' / '
+            report.append(name + ", " + mode_names[mode] + " ({}, {})".format(dosage, amount))
 
         for item in timetable:
             if item == 'hours':
@@ -1801,6 +1801,7 @@ def setting_save():
     except:
         pass
 
+    report = " / ".join(report)
     print(report)
     if report and report != last:
         add_record(contract_id, "medicines", report)
