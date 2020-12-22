@@ -90,3 +90,26 @@ def add_record(contract_id, category_name, value, record_time=None):
         requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
     except Exception as e:
         print('connection error', e)
+
+def get_records(contract_id, category_name, time_from=None, time_to=None, limit=None, offset=None):
+    data = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "category_name": category_name,
+    }
+
+    if limit:
+        data['limit'] = limit
+    if offset:
+        data['offset'] = offset
+    if time_from:
+        data['from'] = time_from
+    if time_to:
+        data['to'] = time_to
+
+    try:
+        result = requests.post(MAIN_HOST + '/api/agents/records/get', json=data)
+        return result.json()
+    except Exception as e:
+        print('connection error', e)
+        return {}

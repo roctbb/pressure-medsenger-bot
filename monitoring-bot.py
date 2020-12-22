@@ -1794,7 +1794,14 @@ def setting_save():
 
             DB.query(query_str)
 
-    if report:
+    last = ""
+    try:
+        values = get_records(contract_id, "medicines", limit=1)
+        last = values['values'][0]['value']
+    except:
+        pass
+
+    if report and report != last:
         add_record(contract_id, "medicines", report)
 
     return "ok"
