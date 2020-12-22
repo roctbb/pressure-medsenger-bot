@@ -1738,7 +1738,16 @@ def setting_save():
             print("error query", e)
             raise
 
+    report = ""
+    mode_names = {
+        "daily": "ежедневно",
+        "weekly": "каждую неделю",
+        "monthly": "несколько раз в месяц"
+    }
+
     for medicine in data['medicines_data']:
+
+
         name = medicine['name']
         mode = medicine['mode']
         dosage = medicine['dosage']
@@ -1746,6 +1755,9 @@ def setting_save():
         json__ = medicine['timetable'][0]
         timetable = json__
         show = medicine['show']
+
+        if show and timetable:
+            report += name + ", " + mode_names[mode] + " ({}, {})".format(dosage, amount) + ' / '
 
         for item in timetable:
             if item == 'hours':
@@ -1781,6 +1793,9 @@ def setting_save():
                         " WHERE id = " + Aux.quote() + str(medicine['uid']) + Aux.quote()
 
             DB.query(query_str)
+
+        if report:
+            add_record(contract_id, "medicines", report)
 
     return "ok"
 
