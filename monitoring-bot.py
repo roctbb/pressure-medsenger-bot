@@ -216,25 +216,6 @@ def getRecords(contract_id, category_name):
         print(e)
 
 
-def add_record(contract_id, category_name, value, record_time=None):
-    data = {
-        "contract_id": contract_id,
-        "api_key": APP_KEY,
-        "category_name": category_name,
-        "value": value,
-    }
-
-    if record_time:
-        data['time'] = record_time
-
-    try:
-        requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
-
-    except Exception as e:
-        error('Error add_record()')
-        print(e)
-
-
 def post_request(data, query='/api/agents/message'):
     try:
         return requests.post(MAIN_HOST + query, json=data)
@@ -793,6 +774,7 @@ def actions():
         answer.append({'link': 'medicines', 'type': type, 'name': 'Прием лекарств'})
 
     category_params = CategoryParams.query.filter_by(contract_id=contract_id, show=True).all()
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
 
     continues_list = ['diastolic_pressure', 'pulse', 'leg_circumference_right']
 
@@ -826,6 +808,13 @@ def actions():
             'link': 'frame/' + str(name),
             'type': type,
             'name': descriptions[name]
+        })
+
+    if contract.patient_medicines_enabled:
+        answer.append({
+            'link': 'report_medicines',
+            'type': "patient",
+            'name': "Обновить свой список лекарств"
         })
 
     return json.dumps(answer)
@@ -2418,6 +2407,8 @@ def report_medicines_save():
 
     contract.patient_medicines = request.form.get('medicines')
     db.session.commit()
+
+    add_record(contract_id, "self_medicines", contract.patient_medicines)
 
     return MESS_THANKS
 

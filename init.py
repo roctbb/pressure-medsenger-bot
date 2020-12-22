@@ -11,7 +11,7 @@ from multiprocessing import Process
 from classes.colorok import *
 from classes.aux import *
 from classes.db import *
-from agents_api import make_task, add_task, delete_task
+from agents_api import make_task, add_task, delete_task, add_record
 
 out_green_light('SCRIPT STARTED')
 app = Flask(__name__)

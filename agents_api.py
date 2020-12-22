@@ -74,3 +74,19 @@ def delete_task(contract_id, task_id):
 #         print('success delete_task')
 #     except Exception as e:
 #         print('error delete_task', e)
+
+def add_record(contract_id, category_name, value, record_time=None):
+    data = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+        "category_name": category_name,
+        "value": value,
+    }
+
+    if record_time:
+        data['time'] = record_time
+
+    try:
+        requests.post(MAIN_HOST + '/api/agents/records/add', json=data)
+    except Exception as e:
+        print('connection error', e)
