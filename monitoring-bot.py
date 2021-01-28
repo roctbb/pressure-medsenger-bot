@@ -26,6 +26,9 @@ class ActualBots(db.Model):
     patient_medicines_enabled = db.Column(db.Boolean, default=False)
     patient_medicines = db.Column(db.Text, nullable=True)
     patient_medicines_last_push = db.Column(db.Integer, default=0)
+    last_action = db.Column(db.Integer, default=0)
+    warning_sent = db.Column(db.Boolean, default=False)
+    warning_enabled = db.Column(db.Boolean, default=False)
 
 
 class CategoryParams(db.Model):
@@ -373,6 +376,16 @@ def quard():
 
     return contract_id
 
+def process_warning():
+    contracts = ActualBots.query.filter_by(actual=True, warning_enabled=True, warning_sent=False).all()
+
+    for contract in contracts:
+        if contract.last_action < time.time() - 14 * 24 * 60 * 60:
+            send_warning_query(contract)
+            contract.warning_sent = True
+
+    db.session.commit()
+
 
 def process_records():
     global LAST_TASK_PUSH
@@ -592,6 +605,19 @@ def process_patient_medicines():
 
     db.session.commit()
 
+def send_warning_query(contract):
+    message = "Пациент не вносит информацию об измерениях и лекарствах уже 14 дней."
+
+    data = {
+        "contract_id": contract.contract_id,
+        "api_key": APP_KEY,
+        "message": {
+            "text": message,
+            "only_doctor": True
+        }
+    }
+
+    post_request(data)
 
 def send_medicines_query(contract):
     if contract.patient_medicines:
@@ -621,6 +647,7 @@ def sender():
             process_records()
             process_medicines()
             process_patient_medicines()
+            process_warning()
         except Exception as e:
             print(e)
 
@@ -1525,7 +1552,8 @@ def settings():
                            measurements_data=json.dumps(measurements),
                            medicines_data_new=json.dumps(medicines_new),
                            confirmation=str(contract.confirmation).lower(),
-                           patient_medicines_enabled=str(contract.patient_medicines_enabled).lower())
+                           patient_medicines_enabled=str(contract.patient_medicines_enabled).lower(),
+                           warning_enabled=str(contract.warning_enabled).lower())
 
 
 @app.route('/medicine/<uid>', methods=['GET'])
@@ -1534,6 +1562,11 @@ def medicine_done(uid):
 
     if result in ERRORS:
         return result
+
+    contract = ActualBots.query.filter_by(contract_id=result).first()
+    contract.last_action = int(time.time())
+    contract.warning_sent = False
+    db.session.commit()
 
     query_str = "INSERT INTO medicines_results VALUES(nextval('medicines_results$id$seq')," + Aux.quote() + str(
         uid) + Aux.quote() + ",(select * from now()), (select * from now()), (select * from now()))"
@@ -1701,6 +1734,12 @@ def setting_save():
 
     contract.confirmation = data['confirmation']
     contract.patient_medicines_enabled = data['patient_medicines_enabled']
+
+    if contract.warning_enabled != data['warning_enabled']:
+        contract.last_action = int(time.time())
+        contract.warning_sent = False
+    contract.warning_enabled = data['patient_medicines_enabled']
+
     db.session.commit()
 
     for measurement in data['measurements_data']:
@@ -2208,6 +2247,11 @@ def action_pull_save(pull):
 
     if contract_id in ERRORS:
         return ERRORS[contract_id]
+
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+    contract.last_action = int(time.time())
+    contract.warning_sent = False
+    db.session.commit()
 
     if pull in AVAILABLE_MEASUREMENTS:
         param = pull
