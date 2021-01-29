@@ -380,7 +380,7 @@ def process_warning():
     contracts = ActualBots.query.filter_by(actual=True, warning_enabled=True, warning_sent=False).all()
 
     for contract in contracts:
-        if contract.last_action < time.time() - 14 * 24 * 60 * 60:
+        if contract.last_action < time.time() - 7 * 24 * 60 * 60:
             send_warning_query(contract)
             contract.warning_sent = True
 
@@ -606,14 +606,15 @@ def process_patient_medicines():
     db.session.commit()
 
 def send_warning_query(contract):
-    message = "Пациент не вносит информацию об измерениях и лекарствах уже 14 дней."
+    message = "Пациент не вносит информацию об измерениях и лекарствах уже 7 дней."
 
     data = {
         "contract_id": contract.contract_id,
         "api_key": APP_KEY,
         "message": {
             "text": message,
-            "only_doctor": True
+            "only_doctor": True,
+            "is_urgent": True
         }
     }
 
@@ -1061,25 +1062,26 @@ def graph():
 
         records = DB.select(query_str)
 
-        for row in records:
-            name = row[0]
-            dosage = row[1]
-            amount = row[2]
-            medicines_id = row[3]
-            query_str = "SELECT * FROM medicines_results WHERE medicines_id = '" + medicines_id + "'"
-            results = DB.select(query_str)
+        if records != 'ERROR_SELECT':
+            for row in records:
+                name = row[0]
+                dosage = row[1]
+                amount = row[2]
+                medicines_id = row[3]
+                query_str = "SELECT * FROM medicines_results WHERE medicines_id = '" + medicines_id + "'"
+                results = DB.select(query_str)
 
-            medicines_times_ = []
+                medicines_times_ = []
 
-            for item in results:
-                date_ = item[2]
-                medicines_times_.append(date_.strftime(DATE_HOUR_FORMAT))
+                for item in results:
+                    date_ = item[2]
+                    medicines_times_.append(date_.strftime(DATE_HOUR_FORMAT))
 
-            medicines_data[name] = {
-                'medicines_times_': medicines_times_,
-                'dosage': dosage,
-                'amount': amount
-            }
+                medicines_data[name] = {
+                    'medicines_times_': medicines_times_,
+                    'dosage': dosage,
+                    'amount': amount
+                }
 
         medicine_dic = {
             "x": array_x,
@@ -1738,7 +1740,7 @@ def setting_save():
     if contract.warning_enabled != data['warning_enabled']:
         contract.last_action = int(time.time())
         contract.warning_sent = False
-    contract.warning_enabled = data['patient_medicines_enabled']
+    contract.warning_enabled = data['warning_enabled']
 
     db.session.commit()
 
