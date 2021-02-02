@@ -825,8 +825,6 @@
                 bullet.radius = 5
                 bullet.fillOpacity = 0.7
 
-
-
                 bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}"
 
                 var hoverState = bullet.states.create("hover")
@@ -862,6 +860,8 @@
 
             // Creation series function for Pressure
             function createSeries(field, name, config, data) {
+                {#chart.dataSource.reloadFrequency = 5000;#}
+                {#chart.dataSource.incremental = true;#}
                 var series = chart.series.push(new am4charts__.LineSeries());
                 series.groupData = false;
 
@@ -886,6 +886,13 @@
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
 
+                chart.fontSize = 9;
+
+                var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+                latitudeLabel.label.text = config.value;
+                latitudeLabel.label.dx = 0;
+                latitudeLabel.label.dy = -15;
+
                 if (name == systolic.name) {
                     bullet.disabled = true;
                     bullet.propertyFields.disabled = "disabled_systolic";
@@ -907,7 +914,8 @@
 
             config = {
                 "color": namesConstants.get('color_pressure_up'),
-                "tooltipText": tooltipText
+                "tooltipText": tooltipText,
+                "value": "{systolic_pressure}"
             }
 
             createSeries("systolic_pressure", systolic.name, config)
@@ -916,7 +924,8 @@
 
             config = {
                 "color": namesConstants.get('color_pressure_down'),
-                "tooltipText": tooltipText
+                "tooltipText": tooltipText,
+                "value": "{diastolic_pressure}"
             }
 
             createSeries("diastolic_pressure", diastolic.name, config)
@@ -925,7 +934,8 @@
 
             config = {
                 "color": namesConstants.get('color_pulse'),
-                "tooltipText": tooltipText
+                "tooltipText": tooltipText,
+                "value": "{pulse_value}"
             }
 
             createSeries("pulse_value", pulse_.name, config);
