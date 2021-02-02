@@ -621,9 +621,9 @@
         medicine = createModel('medicine', {{ medicine | safe }})
         medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
 
-        dump(systolic)
-        dump(diastolic)
-        dump(pulse_)
+        {#dump(systolic)#}
+        {#dump(diastolic)#}
+        {#dump(pulse_)#}
 
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
@@ -980,10 +980,12 @@
             pain_values = pain_assessment['y']
             pain_comments = pain_assessment['comments']
             pain_value = ''
+            pain_y = 0
             disabled_pain = false
 
             pain_dates.forEach(function() {
                 pain_value = pain_values[iterator_pain_dates]
+                pain_y = pain_values[iterator_pain_dates]
 
                 if (pain_value == 0) {
                     pain_value = pain_value + " баллов"
@@ -1006,7 +1008,7 @@
                 pain_dateOut = new Date(pain_dates[iterator_pain_dates].replace(' ', 'T'))
                 pain_date_tooltip = dataObject.format(pain_dateOut)
 
-                if (pain_value >= constants.max_pain || pain_value < constants.min_pain) {
+                if (pain_y >= constants.max_pain || pain_y < constants.min_pain) {
                     pain_up_color = "red"
                     disabled_pain = false
                 } else {
@@ -1014,12 +1016,12 @@
                     disabled_pain = true
                 }
 
-                if (pain_value == 10) {
+                if (pain_y == 10) {
                     disabled_pain = true
                 }
 
                 data_pain[iterator_pain_dates] = {
-                    pain_value: pain_value,
+                    pain_value: pain_y,
                     pain_comment: pain_comment,
                     pain_date: pain_dateOut,
                     pain_date_tooltip: pain_date_tooltip,
@@ -1074,6 +1076,7 @@
                 var series_pain = chart_pain.series.push(new am4charts_pain.LineSeries());
                 // 1-й параметр - значение по оси x
                 series_pain.dataFields.valueY = field;
+
                 // 2-й параметр - значение по оси y
                 series_pain.dataFields.dateX = "pain_date";
                 series_pain.name = name;
@@ -1100,6 +1103,13 @@
 
                 bullet.tooltipText = config.tooltipText
                 chart_pain.scrollbarX = new am4core_pain.Scrollbar()
+
+                chart.fontSize = 9;
+
+                var latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
+                latitudeLabel.label.text = "{pain_value}";
+                latitudeLabel.label.dx = 0;
+                latitudeLabel.label.dy = -15;
             }
 
             tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"
@@ -1321,12 +1331,12 @@
             "createSeries": function(data, config) {
                 let series = config.chart.series.push(new am4charts.LineSeries())
                 config.chart.scrollbarX = new am4core.Scrollbar()
+                config.chart.fontSize = 9;
                 series.dataFields.valueY = config.field
+
                 series.dataFields.dateX = config.dateX
                 series.dataFields.comments = config.comments
                 series.name = config.name
-
-                dump(config)
 
                 series.tooltipText = config.tooltipText
                 series.strokeWidth = config.strokeWidth
@@ -1344,8 +1354,13 @@
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
 
-                bullet.disabled = "disabled"
-                bullet.propertyFields.disabled = config.disabled
+                bullet.disabled = "disabled";
+                bullet.propertyFields.disabled = config.disabled;
+
+                var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+                latitudeLabel.label.text = config.value;
+                latitudeLabel.label.dx = 0;
+                latitudeLabel.label.dy = -15;
 
                 return series;
             }
@@ -1404,10 +1419,17 @@
         series.dataFields.valueY = "value1";
         series.dataFields.dateX = "date";
         series.strokeWidth = 2;
-        series.strokeDasharray = "3,4"
+        series.strokeDasharray = "3,4";
         series.tooltipText = "Объем левой голени: [bold]{value1}[/] см | {date.formatDate('dd-MM-yyyy k:mm')}\nОбъем правой голени: [bold]{value2}[/] см | {previousDate.formatDate('dd-MM-yyyy k:mm')}";
         series.tooltip.pointerOrientation = "vertical";
-        series.name = 'Обхват голени'
+        series.name = 'Обхват голени';
+
+        chart.fontSize = 9;
+
+        var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+        latitudeLabel.label.text = "{value1}";
+        latitudeLabel.label.dx = 0;
+        latitudeLabel.label.dy = -10;
 
         // Create series
         var series2 = chart.series.push(new am4charts.LineSeries());
@@ -1416,6 +1438,11 @@
         series2.strokeWidth = 2;
         series2.strokeDasharray = "3,3";
         series2.stroke = series.stroke;
+
+        var latitudeLabel2 = series2.bullets.push(new am4charts.LabelBullet());
+        latitudeLabel2.label.text = "{value2}";
+        latitudeLabel2.label.dx = 0;
+        latitudeLabel2.label.dy = -10;
 
         // Create legend
         chart.legend = new am4charts.Legend()
@@ -1509,11 +1536,12 @@
             "color_danger": "color_danger",
             "strokeWidth": params.strokeWidth,
             "disabled": "disabled",
-            "chart": chart_waist
+            "chart": chart_waist,
+            "value": "{y}"
         }
 
 
-
+        // Обхват талии
         am4Core.createSeries(data, config)
 
         // Create legend
@@ -1605,7 +1633,8 @@
             "color_danger": "color_danger",
             "strokeWidth": params.strokeWidth,
             "disabled": "disabled",
-            "chart": chart_spo2
+            "chart": chart_spo2,
+            "value": "{y}"
         }
 
 
@@ -1698,7 +1727,8 @@
             "color_danger": "color_danger",
             "strokeWidth": params.strokeWidth,
             "disabled": "disabled",
-            "chart": chart_temperature
+            "chart": chart_temperature,
+            "value": "{y}"
         }
 
         am4Core.createSeries(data, config)
@@ -1790,7 +1820,8 @@
             "color_danger": "color_danger",
             "strokeWidth": params.strokeWidth,
             "disabled": "disabled",
-            "chart": chart_glukose
+            "chart": chart_glukose,
+            "value": "{y}"
         }
 
 
@@ -1872,8 +1903,6 @@
 
         tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}";
 
-        dump(params.strokeWidth)
-
         config = {
             "name": model.name,
             "field": "y",
@@ -1884,7 +1913,8 @@
             "color_danger": "color_danger",
             "strokeWidth": params.strokeWidth,
             "disabled": "disabled",
-            "chart": chart_weight
+            "chart": chart_weight,
+            "value": "{y}"
         }
 
         am4Core.createSeries(data, config);
