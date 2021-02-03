@@ -19,164 +19,7 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <body>
-    <!-- Styles -->
-
-    <style >
-        @import url("https://fonts.googleapis.com/css?family=Archivo+Narrow");
-
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            font-family: "Tahoma", "Archivo Narrow";
-        }
-
-        .height-530 {
-            height: 530px;
-        }
-
-        .dark {
-
-        }
-
-        .transparant {
-            background-color: transparent;
-        }
-
-        .chartdiv {
-            margin-top: 1rem;
-            width: 100%;
-        }
-
-        .chartdiv-light {
-            margin-top: 1rem;
-            width: 100%;
-            height: 530px;
-        }
-
-        .shown {
-            display: block;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .w100 {
-            width: 99%;
-            margin: 2px;
-        }
-
-        #medicine:hover, #measurement:hover {
-            cursor: pointer;
-        }
-
-        .active-btn {
-            background-color: #cccccc;
-            color: antiquewhite;
-        }
-
-        .btn {
-
-
-
-        }
-
-        .btn:hover {
-            cursor: pointer;
-        }
-
-        .shown {
-            display: block;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-    </style>
-
-    <style>
-        #sys-stat-week, #sys-stat-month, #sys-stat-donat, #dia-stat-donat, #dia-stat-week, #dia-stat-month {
-            width: 100%;
-
-            text-align: center;
-        }
-
-        highcharts-figure, .highcharts-data-table table {
-            min-width: 310px;
-            max-width: 800px;
-            margin: 1em auto;
-        }
-
-        .highcharts-data-table table {
-
-            border-collapse: collapse;
-            border: 1px solid #EBEBEB;
-            margin: 10px auto;
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-        .highcharts-data-table caption {
-            padding: 1em 0;
-            font-size: 1.2em;
-            color: #555;
-        }
-        .highcharts-data-table th {
-            font-weight: 600;
-            padding: 0.5em;
-        }
-        .highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
-            padding: 0.5em;
-        }
-        .highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
-            background: #f8f8f8;
-        }
-        .highcharts-data-table tr:hover {
-            background: #f1f7ff;
-        }
-
-        .font-base {
-            font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
-        }
-
-        .row {
-
-            display: flex;
-            text-align: center;
-
-        }
-
-        .row_cell {
-
-            flex: 1;
-
-            font-size: 1rem;
-        }
-
-        .bold {
-            font-size: 3rem;
-        }
-
-        .item-left {
-            text-align: left;
-        }
-
-        .item-center {
-            text-align: center;
-        }
-
-        .dark-green {
-            color: #0b5975;
-        }
-
-        .item-border {
-            border: 1px solid #ccc; padding: 2px;
-        }
-    </style>
-
+    <!-- Styles common -->
     <style>
         body {
             font: 90%/160% Arial, Helvetica, sans-serif;
@@ -213,7 +56,27 @@
             font-size: 1.1em;
         }
 
-        /* nav */
+        .chartdiv-pressure {
+            margin-top: 1rem;
+            width: 100%;
+            height: 800px;
+            min-height: 600px;
+        }
+
+        .chartdiv {
+            margin-top: 1rem;
+            width: 100%;
+            height: 530px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+
+    <!-- Styles nav -->
+    <style>
         .nav {
             z-index: 100;
             margin: 20px 0;
@@ -312,10 +175,9 @@
                 margin-left: -90px;
             }
         }
-</style>
+    </style>
 
     <!-- HTML -->
-
     <nav class="nav">
 		<ul>
             <li class="current"><a id="all_graph" href="#">Все графики</a></li>
@@ -335,115 +197,18 @@
     <div class="flash">{{msg}}</div>
     {% endfor %}
 
-    <div>
-        <select id="theme" class="hidden">
-            <option>Тема</option>
-            <option value="light">Светлая</option>
-            <option value="dark">Темная</option>
-        </select>
-    </div>
-
-    <div id="chartdiv__" class="chartdiv height-530__ dark" style="width: 100%; height: 800px; min-height: 600px;"></div>
-    <div id="chartdiv_spo2" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_waist" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_glukose" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_weight" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_temperature" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_pain" class="chartdiv height-530 dark"></div>
-    <div id="chartdiv_shin" class="chartdiv height-530 dark"></div>
+    <div id="chartdiv_pressure" class="chartdiv-pressure"></div>
+    <div id="chartdiv_spo2" class="chartdiv"></div>
+    <div id="chartdiv_waist" class="chartdiv"></div>
+    <div id="chartdiv_glukose" class="chartdiv"></div>
+    <div id="chartdiv_weight" class="chartdiv"></div>
+    <div id="chartdiv_temperature" class="chartdiv"></div>
+    <div id="chartdiv_pain" class="chartdiv"></div>
+    <div id="chartdiv_shin" class="chartdiv"></div>
 
     <!-- Chart systolic-diastolic-pulse-medicines -->
     <script>
-
-        const all_graph = document.getElementById('all_graph')
-        const pressure_graph = document.getElementById('pressure_graph')
-        const weight_graph = document.getElementById('weight_graph')
-        const glukose_graph = document.getElementById('glukose_graph')
-        const temperature_graph = document.getElementById('temperature_graph')
-        const pain_button = document.getElementById('pain_button')
-
-        const spo2_button = document.getElementById('spo2_button')
-        const waist_button = document.getElementById('waist_button')
-        const shin_button = document.getElementById('shin_button')
-
-        const chartdiv__ = document.getElementById('chartdiv__')
-        const chartdiv_glukose = document.getElementById('chartdiv_glukose')
-        const chartdiv_weight = document.getElementById('chartdiv_weight')
-        const chartdiv_temperature = document.getElementById('chartdiv_temperature')
-        const theme = document.getElementById('theme')
-        const chartdiv_pain = document.getElementById('chartdiv_pain')
-        const chartdiv_spo2 = document.getElementById('chartdiv_spo2')
-        const chartdiv_waist = document.getElementById('chartdiv_waist')
-        const chartdiv_shin = document.getElementById('chartdiv_shin')
-
-        const allDiv = [chartdiv__, chartdiv_glukose, chartdiv_weight, chartdiv_temperature, chartdiv_pain, chartdiv_spo2, chartdiv_waist, chartdiv_shin]
-
-        const allLinks = [all_graph, pressure_graph, weight_graph, glukose_graph, temperature_graph, pain_button, spo2_button, waist_button, shin_button]
-
-        const activeClass = 'current'
-
-        const toggleAll = (divEl, btnEl) => {
-            Aux.hideAll(allDiv)
-            Aux.show(divEl)
-            Aux.removeClassAll(allLinks, activeClass)
-            Aux.addClass(btnEl.parentElement, activeClass)
-        }
-
-        all_graph.addEventListener('click', (event) => {
-            Aux.showAll(allDiv)
-            Aux.removeClassAll(allLinks, activeClass)
-            Aux.addClass(all_graph.parentElement, activeClass)
-        })
-
-        pressure_graph.addEventListener('click', (event) => {
-            toggleAll(chartdiv__, pressure_graph)
-
-        })
-
-        weight_graph.addEventListener('click', (event) => {
-            toggleAll(chartdiv_weight, weight_graph)
-        })
-
-        glukose_graph.addEventListener('click', (event) => {
-            toggleAll(chartdiv_glukose, glukose_graph)
-        })
-
-        temperature_graph.addEventListener('click', (event) => {
-            toggleAll(chartdiv_temperature, temperature_graph)
-        })
-
-        pain_button.addEventListener('click', (event) => {
-            toggleAll(chartdiv_pain, pain_button)
-        })
-
-        spo2_button.addEventListener('click', (event) => {
-            toggleAll(chartdiv_spo2, spo2_button)
-        })
-
-        waist_button.addEventListener('click', (event) => {
-            toggleAll(chartdiv_waist, waist_button)
-        })
-
-        shin_button.addEventListener('click', (event) => {
-            toggleAll(chartdiv_shin, shin_button)
-        })
-
-        am4core__ = am4core
-        am4charts__ = am4charts
-
-        /**
-         * ---------------------------------------
-         * This demo was created using amCharts 4.
-         *
-         * For more information visit:
-         * https://www.amcharts.com/
-         *
-         * Documentation is available at:
-         * https://www.amcharts.com/docs/v4/
-         * ---------------------------------------
-         */
-
-        Aux = {
+        const Aux = {
             "error": (e) => {
                 console.error('error', e)
             },
@@ -477,80 +242,7 @@
                 params.forEach((item) => {
                     Aux.hide(item)
                 })
-            }
-        }
-
-        let namesConstants = {
-            "get": function (name) {
-                try {
-                    return namesConstants[name]
-                } catch(e) {
-                    Aux.error(e)
-                }
             },
-            "set": function (name, value) {
-                try {
-                    namesConstants[name] = value
-                    return namesConstants[name]
-                } catch(e) {
-                    Aux.error(e)
-                }
-            }
-        }
-
-        let dataStorage = {
-            "get": function (name) {
-                try {
-                    return dataStorage[name]
-                } catch(e) {
-                    Aux.error(e)
-                }
-            },
-            "set": function (index, value) {
-               try {
-                    dataStorage[index] = value
-
-                    return dataStorage[index]
-                } catch(e) {
-                    Aux.error(e)
-                }
-            }
-        }
-
-        let allModels = {
-            "get": function (name) {
-                try {
-                    dataStorage[name] = allModels[name]['obj']
-
-                    return dataStorage[name]
-                } catch(e) {
-                    console.error('error', e)
-                }
-            }
-        }
-
-        imageWidth = 6;
-
-        function createModel(...args) {
-            let model = new Interpolations(...args)
-
-            model._id = args[0]
-            allModels[model._id] = model
-
-            return  allModels.get(args[0])
-        }
-
-        class Interpolations {
-            constructor(name, obj) {
-                this.obj = obj;
-            }
-
-            get() {
-                return this.obj;
-            }
-        }
-
-        dataObject = {
             "num": function (param) {
                 let num_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
 
@@ -569,8 +261,8 @@
                     return param
                 }
             },
-             "dataTransform": function (data) {
-                let dataObject = []
+            "dataTransform": function (data) {
+                let result = []
                 let x = data['x']
                 let y = data['y']
                 let comments = data['comments']
@@ -589,10 +281,10 @@
 
                     let date_format = this.str2date(dateOut)
                     let tooltip_date = this.dateFormat(dateOut)
-                    dataObject.push({"comments": comment, "date": dateOut, "dates": dateOut, "dates_format": date_format, "tooltip_date": tooltip_date, "y": value_y})
+                    result.push({"comments": comment, "date": dateOut, "dates": dateOut, "dates_format": date_format, "tooltip_date": tooltip_date, "y": value_y})
                 }
 
-                return dataObject
+                return result
             },
             "dateFormat": function(date) {
                 let dateOut = new Date(date.replace(' ', 'T'))
@@ -607,23 +299,105 @@
             }
         }
 
+        const namesConstants = {
+            "get": function (name) {
+                try {
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            },
+            "set": function (name, value) {
+                try {
+                    namesConstants[name] = value
+                    return namesConstants[name]
+                } catch(e) {
+                    Aux.error(e)
+                }
+            }
+        }
+
         function dump(data) {
             console.log('dump = ', data)
         }
 
-        // Create models
-        constants = createModel('constants', {{ constants | safe }})
-        systolic = createModel('systolic', {{ systolic | safe }})
-        pain_assessment = createModel('pain_assessment', {{ pain_assessment | safe }})
-        diastolic = createModel('diastolic', {{ diastolic | safe }})
-        pulse_ = createModel('pulse_', {{ pulse_ | safe }})
-        weight_model = createModel('weight', {{ weight | safe }})
-        medicine = createModel('medicine', {{ medicine | safe }})
-        medicine_trace_data = createModel('medicine_trace_data', {{ medicine_trace_data | safe }})
+        /* Create objects */
 
-        {#dump(systolic)#}
-        {#dump(diastolic)#}
-        {#dump(pulse_)#}
+        const all_graph = document.getElementById('all_graph')
+        const pressure_graph = document.getElementById('pressure_graph')
+        const weight_graph = document.getElementById('weight_graph')
+        const glukose_graph = document.getElementById('glukose_graph')
+        const temperature_graph = document.getElementById('temperature_graph')
+        const pain_button = document.getElementById('pain_button')
+        const spo2_button = document.getElementById('spo2_button')
+        const waist_button = document.getElementById('waist_button')
+        const shin_button = document.getElementById('shin_button')
+        const chartdiv_pressure = document.getElementById('chartdiv_pressure')
+        const chartdiv_glukose = document.getElementById('chartdiv_glukose')
+        const chartdiv_weight = document.getElementById('chartdiv_weight')
+        const chartdiv_temperature = document.getElementById('chartdiv_temperature')
+        const theme = document.getElementById('theme')
+        const chartdiv_pain = document.getElementById('chartdiv_pain')
+        const chartdiv_spo2 = document.getElementById('chartdiv_spo2')
+        const chartdiv_waist = document.getElementById('chartdiv_waist')
+        const chartdiv_shin = document.getElementById('chartdiv_shin')
+        const allDiv = [chartdiv_pressure, chartdiv_glukose, chartdiv_weight, chartdiv_temperature, chartdiv_pain, chartdiv_spo2, chartdiv_waist, chartdiv_shin]
+        const allLinks = [all_graph, pressure_graph, weight_graph, glukose_graph, temperature_graph, pain_button, spo2_button, waist_button, shin_button]
+        const activeClass = 'current'
+
+        const toggleAll = (divEl, btnEl) => {
+            Aux.hideAll(allDiv)
+            Aux.show(divEl)
+            Aux.removeClassAll(allLinks, activeClass)
+            Aux.addClass(btnEl.parentElement, activeClass)
+        }
+
+        all_graph.addEventListener('click', (event) => {
+            Aux.showAll(allDiv)
+            Aux.removeClassAll(allLinks, activeClass)
+            Aux.addClass(all_graph.parentElement, activeClass)
+        })
+
+        pressure_graph.addEventListener('click', (event) => {
+            toggleAll(chartdiv_pressure, pressure_graph)
+        })
+
+        weight_graph.addEventListener('click', (event) => {
+            toggleAll(chartdiv_weight, weight_graph)
+        })
+
+        glukose_graph.addEventListener('click', (event) => {
+            toggleAll(chartdiv_glukose, glukose_graph)
+        })
+
+        temperature_graph.addEventListener('click', (event) => {
+            toggleAll(chartdiv_temperature, temperature_graph)
+        })
+
+        pain_button.addEventListener('click', (event) => {
+            toggleAll(chartdiv_pain, pain_button)
+        })
+
+        spo2_button.addEventListener('click', (event) => {
+            toggleAll(chartdiv_spo2, spo2_button)
+        })
+
+        waist_button.addEventListener('click', (event) => {
+            toggleAll(chartdiv_waist, waist_button)
+        })
+
+        shin_button.addEventListener('click', (event) => {
+            toggleAll(chartdiv_shin, shin_button)
+        })
+
+        const constants = {{ constants | safe }}
+        const systolic = {{ systolic | safe }}
+        const pain_assessment = {{ pain_assessment | safe }}
+        const diastolic = {{ diastolic | safe }}
+        const pulse_ = {{ pulse_ | safe }}
+        const weight_model = {{ weight | safe }}
+        const medicine = {{ medicine | safe }}
+        const medicine_trace_data = {{ medicine_trace_data | safe }}
 
         namesConstants.set('color_pressure_up', 'orange')
         namesConstants.set('color_pressure_down', 'green')
@@ -634,47 +408,49 @@
         namesConstants.set('color_weight', 'lightgreen')
         namesConstants.set('color_temperature', '#23759F')
 
+        dump(namesConstants)
+
         // Create chart instance pressure
-        am4core__.ready(function() {
+        am4core.ready(function() {
             // Vars
-            var i = 0
-            var data = []
-            var dynamic_data = []
-            var dynamic_data_x = []
-            var dynamic_data_y = []
-            var diastolic_value = 0
-            var pulse_value = 0
-            var date = {}
-            var tooltipText = ''
-            var bullet_color = ''
-            var systolic_up_color = ''
-            var systolic_down_color = ''
-            var diastolic_up_color = ''
-            var diastolic_down_color = ''
-            var pulse_up_color = ''
-            var pulse_down_color = ''
+            let i = 0
+            let data = []
+            let dynamic_data = []
+            let dynamic_data_x = []
+            let dynamic_data_y = []
+            let diastolic_value = 0
+            let pulse_value = 0
+            let date = {}
+            let tooltipText = ''
+            let bullet_color = ''
+            let systolic_up_color = ''
+            let systolic_down_color = ''
+            let diastolic_up_color = ''
+            let diastolic_down_color = ''
+            let pulse_up_color = ''
+            let pulse_down_color = ''
 
             systolic['disabled_systolic'] = true
 
-            var disabled_diastolic = true
-            var disabled_pulse = true
-            var disabled_glukose = true
-            var systolic_dates = systolic['x']
-            var systolic_values = systolic['y']
-            var systolic_comments = systolic['comments']
-            var diastolic_dates = diastolic['x']
-            var diastolic_values = diastolic['y']
-            var pulse_dates = pulse_['x']
-            var pulse_values = pulse_['y']
-            var medicine_x = medicine['x']
-            var medicine_dates = ''
-            var systolic_value = ''
-            var pain_value = ''
-            var comment = ''
-            var medicine_y = 20
-            var medicine_text = medicine['text']
-            var medicine_amount = medicine['amount']
-            var config = {}
+            let disabled_diastolic = true
+            let disabled_pulse = true
+            {#let disabled_glukose = true#}
+            let systolic_dates = systolic['x']
+            let systolic_values = systolic['y']
+            let systolic_comments = systolic['comments']
+            {#let diastolic_dates = diastolic['x']#}
+            let diastolic_values = diastolic['y']
+            {#let pulse_dates = pulse_['x']#}
+            let pulse_values = pulse_['y']
+            let medicine_x = medicine['x']
+            {#let medicine_dates = ''#}
+            let systolic_value = ''
+            {#let pain_value = ''#}
+            {#let comment = ''#}
+            {#let medicine_y = 20#}
+            {#let medicine_text = medicine['text']#}
+            {#let medicine_amount = medicine['amount']#}
+            {#let config = {}#}
 
             if (medicine_x.length > 0 && systolic_dates.length == 0) {
                 systolic_dates = medicine_x
@@ -691,21 +467,21 @@
             let color_index = 0
             let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"]
 
-            am4core__.useTheme(am4themes_animated)
-            var chart = am4core__.create("chartdiv__", am4charts__.XYChart)
+            am4core.useTheme(am4themes_animated)
+            let chart = am4core.create("chartdiv_pressure", am4charts.XYChart)
             chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS"
             chart.language.locale = am4lang_ru_RU
 
             // Create axes
-            axis = new am4charts__.DateAxis()
+            axis = new am4charts.DateAxis()
             axis.dateFormats.setKey("day", "dd.MM")
             axis.dateFormats.setKey("week", "dd.MM")
             axis.dateFormats.setKey("month", "MM.yyyy")
 
-            var categoryAxis = chart.xAxes.push(axis)
+            let categoryAxis = chart.xAxes.push(axis)
             categoryAxis.renderer.grid.template.location = 0
 
-            var valueAxis = chart.yAxes.push(new am4charts__.ValueAxis())
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis())
             let dateOut = ''
             let date_tooltip = ''
 
@@ -747,7 +523,7 @@
                 }
 
                 dateOut = new Date(systolic_dates[i].replace(' ', 'T'))
-                date_tooltip = dataObject.format(dateOut)
+                date_tooltip = Aux.format(dateOut)
 
                 if (i == 0) {
                     dynamic_data_x.push(dateOut)
@@ -804,7 +580,7 @@
 
             // Create series Medicine
             function createSeriesMedicine(field, data, series_name, color, config) {
-                var series = chart.series.push(new am4charts__.LineSeries());
+                let series = chart.series.push(new am4charts.LineSeries());
                 series.dataFields.valueY = field
                 series.dataFields.dateX = "date_out"
                 series.dataFields.value = "name"
@@ -813,26 +589,26 @@
                 series.data = data
 
 
-                var bullet = series.bullets.push(new am4charts__.Bullet())
-                var square = bullet.createChild(am4core.Rectangle)
+                let bullet = series.bullets.push(new am4charts.Bullet())
+                let square = bullet.createChild(am4core.Rectangle)
                 square.width = 12
                 square.height = 12
                 square.horizontalCenter = "middle"
                 square.verticalCenter = "middle"
 
-                bullet.fill = am4core__.color(color)
+                bullet.fill = am4core.color(color)
                 bullet.strokeOpacity = 0
                 bullet.radius = 5
                 bullet.fillOpacity = 0.7
 
                 bullet.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}"
 
-                var hoverState = bullet.states.create("hover")
+                let hoverState = bullet.states.create("hover")
                 hoverState.properties.fillOpacity = 1
                 hoverState.properties.strokeOpacity = 1
 
                 series.heatRules.push({ target: bullet, min: 2, max: 17, property: "radius" })
-                chart.scrollbarX = new am4core__.Scrollbar()
+                chart.scrollbarX = new am4core.Scrollbar()
             }
 
             for (key in medicine_trace_data) {
@@ -845,7 +621,7 @@
 
                 for (item in dates_medicines) {
                     date_in = new Date(dates_medicines[item].replace(' ', 'T'))
-                    date_tooltip = dataObject.format(date_in)
+                    date_tooltip = Aux.format(date_in)
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": _y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
                 }
@@ -862,7 +638,7 @@
             function createSeries(field, name, config, data) {
                 {#chart.dataSource.reloadFrequency = 5000;#}
                 {#chart.dataSource.incremental = true;#}
-                var series = chart.series.push(new am4charts__.LineSeries());
+                let series = chart.series.push(new am4charts.LineSeries());
                 series.groupData = false;
 
                 series.dataFields.valueY = field;
@@ -871,24 +647,24 @@
                 series.tooltipText = config.tooltipText;
                 series.strokeWidth = 2
                 series.propertyFields.stroke = "color";
-                series.stroke = am4core__.color(config.color);
+                series.stroke = am4core.color(config.color);
                 series.strokeDasharray = "3,3"
 
-                chart.scrollbarX = new am4core__.Scrollbar();
+                chart.scrollbarX = new am4core.Scrollbar();
 
                 let circleBullet = series.bullets.push(new am4charts.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
 
-                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                let bullet = series.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
 
                 chart.fontSize = 9;
 
-                var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+                let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
                 latitudeLabel.label.dx = 0;
                 latitudeLabel.label.dy = -15;
@@ -940,12 +716,12 @@
 
             createSeries("pulse_value", pulse_.name, config);
 
-            chart.legend = new am4charts__.Legend();
-            chart.cursor = new am4charts__.XYCursor()
+            chart.legend = new am4charts.Legend();
+            chart.cursor = new am4charts.XYCursor()
             chart.cursor.behavior = "panXY"
 
             // Enable export
-            chart.exporting.menu = new am4core__.ExportMenu()
+            chart.exporting.menu = new am4core.ExportMenu()
             chart.exporting.menu.verticalAlign = "bottom";
 
 
@@ -1006,7 +782,7 @@
                 pain_comment = pain_comments[iterator_pain_dates]
 
                 pain_dateOut = new Date(pain_dates[iterator_pain_dates].replace(' ', 'T'))
-                pain_date_tooltip = dataObject.format(pain_dateOut)
+                pain_date_tooltip = Aux.format(pain_dateOut)
 
                 if (pain_y >= constants.max_pain || pain_y < constants.min_pain) {
                     pain_up_color = "red"
@@ -1073,7 +849,7 @@
 
             // Create series for pain_assessment
             function createSeriesPain(field, name, config) {
-                var series_pain = chart_pain.series.push(new am4charts_pain.LineSeries());
+                let series_pain = chart_pain.series.push(new am4charts_pain.LineSeries());
                 // 1-й параметр - значение по оси x
                 series_pain.dataFields.valueY = field;
 
@@ -1088,12 +864,12 @@
 
 
 
-                var circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
+                let circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
 
-                var bullet = series_pain.bullets.push(new am4charts.CircleBullet());
+                let bullet = series_pain.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
@@ -1106,7 +882,7 @@
 
                 chart.fontSize = 9;
 
-                var latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
+                let latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
                 latitudeLabel.label.text = "{pain_value}";
                 latitudeLabel.label.dx = 0;
                 latitudeLabel.label.dy = -15;
@@ -1177,7 +953,7 @@
 
                 for (item in dates_medicines) {
                     date_in = new Date(dates_medicines[item].replace(' ', 'T'))
-                    date_tooltip = dataObject.format(date_in)
+                    date_tooltip = Aux.format(date_in)
                     data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": delta_y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount})
 
                 }
@@ -1207,23 +983,6 @@
 
     <script>
         let model = {}
-        let am4Objects = {
-            "get": function (name) {
-                try {
-                    return am4Objects[name]
-                } catch(e) {
-                    Aux.error(e)
-                }
-            },
-            "set": function (name, value) {
-                try {
-                    am4Objects[name] = value
-                    return am4Objects[name]
-                } catch(e) {
-                    Aux.error(e)
-                }
-            }
-        }
         let am4Core = {
             "get": function (name) {
                 try {
@@ -1264,9 +1023,6 @@
                 dateAxis.dateFormats.setKey("month", "MM.yyyy")
                 dateAxis.renderer.grid.template.location = params.location
 
-
-
-
                 let date_max = new Date(params.model['date_max'].replace(' ', 'T'))
                 let date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
@@ -1283,7 +1039,7 @@
                 yAxis.max = params.y_max
                 yAxis.minGridDistance = 10
                 model = params.model
-                data = dataObject.dataTransform(model)
+                data = Aux.dataTransform(model)
                 data = data.reverse()
                 min = params.min
                 max = params.max
@@ -1344,12 +1100,12 @@
                 series.strokeDasharray = "3,3"
                 series.data = data
 
-                var circleBullet = series.bullets.push(new am4charts_pain.CircleBullet());
+                let circleBullet = series.bullets.push(new am4charts_pain.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
 
-                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                let bullet = series.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
@@ -1357,7 +1113,7 @@
                 bullet.disabled = "disabled";
                 bullet.propertyFields.disabled = config.disabled;
 
-                var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+                let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
                 latitudeLabel.label.dx = 0;
                 latitudeLabel.label.dy = -15;
@@ -1366,8 +1122,8 @@
             }
         }
 
-
         am4Core.defaultTheme(am4core)
+
         let strokeWidth = 2
         let date_max;
         let date_min;
@@ -1379,7 +1135,7 @@
         shin_left = {{ shin_left | safe }};
         shin_right = {{ shin_right | safe }};
 
-        var chart = am4core.create("chartdiv_shin", am4charts.XYChart);
+        let chart = am4core.create("chartdiv_shin", am4charts.XYChart);
         chart.scrollbarX = new am4core.Scrollbar()
         chart.language.locale = am4lang_ru_RU;
 
@@ -1395,7 +1151,7 @@
         chart.data = shinData.reverse()
 
         // Create axes
-        var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         dateAxis.dateFormats.setKey("day", "dd.MM")
         dateAxis.dateFormats.setKey("week", "dd.MM")
         dateAxis.dateFormats.setKey("month", "MM.yyyy")
@@ -1412,10 +1168,10 @@
             );
         });
 
-        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
         // Create series
-        var series = chart.series.push(new am4charts.LineSeries());
+        let series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.valueY = "value1";
         series.dataFields.dateX = "date";
         series.strokeWidth = 2;
@@ -1426,20 +1182,20 @@
 
         chart.fontSize = 9;
 
-        var latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
+        let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
         latitudeLabel.label.text = "{value1}";
         latitudeLabel.label.dx = 0;
         latitudeLabel.label.dy = -10;
 
         // Create series
-        var series2 = chart.series.push(new am4charts.LineSeries());
+        let series2 = chart.series.push(new am4charts.LineSeries());
         series2.dataFields.valueY = "value2";
         series2.dataFields.dateX = "date";
         series2.strokeWidth = 2;
         series2.strokeDasharray = "3,3";
         series2.stroke = series.stroke;
 
-        var latitudeLabel2 = series2.bullets.push(new am4charts.LabelBullet());
+        let latitudeLabel2 = series2.bullets.push(new am4charts.LabelBullet());
         latitudeLabel2.label.text = "{value2}";
         latitudeLabel2.label.dx = 0;
         latitudeLabel2.label.dy = -10;
@@ -1510,7 +1266,7 @@
         yAxis_waist.min = params.y_min
         yAxis_waist.max = params.y_max
         model = params.model
-        data = dataObject.dataTransform(model)
+        data = Aux.dataTransform(model)
         data = data.reverse()
         min = params.min
         max = params.max
@@ -1607,7 +1363,7 @@
         yAxis_spo2.min = params.y_min
         yAxis_spo2.max = params.y_max
         model = params.model
-        data = dataObject.dataTransform(model)
+        data = Aux.dataTransform(model)
         data = data.reverse()
         min = params.min
         max = params.max
@@ -1701,7 +1457,7 @@
         yAxis_temperature.min = params.y_min
         yAxis_temperature.max = params.y_max
         model = params.model
-        data = dataObject.dataTransform(model)
+        data = Aux.dataTransform(model)
         data = data.reverse()
         min = params.min
         max = params.max
@@ -1794,7 +1550,7 @@
         yAxis_glukose.min = params.y_min
         yAxis_glukose.max = params.y_max
         model = params.model
-        data = dataObject.dataTransform(model)
+        data = Aux.dataTransform(model)
         data = data.reverse()
         min = params.min
         max = params.max
@@ -1887,7 +1643,7 @@
         yAxis_weight.min = params.y_min;
         yAxis_weight.max = params.y_max;
         model = params.model;
-        data = dataObject.dataTransform(model);
+        data = Aux.dataTransform(model);
         data = data.reverse();
         min = params.min;
         max = params.max;
