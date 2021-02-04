@@ -143,22 +143,10 @@
             delimiters: ['${', '}']
         })
 
-        Vue.directive('focus', {
-            inserted: function (el) {
-                el.focus()
-            }
-        })
-
-        function setFocus(tag_name) {
-            let focus_el = document.getElementById(tag_name)
-            focus_el.focus()
-
-            console.log('focus_el', focus_el)
-        }
-
-
-
-
+        setTimeout(function () {
+            let focus_el = document.getElementsByClassName("focus")
+            focus_el[0].focus()
+        }, 500);
 
 
 
