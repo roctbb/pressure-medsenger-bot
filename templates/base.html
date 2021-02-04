@@ -4,13 +4,14 @@
 <head>
     {% block meta %}
     <meta charset="UTF-8">
-    {%  endblock %}
+    {% endblock %}
 
     <title>{% block title %}{% endblock %}</title>
 
     {% block link %}
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/css/bootstrap.min.css" integrity="sha384-VCmXjywReHh4PwowAiWNagnWcLhlEJLA5buUprzK8rxFgeH0kww/aWY76TfkUoSX" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/css/bootstrap.min.css" integrity="sha384-VCmXjywReHh4PwowAiWNagnWcLhlEJLA5buUprzK8rxFgeH0kww/aWY76TfkUoSX"
+          crossorigin="anonymous">
 
     {% endblock %}
 
@@ -30,16 +31,20 @@
         .max-width-500 {
             max-width: 500px !important;
         }
+
         .fs12 {
             font-size: 12px;
         }
+
         .main {
             margin-top: 20px;
         }
+
         .flash {
             color: red;
             font-size: smaller;
         }
+
         .w20 {
             width: 20%;
         }
@@ -82,177 +87,168 @@
             padding-left: 10px;
         }
     </style>
-    {%  endblock %}
+    {% endblock %}
 </head>
-{%  endblock %}
+{% endblock %}
 
 {% block body %}
 <body>
-    {% block nav %}
-    {% endblock %}
+{% block nav %}
+{% endblock %}
 
-    <div id="app">
+<div id="app">
     {% block content %}
     {% endblock %}
-    </div>
+</div>
 
-    {% block footer %}
-    {%  endblock %}
+{% block footer %}
+{% endblock %}
 
-    {% block vue_axios_cdn %}
-        <!-- JS, Popper.js, and jQuery -->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/js/bootstrap.min.js" integrity="sha384-XEerZL0cuoUbHE4nZReLT7nx9gQrQreJekYhJD9WNWhH8nEW+0c5qq7aIo2Wl30J" crossorigin="anonymous"></script>
+{% block vue_axios_cdn %}
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/js/bootstrap.min.js" integrity="sha384-XEerZL0cuoUbHE4nZReLT7nx9gQrQreJekYhJD9WNWhH8nEW+0c5qq7aIo2Wl30J" crossorigin="anonymous"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-    {%  endblock %}
+{% endblock %}
 
-    {% block body_script %}
+{% block body_script %}
 
-    <script>
-        const getElement = (el) => {
-            return document.getElementById(el)
-        }
+<script>
+    const getElement = (el) => {
+        return document.getElementById(el)
+    }
 
-        const get = getElement
+    const get = getElement
 
-        const log = (data) => {
-            console.warn('log >> ', data)
-        }
+    const log = (data) => {
+        console.warn('log >> ', data)
+    }
 
-        const app = new Vue({
-            el: '#app',
-            data: {
-                tmpl: "{{ tmpl }}"
+    const app = new Vue({
+        el: '#app',
+        data: {
+            tmpl: "{{ tmpl }}"
+        },
+        methods: {
+            hide: function () {
+                // stub
             },
-            methods: {
-                hide: function () {
-                    // stub
-                },
-                show: function () {
-                    // stub
-                },
-                focused() {
-                    return {
-                      focused: false,
-                    }
-                }
+            show: function () {
+                // stub
             },
-            delimiters: ['${', '}']
-        })
-
-        Vue.directive('focus', {
-            inserted: function (el) {
-                el.focus()
-            }
-        })
-
-        function setFocus(tag_name) {
-            let focus_el = document.getElementById(tag_name)
-            focus_el.focus()
-
-            console.log('focus_el', focus_el)
-        }
-
-
-
-
-
-
-
-        const Aux = {
-            'show': function(el) {
-                el.style.display = 'block'
-            },
-            'hide': function(el) {
-                el.style.display = 'none'
-            },
-            'hide_error_all': function(el_array) {
-                el_array.forEach(function(entry) {
-                    this.hide(entry)
-                });
-            }
-        }
-
-        const Validation = {
-                'pattern_integer': /[0-9]+/,
-                'pattern_float': /[0-9]+\.{0,1}\,{0,1}[0-9]+/,
-                'pattern_name': /^[а-яёА-ЯЁ\s]+$/,
-                'pattern_email': /^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z])+$/,
-                'pattern_spam': /[^\<\>\[\]%\&'`]+$/,
-                'is_empty': function (val) {
-                    return (!val) ? true : false
-                },
-                'test_integer': function (val, el, text, event) {
-                    this.generateError(this.pattern_integer.test(val), el, text, event)
-
-                    return
-                },
-                'test_float': function (val, el, text, event) {
-                    this.generateError(this.pattern_float.test(val), el, text, event)
-
-                    return
-                },
-                'test_name': function (val, el, text, event) {
-                    this.generateError(this.pattern_name.test(val), el, text, event)
-
-                    return
-                },
-                'test_email': function (val, el, text, event) {
-                    this.generateError(this.pattern_email.test(val), el, text, event)
-
-                    return
-                },
-                'test_spam': function (val, el, text, event) {
-                    this.generateError(this.pattern_spam.test(val), el, text, event)
-
-                    return
-                },
-                'show': function(el) {
-                    el.style.display = 'block'
-                },
-                'hide': function(el) {
-                    el.style.display = 'none'
-                },
-                'hide_error_all': function(el_array) {
-                    el_array.forEach(function(entry) {
-                        Aux.hide(entry)
-                    });
-                },
-                'makeErrorHtml': function(el, text) {
-                    el.className = 'error'
-                    el.innerHTML = text
-
-                    this.show(el)
-                },
-                'generateError': function(result, el, text, event) {
-                    if (!result) {
-                        this.makeErrorHtml(el, text)
-                        event.preventDefault()
-                    } else {
-                        this.hide(el)
-                    }
-
-                },
-                'validate': function(el, text, event) {
-                    Validation.makeErrorHtml(el, text)
-                    event.preventDefault()
-                    log('validate')
-                    return
-                },
-                'actionError': function(el, text, event) {
-                    Validation.makeErrorHtml(el, text)
-                    event.preventDefault()
-                    log('actionError')
-                    return
+            focused() {
+                return {
+                    focused: false,
                 }
             }
+        },
+        delimiters: ['${', '}']
+    })
 
-    </script>
 
-    {% endblock %}
+    const Aux = {
+        'show': function (el) {
+            el.style.display = 'block'
+        },
+        'hide': function (el) {
+            el.style.display = 'none'
+        },
+        'hide_error_all': function (el_array) {
+            el_array.forEach(function (entry) {
+                this.hide(entry)
+            });
+        }
+    }
+
+    const Validation = {
+        'pattern_integer': /[0-9]+/,
+        'pattern_float': /[0-9]+\.{0,1}\,{0,1}[0-9]+/,
+        'pattern_name': /^[а-яёА-ЯЁ\s]+$/,
+        'pattern_email': /^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z])+$/,
+        'pattern_spam': /[^\<\>\[\]%\&'`]+$/,
+        'is_empty': function (val) {
+            return (!val) ? true : false
+        },
+        'test_integer': function (val, el, text, event) {
+            this.generateError(this.pattern_integer.test(val), el, text, event)
+
+            return
+        },
+        'test_float': function (val, el, text, event) {
+            this.generateError(this.pattern_float.test(val), el, text, event)
+
+            return
+        },
+        'test_name': function (val, el, text, event) {
+            this.generateError(this.pattern_name.test(val), el, text, event)
+
+            return
+        },
+        'test_email': function (val, el, text, event) {
+            this.generateError(this.pattern_email.test(val), el, text, event)
+
+            return
+        },
+        'test_spam': function (val, el, text, event) {
+            this.generateError(this.pattern_spam.test(val), el, text, event)
+
+            return
+        },
+        'show': function (el) {
+            el.style.display = 'block'
+        },
+        'hide': function (el) {
+            el.style.display = 'none'
+        },
+        'hide_error_all': function (el_array) {
+            el_array.forEach(function (entry) {
+                Aux.hide(entry)
+            });
+        },
+        'makeErrorHtml': function (el, text) {
+            el.className = 'error'
+            el.innerHTML = text
+
+            this.show(el)
+        },
+        'generateError': function (result, el, text, event) {
+            if (!result) {
+                this.makeErrorHtml(el, text)
+                event.preventDefault()
+            } else {
+                this.hide(el)
+            }
+
+        },
+        'validate': function (el, text, event) {
+            Validation.makeErrorHtml(el, text)
+            event.preventDefault()
+            log('validate')
+            return
+        },
+        'actionError': function (el, text, event) {
+            Validation.makeErrorHtml(el, text)
+            event.preventDefault()
+            log('actionError')
+            return
+        }
+    }
+
+</script>
+
+{% endblock %}
 </body>
-{%  endblock %}
+{% endblock %}
+
+<script>
+    console.log("Script is running...");
+    setTimeout(function () {
+        let focus_el = document.getElementsByClassName("focus")
+        focus_el[0].focus()
+        console.log("I should focus", focus_el[0]);
+    }, 500);
+</script>
 </html>
