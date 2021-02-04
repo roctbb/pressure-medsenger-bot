@@ -1682,10 +1682,6 @@ def action_pull(pull):
         return render_template('waist.html', tmpl=pull, constants=constants,
                                confirmation=str(contract.confirmation).lower())
 
-    return render_template('measurement.html', tmpl=pull, constants=constants,
-                           confirmation=str(contract.confirmation).lower())
-
-
 # ROUTES POST
 
 @app.route('/status', methods=['POST'])
