@@ -612,7 +612,7 @@
             }
 
             // Create series function for Pressure
-            function createSeries(field, name, config, data) {
+            function createSeries(field, name, config) {
                 let series = chart.series.push(new am4charts.LineSeries());
                 series.groupData = false;
                 series.dataFields.valueY = field;
@@ -636,7 +636,7 @@
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
 
-                chart.fontSize = 9;
+                {#chart.fontSize = 11;#}
 
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
