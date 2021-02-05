@@ -971,76 +971,6 @@
                     Aux.error(e);
                 }
             },
-            "makeGraph": function(params) {
-                chart = am4core.create(params.div, am4charts.XYChart)
-                chart.language.locale = params.lang
-                dateAxis = chart.xAxes.push(new am4charts.DateAxis())
-                dateAxis.dateFormats.setKey("day", "dd.MM")
-                dateAxis.dateFormats.setKey("week", "dd.MM")
-                dateAxis.dateFormats.setKey("month", "MM.yyyy")
-                dateAxis.renderer.grid.template.location = params.location
-
-                let date_max = new Date(params.model['date_max'].replace(' ', 'T'))
-                let date_min = new Date(params.model['date_min'].replace(' ', 'T'));
-
-                // Pre-zoom the chart
-                chart.events.on("ready", function () {
-                    dateAxis.zoomToDates(
-                        date_min,
-                        date_max
-                    );
-                });
-
-                yAxis = chart.yAxes.push(new am4charts.ValueAxis())
-                yAxis.min = params.y_min
-                yAxis.max = params.y_max
-                yAxis.minGridDistance = 10
-                model = params.model
-                data = Aux.dataTransform(model)
-                data = data.reverse()
-                min = params.min
-                max = params.max
-
-                for (key in data) {
-                    if (data[key]['y'] > max || data[key]['y'] < min) {
-                        data[key]['color_danger'] = namesConstants.get('color_danger')
-                        data[key]['disabled'] = false
-                    } else {
-                        data[key]['disabled'] = true
-                    }
-                }
-
-                tooltipText = model.name + ": [bold]{y}[normal] | от " + min + " до " + max + " | {tooltip_date}" + "\n {comments}"
-
-                config = {
-                    "name": model.name,
-                    "field": "y",
-                    "dateX": "dates_format",
-                    "comments": "comments",
-                    "tooltipText": tooltipText,
-                    "color": params.color,
-                    "color_danger": "color_danger",
-                    "strokeWidth": params.strokeWidth,
-                    "disabled": "disabled",
-                    "chart": chart
-                }
-
-
-
-                am4Core.createSeries(data, config)
-
-                // Create legend
-                chart.legend = new am4charts.Legend()
-
-                // Create cursor
-                chart.cursor = new am4charts.XYCursor()
-                chart.cursor.behavior = "panXY"
-
-
-                // Enable export
-                chart.exporting.menu = new am4core.ExportMenu()
-                chart.exporting.menu.verticalAlign = "bottom";
-            },
             "createSeries": function(data, config) {
                 let series = config.chart.series.push(new am4charts.LineSeries());
                 config.chart.scrollbarX = new am4core.Scrollbar();
@@ -1093,6 +1023,10 @@
         shin_left = {{ shin_left | safe }};
         shin_right = {{ shin_right | safe }};
 
+        {#dump(constants);#}
+
+        {#dump(shin_left);#}
+
         let chart = am4core.create("chartdiv_shin", am4charts.XYChart);
         chart.scrollbarX = new am4core.Scrollbar();
         chart.language.locale = am4lang_ru_RU;
@@ -1127,6 +1061,29 @@
             );
         });
 
+        {#dump(shinData.reverse());#}
+        {#dump(max);#}
+
+        max_shin_left = constants['max_shin_left'];
+        max_shin_right = constants['max_shin_right'];
+        min_shin_left = constants['min_shin_left'];
+        min_shin_right = constants['min_shin_right'];
+
+        {#console.log(max_shin_left, max_shin_right, min_shin_left, min_shin_right);#}
+
+        {#dump(shinData);#}
+
+        for (key in shinData) {
+            if (shinData[key]['value1'] > max_shin_left || shinData[key]['value1'] < min_shin_left) {
+                shinData[key]['color_danger'] = namesConstants.get('color_danger');
+                shinData[key]['disabled'] = false;
+            } else {
+                shinData[key]['disabled'] = true;
+            }
+        }
+
+        {#dump(shinData);#}
+
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
         // Create series
@@ -1139,6 +1096,14 @@
         series.tooltip.pointerOrientation = "vertical";
         series.name = 'Обхват голени';
 
+        let bullet = series.bullets.push(new am4charts.CircleBullet());
+        bullet.circle.stroke = am4core.color("#156789");
+        bullet.circle.strokeWidth = 2;
+        bullet.circle.zindex = 10;
+
+        {#bullet.disabled = true;#}
+        {#bullet.propertyFields.disabled = config.disabled;#}
+
         let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
         latitudeLabel.label.text = "{value1}";
         latitudeLabel.label.dx = 0;
@@ -1147,7 +1112,7 @@
 
         // Create series
         let series2 = chart.series.push(new am4charts.LineSeries());
-        series2.dataFields.valueY = "value2";
+        series2.dataFields.valueY = "{value2}";
         series2.dataFields.dateX = "date";
         series2.strokeWidth = 2;
         series2.strokeDasharray = "3,3";
@@ -1178,7 +1143,6 @@
         model = {{ waist | safe }};
         model['min'] = constants.min_waist;
         model['max'] = constants.max_waist;
-
         model['name'] = 'Окружность талии';
 
         params = {
@@ -1296,8 +1260,6 @@
             "comments": model.comments,
             "model": model
         };
-
-        //am4Core.makeGraph(params)
 
         chart_spo2 = am4core.create(params.div, am4charts.XYChart);
         chart_spo2.language.locale = params.lang;
