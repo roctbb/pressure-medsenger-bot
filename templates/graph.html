@@ -636,12 +636,11 @@
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
 
-                {#chart.fontSize = 11;#}
-
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
                 latitudeLabel.label.dx = 0;
                 latitudeLabel.label.dy = -15;
+                latitudeLabel.label.fontSize = 9;
 
                 if (name == systolic.name) {
                     bullet.disabled = true;
@@ -836,8 +835,6 @@
                 series_pain.stroke = am4core_pain.color(config.color)
                 series_pain.strokeDasharray = "3,3"
 
-
-
                 let circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
@@ -854,12 +851,11 @@
                 bullet.tooltipText = config.tooltipText
                 chart_pain.scrollbarX = new am4core_pain.Scrollbar()
 
-                chart.fontSize = 9;
-
                 let latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
                 latitudeLabel.label.text = "{pain_value}";
                 latitudeLabel.label.dx = 0;
                 latitudeLabel.label.dy = -15;
+                latitudeLabel.label.fontSize = 9;
             }
 
             tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"
@@ -1048,7 +1044,7 @@
             "createSeries": function(data, config) {
                 let series = config.chart.series.push(new am4charts.LineSeries());
                 config.chart.scrollbarX = new am4core.Scrollbar();
-                config.chart.fontSize = config.chart_font_size;
+                {#config.chart.fontSize = config.chart_font_size;#}
                 series.dataFields.valueY = config.field;
 
                 series.dataFields.dateX = config.dateX;
@@ -1078,6 +1074,7 @@
                 latitudeLabel.label.text = config.value;
                 latitudeLabel.label.dx = config.label_dx;
                 latitudeLabel.label.dy = config.label_dy;
+                latitudeLabel.label.fontSize = 9;
 
                 return series;
             }
@@ -1142,12 +1139,11 @@
         series.tooltip.pointerOrientation = "vertical";
         series.name = 'Обхват голени';
 
-        chart.fontSize = 9;
-
         let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
         latitudeLabel.label.text = "{value1}";
         latitudeLabel.label.dx = 0;
         latitudeLabel.label.dy = -10;
+        latitudeLabel.label.fontSize = 9;
 
         // Create series
         let series2 = chart.series.push(new am4charts.LineSeries());
@@ -1161,6 +1157,7 @@
         latitudeLabel2.label.text = "{value2}";
         latitudeLabel2.label.dx = 0;
         latitudeLabel2.label.dy = -10;
+        latitudeLabel2.label.fontSize = 9;
 
         // Create legend
         chart.legend = new am4charts.Legend();
