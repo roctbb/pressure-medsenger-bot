@@ -630,11 +630,13 @@
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
+                circleBullet.circle.radius = 2;
 
                 let bullet = series.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
+                bullet.circle.radius = 4;
 
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
@@ -839,11 +841,13 @@
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
+                circleBullet.radius = 2;
 
                 let bullet = series_pain.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
+                circle.radius = 4;
 
                 bullet.disabled = true
                 bullet.propertyFields.disabled = "disabled_pain"
@@ -974,7 +978,6 @@
             "createSeries": function(data, config) {
                 let series = config.chart.series.push(new am4charts.LineSeries());
                 config.chart.scrollbarX = new am4core.Scrollbar();
-                {#config.chart.fontSize = config.chart_font_size;#}
                 series.dataFields.valueY = config.field;
 
                 series.dataFields.dateX = config.dateX;
@@ -991,14 +994,17 @@
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = config.circle_stroke_width;
                 circleBullet.tooltipText = config.tooltipText;
+                circleBullet.fill = config.color;
+                circleBullet.circle.radius = 2;
 
                 let bullet = series.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color(config.circle_stroke_color);
                 bullet.circle.strokeWidth = config.circle_stroke_width;
                 bullet.circle.zindex = config.circle_zindex;
-
+                bullet.fill = config.circle_stroke_color;
                 bullet.disabled = "disabled";
                 bullet.propertyFields.disabled = config.disabled;
+                bullet.circle.radius = 4;
 
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
@@ -1023,7 +1029,7 @@
         shin_left = {{ shin_left | safe }};
         shin_right = {{ shin_right | safe }};
 
-        dump(constants);
+        {#dump(constants);#}
 
         {#dump(shin_left);#}
 
@@ -1037,7 +1043,7 @@
         shin_left.x.forEach(function(date) {
             shinData.push({'date': new Date(date.replace(' ', 'T')), 'value1': shin_left.y[i], 'value2': shin_right.y[i], 'previousDate': new Date(shin_right.x[i].replace(' ', 'T'))});
             i++;
-        })
+        });
 
         // Add data
         chart.data = shinData.reverse();
@@ -1144,7 +1150,7 @@
             "y_max": 200,
             "min": model.min,
             "max": model.max,
-            "color": "#2f2f1e",
+            "color": "brown",
             "strokeWidth": strokeWidth,
             "comments": model.comments,
             "model": model
