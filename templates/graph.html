@@ -636,7 +636,7 @@
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
-                bullet.circle.radius = 4;
+                bullet.circle.radius = 3;
 
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
@@ -708,239 +708,6 @@
 
     </script>
 
-    <!-- Chart [pain] -->
-    <script>
-        am4core_pain = am4core;
-        am4charts_pain = am4charts;
-
-        am4core_pain.ready(function() {
-            delta_y = 11;
-            dates_medicines = [];
-            data_ = {};
-            date_in = '';
-            series_name = '';
-            dosage = '';
-            amount = '';
-            data_medicines_out = []
-            color_index = 0
-            medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"];
-
-            // ******* START pain_dates.forEach
-
-            iterator_pain_dates = 0;
-            data_pain = [];
-            pain_dates = pain_assessment['x'];
-            pain_values = pain_assessment['y'];
-            pain_comments = pain_assessment['comments'];
-            pain_value = '';
-            pain_y = 0;
-            disabled_pain = false;
-
-            pain_dates.forEach(function() {
-                pain_value = pain_values[iterator_pain_dates];
-                pain_y = pain_values[iterator_pain_dates];
-
-                if (pain_value == 0) {
-                    pain_value = pain_value + " баллов";
-                }
-
-                if (pain_value == 1) {
-                    pain_value = pain_value + " балл";
-                }
-
-                if (pain_value > 1 && pain_value < 5) {
-                    pain_value = pain_value + " балла";
-                }
-
-                if (pain_value > 4) {
-                    pain_value = pain_value + " баллов";
-                }
-
-                pain_comment = pain_comments[iterator_pain_dates];
-
-                pain_dateOut = new Date(pain_dates[iterator_pain_dates].replace(' ', 'T'));
-                pain_date_tooltip = Aux.format(pain_dateOut);
-
-                if (pain_y >= constants.max_pain || pain_y < constants.min_pain) {
-                    pain_up_color = "red";
-                    disabled_pain = false;
-                } else {
-                    pain_up_color = "brown";
-                    disabled_pain = true;
-                }
-
-                if (pain_y == 10) {
-                    disabled_pain = true;
-                }
-
-                data_pain[iterator_pain_dates] = {
-                    pain_value: pain_y,
-                    pain_comment: pain_comment,
-                    pain_date: pain_dateOut,
-                    pain_date_tooltip: pain_date_tooltip,
-                    max_pain: constants.max_pain,
-                    min_pain: constants.min_pain,
-                    disabled_pain: disabled_pain,
-                };
-
-                iterator_pain_dates++;
-            })
-
-            // *********************************************
-            // ******* Create chart instance pain_assessment
-            // *********************************************
-
-            am4core_pain.useTheme(am4themes_animated);
-
-            let chart_pain = am4core_pain.create("chartdiv_pain", am4charts_pain.XYChart);
-            chart_pain.language.locale = am4lang_ru_RU;
-
-            // Create axes
-            let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis());
-            categoryAxis_pain.dateFormats.setKey("day", "dd.MM");
-            categoryAxis_pain.dateFormats.setKey("week", "dd.MM");
-            categoryAxis_pain.dateFormats.setKey("month", "MM.yyyy");
-            categoryAxis_pain.renderer.grid.template.location = 0;
-
-            let valueAxis_pain = chart_pain.yAxes.push(new am4charts_pain.ValueAxis());
-
-            valueAxis_pain.renderer.minGridDistance = 50;
-
-            chart_pain.data = data_pain.reverse();
-
-            let date_max = new Date(pain_assessment['date_max'].replace(' ', 'T'));
-
-            let date_min = new Date(pain_assessment['date_min'].replace(' ', 'T'));
-
-            // Pre-zoom the chart
-            chart_pain.events.on("ready", function () {
-                categoryAxis_pain.zoomToDates(
-                    date_min,
-                    date_max
-                );
-            });
-
-            image_width_pain = 9;
-
-            // Create series for pain_assessment
-            function createSeriesPain(field, name, config) {
-                let series_pain = chart_pain.series.push(new am4charts_pain.LineSeries());
-                // 1-й параметр - значение по оси x
-                series_pain.dataFields.valueY = field;
-
-                // 2-й параметр - значение по оси y
-                series_pain.dataFields.dateX = "pain_date";
-                series_pain.name = name;
-                series_pain.tooltipText = config.tooltipText;
-                series_pain.strokeWidth = 2;
-                series_pain.propertyFields.stroke = "color"
-                series_pain.stroke = am4core_pain.color(config.color)
-                series_pain.strokeDasharray = "3,3"
-
-                let circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
-                circleBullet.circle.stroke = am4core.color(config.color);
-                circleBullet.circle.strokeWidth = 2;
-                circleBullet.tooltipText = config.tooltipText;
-                circleBullet.radius = 2;
-
-                let bullet = series_pain.bullets.push(new am4charts.CircleBullet());
-                bullet.circle.stroke = am4core.color("#f00");
-                bullet.circle.strokeWidth = 2;
-                bullet.circle.zindex = 10;
-                circle.radius = 4;
-
-                bullet.disabled = true
-                bullet.propertyFields.disabled = "disabled_pain"
-
-                bullet.tooltipText = config.tooltipText
-                chart_pain.scrollbarX = new am4core_pain.Scrollbar()
-
-                let latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
-                latitudeLabel.label.text = "{pain_value}";
-                latitudeLabel.label.dx = 0;
-                latitudeLabel.label.dy = -15;
-                latitudeLabel.label.fontSize = 9;
-            }
-
-            tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"
-
-            config = {
-                "color": "green",
-                "tooltipText": tooltipText
-            }
-
-            // 1-й параметр - значение по оси x
-            createSeriesPain("pain_value", 'Оценка боли', config)
-
-            // ***********************************************
-            // ******* Create chart instance medicine and pain
-            // ***********************************************
-
-            // Create series for medicine
-            function createSeriesMedicine(field, data, series_name, color) {
-                let series_medicine = chart_pain.series.push(new am4charts_pain.LineSeries());
-                series_medicine.dataFields.valueY = field;
-                series_medicine.dataFields.dateX = "date_out";
-                series_medicine.dataFields.value = "name";
-                series_medicine.name = series_name;
-                series_medicine.strokeOpacity = 0;
-                series_medicine.data = data;
-
-                let bullet_medicine = series_medicine.bullets.push(new am4charts_pain.Bullet());
-                let square = bullet_medicine.createChild(am4core.Rectangle);
-                square.width = 12;
-                square.height = 12;
-                square.horizontalCenter = "middle";
-                square.verticalCenter = "middle";
-
-                bullet_medicine.fill = am4core_pain.color(color);
-                bullet_medicine.strokeOpacity = 0;
-                bullet_medicine.radius = 5;
-                bullet_medicine.fillOpacity = 0.7;
-                bullet_medicine.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}";
-
-                let hoverState = bullet_medicine.states.create("hover");
-                hoverState.properties.fillOpacity = 1;
-                hoverState.properties.strokeOpacity = 1;
-
-                series_medicine.heatRules.push({ target: bullet_medicine, min: 2, max: 17, property: "radius" });
-                chart_pain.scrollbarX = new am4core_pain.Scrollbar();
-            }
-
-            for (key in medicine_trace_data) {
-                data_ = medicine_trace_data[key];
-                dosage = data_.dosage;
-                amount = data_.amount;
-                dates_medicines = data_.medicines_times_;
-                series_name = key;
-                data_medicines_out = [];
-
-                for (item in dates_medicines) {
-                    date_in = new Date(dates_medicines[item].replace(' ', 'T'));
-                    date_tooltip = Aux.format(date_in);
-                    data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": delta_y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount});
-                }
-
-                if (data_medicines_out.length > 0) {
-                    createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index]);
-                }
-
-                delta_y += 3;
-                color_index++;
-            }
-
-            // *********************************************
-
-            chart_pain.legend = new am4charts_pain.Legend();
-            chart_pain.cursor = new am4charts_pain.XYCursor();
-            chart_pain.cursor.behavior = "panXY";
-
-            // Enable export
-            chart_pain.exporting.menu = new am4core_pain.ExportMenu();
-            chart_pain.exporting.menu.verticalAlign = "bottom";
-        })
-    </script>
-
     <!-- Chart [other measurements] -->
     <script>
         let model = {}
@@ -990,7 +757,7 @@
                 series.strokeDasharray = config.stroke_dasharray;
                 series.data = data;
 
-                let circleBullet = series.bullets.push(new am4charts_pain.CircleBullet());
+                let circleBullet = series.bullets.push(new am4charts.CircleBullet());
                 circleBullet.circle.stroke = am4core.color(config.color);
                 circleBullet.circle.strokeWidth = config.circle_stroke_width;
                 circleBullet.tooltipText = config.tooltipText;
@@ -1004,7 +771,7 @@
                 bullet.fill = config.circle_stroke_color;
                 bullet.disabled = "disabled";
                 bullet.propertyFields.disabled = config.disabled;
-                bullet.circle.radius = 4;
+                bullet.circle.radius = 3;
 
                 let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
                 latitudeLabel.label.text = config.value;
@@ -1029,9 +796,10 @@
         shin_left = {{ shin_left | safe }};
         shin_right = {{ shin_right | safe }};
 
-        {#dump(constants);#}
-
-        {#dump(shin_left);#}
+        max_shin_left = constants['max_shin_left'];
+        max_shin_right = constants['max_shin_right'];
+        min_shin_left = constants['min_shin_left'];
+        min_shin_right = constants['min_shin_right'];
 
         let chart = am4core.create("chartdiv_shin", am4charts.XYChart);
         chart.scrollbarX = new am4core.Scrollbar();
@@ -1039,11 +807,29 @@
 
         shinData = [];
 
-        i = 0
+        i = 0;
+
         shin_left.x.forEach(function(date) {
             shinData.push({'date': new Date(date.replace(' ', 'T')), 'value1': shin_left.y[i], 'value2': shin_right.y[i], 'previousDate': new Date(shin_right.x[i].replace(' ', 'T'))});
             i++;
         });
+
+        for (key in shinData) {
+            if (shinData[key]['value1'] > max_shin_left || shinData[key]['value1'] < min_shin_left) {
+                shinData[key]['disabled'] = false;
+            } else {
+                shinData[key]['disabled'] = true;
+            }
+
+            if (shinData[key]['value2'] > max_shin_right || shinData[key]['value2'] < min_shin_right) {
+                shinData[key]['disabled2'] = false;
+            } else {
+                shinData[key]['disabled2'] = true;
+            }
+        }
+
+        dump(constants);
+        console.log('shinData = ', shinData);
 
         // Add data
         chart.data = shinData.reverse();
@@ -1070,14 +856,14 @@
         {#dump(shinData.reverse());#}
         {#dump(max);#}
 
-        max_shin_left = constants['max_shin_left'];
-        max_shin_right = constants['max_shin_right'];
-        min_shin_left = constants['min_shin_left'];
-        min_shin_right = constants['min_shin_right'];
+        {#max_shin_left = constants['max_shin_left'];#}
+        {#max_shin_right = constants['max_shin_right'];#}
+        {#min_shin_left = constants['min_shin_left'];#}
+        {#min_shin_right = constants['min_shin_right'];#}
 
-        console.log(max_shin_left, max_shin_right, min_shin_left, min_shin_right);
+        {#console.log(max_shin_left, max_shin_right, min_shin_left, min_shin_right);#}
 
-        dump(shinData);
+        {#dump(shinData);#}
 
         {#for (key in data) {#}
         {#    if (data[key]['y'] > max || data[key]['y'] < min) {#}
@@ -1090,15 +876,35 @@
 
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
+        let color = "#004d99";
+        let color_danger = "#f00";
+
         // Create series
         let series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.valueY = "value1";
         series.dataFields.dateX = "date";
+        series.stroke = color;
         series.strokeWidth = 2;
         series.strokeDasharray = "3,4";
         series.tooltipText = "Объем левой голени: [bold]{value1}[/] см | {date.formatDate('dd-MM-yyyy k:mm')}\nОбъем правой голени: [bold]{value2}[/] см | {previousDate.formatDate('dd-MM-yyyy k:mm')}";
         series.tooltip.pointerOrientation = "vertical";
         series.name = 'Обхват голени';
+
+        let circleBullet = series.bullets.push(new am4charts.CircleBullet());
+        circleBullet.circle.stroke = am4core.color(color);
+        circleBullet.circle.strokeWidth = 2;
+        {#circleBullet.tooltipText = config.tooltipText;#}
+        circleBullet.fill = color;
+        circleBullet.circle.radius = 2;
+
+        let bullet = series.bullets.push(new am4charts.CircleBullet());
+        bullet.circle.stroke = am4core.color(color_danger);
+        bullet.circle.strokeWidth = 0;
+        bullet.circle.zindex = 10;
+        bullet.fill = color_danger;
+        bullet.disabled = "disabled";
+        bullet.propertyFields.disabled = "disabled";
+        bullet.circle.radius = 3;
 
         let latitudeLabel = series.bullets.push(new am4charts.LabelBullet());
         latitudeLabel.label.text = "{value1}";
@@ -1106,13 +912,29 @@
         latitudeLabel.label.dy = -10;
         latitudeLabel.label.fontSize = 9;
 
-        // Create series
+        // Create series2
         let series2 = chart.series.push(new am4charts.LineSeries());
         series2.dataFields.valueY = "value2";
         series2.dataFields.dateX = "date";
         series2.strokeWidth = 2;
         series2.strokeDasharray = "3,3";
         series2.stroke = series.stroke;
+
+        let circleBullet2 = series2.bullets.push(new am4charts.CircleBullet());
+        circleBullet2.circle.stroke = am4core.color(color);
+        circleBullet2.circle.strokeWidth = 2;
+        {#circleBullet.tooltipText = config.tooltipText;#}
+        circleBullet2.fill = color;
+        circleBullet2.circle.radius = 2;
+
+        let bullet2 = series.bullets.push(new am4charts.CircleBullet());
+        bullet2.circle.stroke = am4core.color(color_danger);
+        bullet2.circle.strokeWidth = 0;
+        bullet2.circle.zindex = 10;
+        bullet2.fill = color_danger;
+        bullet2.disabled = "disabled2";
+        bullet2.propertyFields.disabled = "disabled2";
+        bullet2.circle.radius = 3;
 
         let latitudeLabel2 = series2.bullets.push(new am4charts.LabelBullet());
         latitudeLabel2.label.text = "{value2}";
@@ -1620,6 +1442,239 @@
         // Enable export
         chart_weight.exporting.menu = new am4core.ExportMenu();
         chart_weight.exporting.menu.verticalAlign = "bottom";
+    </script>
+
+    <!-- Chart [pain] -->
+    <script>
+        am4core_pain = am4core;
+        am4charts_pain = am4charts;
+
+        am4core_pain.ready(function() {
+            delta_y = 11;
+            dates_medicines = [];
+            data_ = {};
+            date_in = '';
+            series_name = '';
+            dosage = '';
+            amount = '';
+            data_medicines_out = []
+            color_index = 0
+            medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"];
+
+            // ******* START pain_dates.forEach
+
+            iterator_pain_dates = 0;
+            data_pain = [];
+            pain_dates = pain_assessment['x'];
+            pain_values = pain_assessment['y'];
+            pain_comments = pain_assessment['comments'];
+            pain_value = '';
+            pain_y = 0;
+            disabled_pain = false;
+
+            pain_dates.forEach(function() {
+                pain_value = pain_values[iterator_pain_dates];
+                pain_y = pain_values[iterator_pain_dates];
+
+                if (pain_value == 0) {
+                    pain_value = pain_value + " баллов";
+                }
+
+                if (pain_value == 1) {
+                    pain_value = pain_value + " балл";
+                }
+
+                if (pain_value > 1 && pain_value < 5) {
+                    pain_value = pain_value + " балла";
+                }
+
+                if (pain_value > 4) {
+                    pain_value = pain_value + " баллов";
+                }
+
+                pain_comment = pain_comments[iterator_pain_dates];
+
+                pain_dateOut = new Date(pain_dates[iterator_pain_dates].replace(' ', 'T'));
+                pain_date_tooltip = Aux.format(pain_dateOut);
+
+                if (pain_y >= constants.max_pain || pain_y < constants.min_pain) {
+                    pain_up_color = "red";
+                    disabled_pain = false;
+                } else {
+                    pain_up_color = "brown";
+                    disabled_pain = true;
+                }
+
+                if (pain_y == 10) {
+                    disabled_pain = true;
+                }
+
+                data_pain[iterator_pain_dates] = {
+                    pain_value: pain_y,
+                    pain_comment: pain_comment,
+                    pain_date: pain_dateOut,
+                    pain_date_tooltip: pain_date_tooltip,
+                    max_pain: constants.max_pain,
+                    min_pain: constants.min_pain,
+                    disabled_pain: disabled_pain,
+                };
+
+                iterator_pain_dates++;
+            })
+
+            // *********************************************
+            // ******* Create chart instance pain_assessment
+            // *********************************************
+
+            am4core_pain.useTheme(am4themes_animated);
+
+            let chart_pain = am4core_pain.create("chartdiv_pain", am4charts_pain.XYChart);
+            chart_pain.language.locale = am4lang_ru_RU;
+
+            // Create axes
+            let categoryAxis_pain = chart_pain.xAxes.push(new am4charts_pain.DateAxis());
+            categoryAxis_pain.dateFormats.setKey("day", "dd.MM");
+            categoryAxis_pain.dateFormats.setKey("week", "dd.MM");
+            categoryAxis_pain.dateFormats.setKey("month", "MM.yyyy");
+            categoryAxis_pain.renderer.grid.template.location = 0;
+
+            let valueAxis_pain = chart_pain.yAxes.push(new am4charts_pain.ValueAxis());
+
+            valueAxis_pain.renderer.minGridDistance = 50;
+
+            chart_pain.data = data_pain.reverse();
+
+            let date_max = new Date(pain_assessment['date_max'].replace(' ', 'T'));
+
+            let date_min = new Date(pain_assessment['date_min'].replace(' ', 'T'));
+
+            // Pre-zoom the chart
+            chart_pain.events.on("ready", function () {
+                categoryAxis_pain.zoomToDates(
+                    date_min,
+                    date_max
+                );
+            });
+
+            image_width_pain = 9;
+
+            // Create series for pain_assessment
+            function createSeriesPain(field, name, config) {
+                let series_pain = chart_pain.series.push(new am4charts_pain.LineSeries());
+                // 1-й параметр - значение по оси x
+                series_pain.dataFields.valueY = field;
+
+                // 2-й параметр - значение по оси y
+                series_pain.dataFields.dateX = "pain_date";
+                series_pain.name = name;
+                series_pain.tooltipText = config.tooltipText;
+                series_pain.strokeWidth = 2;
+                series_pain.propertyFields.stroke = "color"
+                series_pain.stroke = am4core_pain.color(config.color)
+                series_pain.strokeDasharray = "3,3"
+
+                let circleBullet = series_pain.bullets.push(new am4charts_pain.CircleBullet());
+                circleBullet.circle.stroke = am4core.color(config.color);
+                circleBullet.circle.strokeWidth = 2;
+                circleBullet.tooltipText = config.tooltipText;
+                circleBullet.circle.radius = 2;
+
+                let bullet = series_pain.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.stroke = am4core.color("#f00");
+                bullet.circle.strokeWidth = 2;
+                bullet.circle.zindex = 10;
+                bullet.circle.radius = 3;
+
+                bullet.disabled = true
+                bullet.propertyFields.disabled = "disabled_pain"
+
+                bullet.tooltipText = config.tooltipText
+                chart_pain.scrollbarX = new am4core_pain.Scrollbar()
+
+                let latitudeLabel = series_pain.bullets.push(new am4charts_pain.LabelBullet());
+                latitudeLabel.label.text = "{pain_value}";
+                latitudeLabel.label.dx = 0;
+                latitudeLabel.label.dy = -15;
+                latitudeLabel.label.fontSize = 9;
+            }
+
+            tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"
+
+            config = {
+                "color": "green",
+                "tooltipText": tooltipText
+            }
+
+            // 1-й параметр - значение по оси x
+            createSeriesPain("pain_value", 'Оценка боли', config)
+
+            // ***********************************************
+            // ******* Create chart instance medicine and pain
+            // ***********************************************
+
+            // Create series for medicine
+            function createSeriesMedicine(field, data, series_name, color) {
+                let series_medicine = chart_pain.series.push(new am4charts_pain.LineSeries());
+                series_medicine.dataFields.valueY = field;
+                series_medicine.dataFields.dateX = "date_out";
+                series_medicine.dataFields.value = "name";
+                series_medicine.name = series_name;
+                series_medicine.strokeOpacity = 0;
+                series_medicine.data = data;
+
+                let bullet_medicine = series_medicine.bullets.push(new am4charts_pain.Bullet());
+                let square = bullet_medicine.createChild(am4core.Rectangle);
+                square.width = 12;
+                square.height = 12;
+                square.horizontalCenter = "middle";
+                square.verticalCenter = "middle";
+
+                bullet_medicine.fill = am4core_pain.color(color);
+                bullet_medicine.strokeOpacity = 0;
+                bullet_medicine.radius = 5;
+                bullet_medicine.fillOpacity = 0.7;
+                bullet_medicine.tooltipText = "{name} | {dosage} {amount} | время приема: {date_tooltip}";
+
+                let hoverState = bullet_medicine.states.create("hover");
+                hoverState.properties.fillOpacity = 1;
+                hoverState.properties.strokeOpacity = 1;
+
+                series_medicine.heatRules.push({ target: bullet_medicine, min: 2, max: 17, property: "radius" });
+                chart_pain.scrollbarX = new am4core_pain.Scrollbar();
+            }
+
+            for (key in medicine_trace_data) {
+                data_ = medicine_trace_data[key];
+                dosage = data_.dosage;
+                amount = data_.amount;
+                dates_medicines = data_.medicines_times_;
+                series_name = key;
+                data_medicines_out = [];
+
+                for (item in dates_medicines) {
+                    date_in = new Date(dates_medicines[item].replace(' ', 'T'));
+                    date_tooltip = Aux.format(date_in);
+                    data_medicines_out.push({"date_tooltip": date_tooltip, "date_out": date_in, "Y": delta_y, "series_name": series_name, "name": series_name, "dosage": dosage, "amount": amount});
+                }
+
+                if (data_medicines_out.length > 0) {
+                    createSeriesMedicine('Y', data_medicines_out, series_name, medicine_colors[color_index]);
+                }
+
+                delta_y += 3;
+                color_index++;
+            }
+
+            // *********************************************
+
+            chart_pain.legend = new am4charts_pain.Legend();
+            chart_pain.cursor = new am4charts_pain.XYCursor();
+            chart_pain.cursor.behavior = "panXY";
+
+            // Enable export
+            chart_pain.exporting.menu = new am4core_pain.ExportMenu();
+            chart_pain.exporting.menu.verticalAlign = "bottom";
+        })
     </script>
 </body>
 </html>
