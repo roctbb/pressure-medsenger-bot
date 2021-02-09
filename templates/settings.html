@@ -422,7 +422,6 @@
         el: '#app',
         data: {
             medicines_data: JSON.parse('{{medicines_data | safe }}'),
-            medicines_data_new: JSON.parse('{{medicines_data_new | safe }}'),
             measurements_data: JSON.parse('{{measurements_data | safe }}'),
             confirmation: {{ confirmation }},
             patient_medicines_enabled: {{ patient_medicines_enabled }},
@@ -534,7 +533,6 @@
     })
 
     console.log('app..medicines_data', app.medicines_data)
-    console.log('app..medicines_data_new', app.medicines_data_new)
 </script>
 </body>
 </html>
