@@ -1364,23 +1364,7 @@ def graph():
 
     return "ok"
 
-
-@app.route('/settings', methods=['GET'])
-def settings():
-    try:
-        contract_id = quard()
-    except Exception as e:
-        error('Error settings()')
-        return 'UNKNOWN ERROR'
-
-    if contract_id == ERROR_KEY:
-        return ERROR_KEY
-
-    if contract_id == ERROR_CONTRACT:
-        return ERROR_CONTRACT
-
-    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
-
+def get_settings_for_contract(contract_id):
     category_params = CategoryParams.query.filter_by(contract_id=contract_id).all()
     categories = getCategories()
     categories_description = {}
@@ -1401,7 +1385,6 @@ def settings():
         timetable = []
         measurement_new = {}
         name = category_param.category
-        alias = ''
         mode = category_param.mode
         unit = categories_unit[name]
         params = category_param.params
@@ -1545,17 +1528,43 @@ def settings():
 
         medicines_new.append(medicines_data)
 
-    # Конец Формирование данных
+    return {
+        "medicines": medicines_new,
+        "measurements": measurements
+    }
 
-    medicines = medicines_new
+def send_settings_order_response(contract_id, caller_id):
+    data = get_settings_for_contract(contract_id)
+    send_order(contract_id, "monitorings_settings", caller_id, data)
+
+@app.route('/settings', methods=['GET'])
+def settings():
+    try:
+        contract_id = quard()
+    except Exception as e:
+        error('Error settings()')
+        return 'UNKNOWN ERROR'
+
+    if contract_id == ERROR_KEY:
+        return ERROR_KEY
+
+    if contract_id == ERROR_CONTRACT:
+        return ERROR_CONTRACT
+
+    contract = ActualBots.query.filter_by(contract_id=contract_id).first()
+
+    # Конец Формирование данных
+    state = get_settings_for_contract(contract_id)
+
 
     return render_template('settings.html', contract=contract,
-                           medicines_data=json.dumps(medicines),
-                           measurements_data=json.dumps(measurements),
-                           medicines_data_new=json.dumps(medicines_new),
+                           medicines_data=json.dumps(state['medicines']),
+                           measurements_data=json.dumps(state['measurements']),
                            confirmation=str(contract.confirmation).lower(),
                            patient_medicines_enabled=str(contract.patient_medicines_enabled).lower(),
                            warning_enabled=str(contract.warning_enabled).lower())
+
+
 
 
 @app.route('/medicine/<uid>', methods=['GET'])
@@ -1958,6 +1967,10 @@ def order():
 
                 add_record(contract_id, "order",
                            "Отмена препарата {}".format(name))
+
+            if order == "get_settings":
+                caller_id = data['sender_id']
+                delayed(1, send_settings_order_response, [contract_id, caller_id])
 
             db.session.commit()
             return "ok"
