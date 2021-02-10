@@ -398,19 +398,12 @@
         let medicine_trace_data = {{ medicine_trace_data | safe }};
 
         namesConstants.set('color_pressure_up', 'orange');
-
         namesConstants.set('color_pressure_down', 'green');
-
         namesConstants.set('color_pulse', 'blue');
-
         namesConstants.set('color_danger', 'red');
-
         namesConstants.set('color_medicine', 'brown');
-
         namesConstants.set('color_glukose', '#a545c7');
-
-        namesConstants.set('color_weight', 'lightgreen');
-
+        namesConstants.set('color_weight', '#00b359');
         namesConstants.set('color_temperature', '#23759F');
 
         // Create chart instance pressure
@@ -828,7 +821,7 @@
             }
         }
 
-        dump(constants);
+        console.log('constants = ', constants);
         console.log('shinData = ', shinData);
 
         // Add data
@@ -840,9 +833,7 @@
         dateAxis.dateFormats.setKey("week", "dd.MM");
         dateAxis.dateFormats.setKey("month", "MM.yyyy");
         dateAxis.renderer.minGridDistance = 50;
-
         date_max = new Date(shin_left['date_max'].replace(' ', 'T'));
-
         date_min = new Date(shin_left['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -853,29 +844,7 @@
             );
         });
 
-        {#dump(shinData.reverse());#}
-        {#dump(max);#}
-
-        {#max_shin_left = constants['max_shin_left'];#}
-        {#max_shin_right = constants['max_shin_right'];#}
-        {#min_shin_left = constants['min_shin_left'];#}
-        {#min_shin_right = constants['min_shin_right'];#}
-
-        {#console.log(max_shin_left, max_shin_right, min_shin_left, min_shin_right);#}
-
-        {#dump(shinData);#}
-
-        {#for (key in data) {#}
-        {#    if (data[key]['y'] > max || data[key]['y'] < min) {#}
-        {#        data[key]['color_danger'] = namesConstants.get('color_danger');#}
-        {#        data[key]['disabled'] = false;#}
-        {#    } else {#}
-        {#        data[key]['disabled'] = true;#}
-        {#    }#}
-        {#}#}
-
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
         let color = "#004d99";
         let color_danger = "#f00";
 
@@ -1363,7 +1332,7 @@
             "y_max": 200,
             "min": model.min,
             "max": model.max,
-            "color": "lightgreen",
+            "color": namesConstants.get('color_weight'),
             "strokeWidth": strokeWidth,
             "comments": model.comments,
             "model": model
@@ -1376,9 +1345,7 @@
         dateAxis_weight.dateFormats.setKey("day", "dd.MM");
         dateAxis_weight.dateFormats.setKey("week", "dd.MM");
         dateAxis_weight.dateFormats.setKey("month", "MM.yyyy");
-
         date_max = new Date(params.model['date_max'].replace(' ', 'T'));
-
         date_min = new Date(params.model['date_min'].replace(' ', 'T'));
 
         // Pre-zoom the chart
@@ -1578,12 +1545,14 @@
                 circleBullet.circle.strokeWidth = 2;
                 circleBullet.tooltipText = config.tooltipText;
                 circleBullet.circle.radius = 2;
+                circleBullet.fill = am4core.color(config.color);
 
                 let bullet = series_pain.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#f00");
                 bullet.circle.strokeWidth = 2;
                 bullet.circle.zindex = 10;
                 bullet.circle.radius = 3;
+                bullet.fill = am4core.color("#f00");
 
                 bullet.disabled = true
                 bullet.propertyFields.disabled = "disabled_pain"
@@ -1598,15 +1567,19 @@
                 latitudeLabel.label.fontSize = 9;
             }
 
-            tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"
+            pain_name = 'Оценка боли';
+
+            tooltipText = pain_name + ": [bold]{pain_value}[normal] | от " + '0' + " до " + '10' + " | {pain_date_tooltip}" + "\n {comments}";
+
+            {#tooltipText = "{pain_date_tooltip} | {pain_value} | {pain_comment}"#}
 
             config = {
                 "color": "green",
                 "tooltipText": tooltipText
-            }
+            };
 
             // 1-й параметр - значение по оси x
-            createSeriesPain("pain_value", 'Оценка боли', config)
+            createSeriesPain("pain_value", pain_name, config);
 
             // ***********************************************
             // ******* Create chart instance medicine and pain
