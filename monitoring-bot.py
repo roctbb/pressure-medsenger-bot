@@ -1975,7 +1975,8 @@ def order():
             db.session.commit()
             return "ok"
         except Exception as e:
-            print(e)
+            print("Order error", e)
+            return "error"
     else:
         return "error"
 
