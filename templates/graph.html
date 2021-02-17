@@ -428,6 +428,7 @@
             let disabled_diastolic = true;
             let disabled_pulse = true;
             let systolic_dates = systolic['x'];
+            let systolic_timestamp = systolic['stamp'];
             let systolic_values = systolic['y'];
             let systolic_comments = systolic['comments'];
             let diastolic_values = diastolic['y'];
@@ -519,13 +520,16 @@
 
                 dateOut = new Date(systolic_dates[i].replace(' ', 'T'));
                 date_tooltip = Aux.format(dateOut);
+                sys_timestamp = systolic_timestamp[i];
 
                 data[i] = {
                     systolic_pressure: systolic_value,
                     diastolic_pressure: diastolic_value,
                     comment: comment,
                     pulse_value: pulse_value,
-                    date: dateOut,
+                    date__: dateOut,
+                    date: sys_timestamp * 1000,
+                    timestamp: sys_timestamp,
                     date_tooltip: date_tooltip,
                     max_systolic: constants.max_systolic,
                     min_diastolic: constants.min_diastolic,
@@ -630,6 +634,7 @@
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core.color(config.color);
                 series.strokeDasharray = "3,3";
+                series.minBulletDistance = 10;
 
                 chart.scrollbarX = new am4core.Scrollbar();
 
@@ -833,7 +838,7 @@
         }
 
         console.log('constants = ', constants);
-        console.log('shinData = ', shinData);
+        console.log('systolic = ', systolic);
 
         // Add data
         chart.data = shinData.reverse();
