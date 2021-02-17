@@ -947,6 +947,7 @@ def graph():
 
         response = getRecords(contract_id, 'systolic_pressure')
         x = []
+        stamp = []
         y = []
 
         category = response['category']
@@ -954,6 +955,8 @@ def graph():
 
         for value in values:
             date = datetime.datetime.fromtimestamp(value['timestamp'])
+            timestamp = value['timestamp']
+            stamp.append(timestamp)
             x.append(date.strftime(DATE_HOUR_FORMAT))
             y.append(value['value'])
 
@@ -985,6 +988,7 @@ def graph():
         systolic_dic = {
             "zoomToDates": zoomToDates,
             "x": x,
+            "stamp": stamp,
             "y": y,
             "date_max": date_max,
             "date_min": date_min,
@@ -1555,7 +1559,6 @@ def settings():
 
     # Конец Формирование данных
     state = get_settings_for_contract(contract_id)
-
 
     return render_template('settings.html', contract=contract,
                            medicines_data=json.dumps(state['medicines']),
