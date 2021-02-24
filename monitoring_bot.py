@@ -642,17 +642,14 @@ def send_medicines_query(contract):
     post_request(data)
 
 
-def sender():
-    while True:
-        try:
-            process_records()
-            process_medicines()
-            process_patient_medicines()
-            process_warning()
-        except Exception as e:
-            print(e)
-
-        time.sleep(60)
+def tasks():
+    try:
+        process_records()
+        process_medicines()
+        process_patient_medicines()
+        process_warning()
+    except Exception as e:
+        print(e)
 
 
 def getTasks(contract_id):
@@ -2523,8 +2520,5 @@ def report_medicines_save():
 
     return MESS_THANKS
 
-
-t = Thread(target=sender)
-t.start()
-
-app.run(port=PORT, host=HOST)
+if __name__ == "__main__":
+    app.run(port=PORT, host=HOST)
