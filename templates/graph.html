@@ -11,7 +11,7 @@
     <script src="https://www.amcharts.com/lib/4/lang/ru_RU.js"></script>
     <script src="https://www.amcharts.com/lib/4/lang/en_US.js"></script>
     <script src="https://www.amcharts.com/lib/4/themes/dark.js"></script>
-    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+{#    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>#}
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/series-label.js"></script>
@@ -428,6 +428,7 @@
             let disabled_diastolic = true;
             let disabled_pulse = true;
             let systolic_dates = systolic['x'];
+            let systolic_timestamp = systolic['stamp'];
             let systolic_values = systolic['y'];
             let systolic_comments = systolic['comments'];
             let diastolic_values = diastolic['y'];
@@ -450,10 +451,24 @@
             let color_index = 0;
             let medicine_colors = ["brown", "#536A56", "#91690D", "#DBD41A", "#B9ACAC", "#077317", "#072173", "#B35EBA", "#2F4892", "#840D91"];
 
-            am4core.useTheme(am4themes_animated);
+            am4core.options.minPolylineStep = 5;
+            /* am4core.useTheme(am4themes_animated); */
             let chart = am4core.create("chartdiv_pressure", am4charts.XYChart);
             chart.dateFormatter.inputDateFormat = "YYYY-MM-DD HH:NN:SS";
             chart.language.locale = am4lang_ru_RU;
+
+            console.time("chart");
+
+            chart.events.onAll((ev) => {
+                if (ev !== "propertychanged") {
+                    if (ev == 'ready') {
+                        console.warn(ev);
+                        console.timeEnd("chart");
+                        console.time("chart");
+                        console.log('pressure ---------------');
+                    }
+                }
+            });
 
             // Create axes
             axis = new am4charts.DateAxis();
@@ -505,13 +520,16 @@
 
                 dateOut = new Date(systolic_dates[i].replace(' ', 'T'));
                 date_tooltip = Aux.format(dateOut);
+                sys_timestamp = systolic_timestamp[i];
 
                 data[i] = {
                     systolic_pressure: systolic_value,
                     diastolic_pressure: diastolic_value,
                     comment: comment,
                     pulse_value: pulse_value,
-                    date: dateOut,
+                    date__: dateOut,
+                    date: sys_timestamp * 1000,
+                    timestamp: sys_timestamp,
                     date_tooltip: date_tooltip,
                     max_systolic: constants.max_systolic,
                     min_diastolic: constants.min_diastolic,
@@ -616,6 +634,7 @@
                 series.propertyFields.stroke = "color";
                 series.stroke = am4core.color(config.color);
                 series.strokeDasharray = "3,3";
+                series.minBulletDistance = 10;
 
                 chart.scrollbarX = new am4core.Scrollbar();
 
@@ -723,14 +742,13 @@
             "darkTheme": function (obj) {
                 try {
                     obj.useTheme(am4themes_dark);
-                    obj.useTheme(am4themes_animated);
                 } catch(e) {
                     Aux.error(e);
                 }
             },
             "defaultTheme": function (obj) {
                 try {
-                    obj.useTheme(am4themes_animated);
+                    //
                 } catch(e) {
                     Aux.error(e);
                 }
@@ -776,8 +794,6 @@
             }
         };
 
-        am4Core.defaultTheme(am4core);
-
         let strokeWidth = 2;
         let date_max;
         let date_min;
@@ -822,7 +838,7 @@
         }
 
         console.log('constants = ', constants);
-        console.log('shinData = ', shinData);
+        console.log('systolic = ', systolic);
 
         // Add data
         chart.data = shinData.reverse();
@@ -941,7 +957,7 @@
             "y_max": 200,
             "min": model.min,
             "max": model.max,
-            "color": "brown",
+            "color": "#b3b300",
             "strokeWidth": strokeWidth,
             "comments": model.comments,
             "model": model
@@ -1493,7 +1509,7 @@
             // ******* Create chart instance pain_assessment
             // *********************************************
 
-            am4core_pain.useTheme(am4themes_animated);
+            {#am4core_pain.useTheme(am4themes_animated);#}
 
             let chart_pain = am4core_pain.create("chartdiv_pain", am4charts_pain.XYChart);
             chart_pain.language.locale = am4lang_ru_RU;

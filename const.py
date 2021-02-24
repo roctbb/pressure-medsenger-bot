@@ -19,7 +19,8 @@ CATEGORY_TEXT = {
     'temperature':'Температура',
     'pulse':'Пульс в покое',
     'diastolic_pressure':'Диастолическое (нижнее) артериальное давление',
-    'systolic_pressure':'Артериальное давление'
+    'systolic_pressure':'Артериальное давление',
+    'pressure': 'Давление'
 }
 
 MAX_SPO2 = 100
