@@ -1733,11 +1733,9 @@ def setting_save():
     contract = ActualBots.query.filter_by(contract_id=contract_id).first()
 
     try:
-        data = json.loads(request.form.get('json'))
+        data = json.loads(request.json.get('json'))
     except Exception as e:
         error('Error json.loads()')
-        print(e, request.form)
-        print(request.json)
         return 'ERROR_JSON_LOADS'
 
     contract.confirmation = data['confirmation']
