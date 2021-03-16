@@ -1736,7 +1736,8 @@ def setting_save():
         data = json.loads(request.form.get('json'))
     except Exception as e:
         error('Error json.loads()')
-        print(e, request)
+        print(e, request.form)
+        print(request.json)
         return 'ERROR_JSON_LOADS'
 
     contract.confirmation = data['confirmation']
