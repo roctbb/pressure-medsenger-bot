@@ -505,7 +505,7 @@ def process_records():
 
     if go_task:
         LAST_TASK_PUSH = time.time()
-        delayed(1, dayTaskPlanning, [megaTask])
+        dayTaskPlanning(megaTask)
 
 
 def process_medicines():
@@ -1969,7 +1969,7 @@ def order():
 
             if order == "get_settings":
                 caller_id = data['sender_id']
-                delayed(1, send_settings_order_response, [contract_id, caller_id])
+                send_settings_order_response(contract_id, caller_id)
 
             db.session.commit()
             return "ok"
@@ -2318,10 +2318,10 @@ def action_pull_save(pull):
 
         if (shin_left < min_shin or shin_left > max_shin) or (shin_right < min_shin or shin_right > max_shin):
             error('Сигналим врачу по голени')
-            delayed(1, warning, [contract_id, 'shin', shin_left, shin_right])
+            warning(contract_id, 'shin', shin_left, shin_right)
 
-        delayed(1, add_record, [contract_id, 'leg_circumference_left', shin_left, int(time.time())])
-        delayed(1, add_record, [contract_id, 'leg_circumference_right', shin_right, int(time.time())])
+        add_record(contract_id, 'leg_circumference_left', shin_left, int(time.time()))
+        add_record(contract_id, 'leg_circumference_right', shin_right, int(time.time()))
 
         if task_id > 0:
             make_task(contract_id, task_id)
@@ -2389,15 +2389,15 @@ def action_pull_save(pull):
 
         if not (min_systolic <= systolic <= max_systolic and min_diastolic <= diastolic <= max_diastolic):
             error('Сигналим врачу по давлению')
-            delayed(1, warning, [contract_id, 'pressure', systolic, diastolic])
+            warning(contract_id, 'pressure', systolic, diastolic)
 
         if not (min_pulse <= pulse_ <= max_pulse):
             error('Сигналим врачу по пульсу')
-            delayed(1, warning, [contract_id, 'pulse', pulse_])
+            warning(contract_id, 'pulse', pulse_)
 
-        delayed(1, add_record, [contract_id, 'systolic_pressure', systolic, int(time.time())])
-        delayed(1, add_record, [contract_id, 'diastolic_pressure', diastolic, int(time.time())])
-        delayed(1, add_record, [contract_id, 'pulse', pulse_, int(time.time())])
+        add_record(contract_id, 'systolic_pressure', systolic, int(time.time()))
+        add_record(contract_id, 'diastolic_pressure', diastolic, int(time.time()))
+        add_record(contract_id, 'pulse', pulse_, int(time.time()))
 
         if (task_id > 0):
             make_task(contract_id, task_id)
@@ -2476,9 +2476,9 @@ def action_pull_save(pull):
         if param_value < min or param_value > max:
             # Сигналим врачу
             out_yellow('Сигналим врачу')
-            delayed(1, warning, [contract_id, param, param_value])
+            warning(contract_id, param, param_value)
 
-        delayed(1, add_record, [contract_id, param_for_record, param_value, int(time.time())])
+        add_record(contract_id, param_for_record, param_value, int(time.time()))
 
         if task_id > 0:
             make_task(contract_id, task_id)
