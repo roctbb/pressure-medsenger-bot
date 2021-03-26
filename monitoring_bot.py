@@ -856,6 +856,7 @@ def graph():
     constants = {}
 
     medical_record_categories = getCategories()
+    print(medical_record_categories)
 
     for item in medical_record_categories:
         category = item['name']
