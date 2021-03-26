@@ -863,6 +863,8 @@ def graph():
         if category not in CATEGORY_TEXT.keys():
             CATEGORY_TEXT[category] = item['description']
 
+        print("passed")
+
         CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
         params = CategoryParamsObj.params
 
