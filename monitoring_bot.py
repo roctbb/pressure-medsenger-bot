@@ -855,13 +855,10 @@ def graph():
     comments = []
     constants = {}
 
-    medical_record_categories = getCategories()
+    medical_record_categories = list(filter(lambda x:x['name'] in CATEGORY_TEXT.keys(), getCategories()))
 
     for item in medical_record_categories:
         category = item['name']
-
-        if category not in CATEGORY_TEXT.keys():
-            break
 
         CategoryParamsObj = CategoryParams.query.filter_by(category=category, contract_id=contract_id).first()
         params = CategoryParamsObj.params
