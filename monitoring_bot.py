@@ -1707,7 +1707,7 @@ def status():
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
-    query_str = "SELECT contract_id FROM actual_bots"
+    query_str = "SELECT contract_id FROM actual_bots WHERE actual = True"
     records = DB.select(query_str)
     tracked_contracts = []
 
