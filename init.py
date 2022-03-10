@@ -16,7 +16,7 @@ from agents_api import make_task, add_task, delete_task
 out_green_light('SCRIPT STARTED')
 app = Flask(__name__)
 # app.config.from_object(__name__)
-db_uri = "postgres://{}:{}@{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
+db_uri = "postgresql://{}:{}@{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config.update(ENV='developer')
